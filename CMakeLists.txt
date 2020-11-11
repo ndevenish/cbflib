@@ -261,8 +261,7 @@
 #                                                                    #
 #    CBFlib_BINARY_DIR        CBFlib build directory                 #
 #                               usually ${CBFlib_SOURCE_DIR}/build   #
-#      external_packages      Directory for HDF5, libtiff, etc.      #
-#        hdf5-1.8.11                                                 #
+#      external_packages      Directory for libtiff, etc.      #
 #        tiff-3.9.4-rev-6Feb11                                       #
 #        regex-20090805                                              #
 #        zlib-1.2.8                                                  #
@@ -491,20 +490,7 @@ set(GRAPHICS  "${CBFlib_SOURCE_DIR}/html_graphics" CACHE STRING "")
 set(CBF_TIFF        "tiff-4.0.3-rev-29Sep13")
 set(TIFF_INSTALL_DIR "${CMAKE_BINARY_DIR}/${CBF_TIFF}")
 
-#
-# Definitions to get a version of HDF5
-#
-set(CBF_HDF5        "hdf5-1.8.14")
-set(CBF_HDF5URL  "http://downloads.sf.net/cbflib/${CBF_HDF5}.tar.gz")
-set(CBF_HDF5REGISTER_ARG "--register")
-if (CBF_HDF5REGISTER_MANUAL_ENV STREQUAL "YES")
-  set(CBF_HDF5REGISTER_VAL "manual")
-else (CBF_HDF5REGISTER_MANUAL_ENV STREQUAL "YES")
-  set(CBF_HDF5REGISTER_VAL "plugin")
-endif (CBF_HDF5REGISTER_MANUAL_ENV STREQUAL "YES")  
-set(HDF5_EXTERNALLY_CONFIGURED  1)
-set(HDF5_INSTALL_DIR "${CMAKE_BINARY_DIR}/${CBF_HDF5}")
-set(HDF5_BINARY_DIR "${CBF_HDF5}/bin")
+find_package(HDF5 REQUIRED)
 
 #
 # Definitions to get a version of zlib
@@ -532,7 +518,6 @@ set(CBF_PCRE     "pcre-8.33")
 set(CBF_REGEXURL "http://downloads.sf.net/cbflib/${CBF_REGEX}.tar.gz")
 set(CBF_PCREURL  "http://downloads.sf.net/cbflib/${CBF_PCRE}.tar.gz")
 set(CBF_TIFFURL  "http://downloads.sf.net/cbflib/${CBF_TIFF}.tar.gz")
-set(CBF_HDF5URL  "http://downloads.sf.net/cbflib/${CBF_HDF5}.tar.gz")
 
 
 #
@@ -560,24 +545,6 @@ ExternalProject_Add(
 )
 
 set(TIFF_LIBRARY_PATH ${TIFF_INSTALL_DIR}/lib/libtiff${CMAKE_SHARED_LIBRARY_SUFFIX})
-
-ExternalProject_add(
-	${CBF_HDF5}
-	URL "${CBF_HDF5URL}"
-	SOURCE_DIR ${CMAKE_BINARY_DIR}/external_packages/${CBF_HDF5}
-    CMAKE_ARGS
-		-DCMAKE_BUILD_TYPE:STRING=RELEASE DEBUG
-		-DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=On
-		-DHDF5_BUILD_CPP_LIB:BOOL=Off
-		-DBUILD_SHARED_LIBS:BOOL=On
-		-DHDF5_BUILD_TOOLS:BOOL=On
-        -DHDF5_ENABLE_FORTRAN=${CBF_HDF5_ENABLE_FORTRAN}
-		-DCMAKE_INSTALL_PREFIX:PATH=${HDF5_INSTALL_DIR}
-		-DCMAKE_INSTALL_RPATH:PATH=${HDF5_INSTALL_DIR}/lib
-	INSTALL_DIR ${CMAKE_BINARY_DIR}/${CBF_HDF5}
-)
-
-set(HDF5_LIBRARY_PATH ${HDF5_INSTALL_DIR}/lib/libhdf5${CMAKE_SHARED_LIBRARY_SUFFIX})
 
 #
 # CBF_REGEX or CBF_PCRE
@@ -866,7 +833,6 @@ include_directories(
 	BEFORE SYSTEM
                       ${CBFlib_SOURCE_DIR}/include 
 	${CBFlib_BINARY_DIR}/${CBF_TIFF}/include
-	${CBFlib_BINARY_DIR}/${CBF_HDF5}/include
                       ${CBF_REGEXLIB_INCLUDE_DIR}
                       )
 
@@ -879,7 +845,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
 add_library(cbf_static STATIC ${CBF_C_SOURCES})
-add_dependencies(cbf_static ${CBF_RE} ${CBF_TIFF} ${CBF_HDF5})
+add_dependencies(cbf_static ${CBF_RE} ${CBF_TIFF})
+target_link_libraries(cbf_static PUBLIC hdf5::hdf5)
 set_target_properties(cbf_static PROPERTIES OUTPUT_NAME "cbf")
 set_target_properties(cbf_static PROPERTIES LINKER_LANGUAGE C)
 set_target_properties(cbf_static PROPERTIES SOVERSION "${CBF_APIVERSION}")
@@ -889,11 +856,11 @@ set(CBF_STATIC_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libcbf.a)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
 add_library(cbf_shared SHARED  ${CBF_C_SOURCES})
-add_dependencies(cbf_shared ${CBF_RE} ${CBF_TIFF} ${CBF_HDF5})
+add_dependencies(cbf_shared ${CBF_RE} ${CBF_TIFF})
+target_link_libraries(cbf_shared PUBLIC hdf5::hdf5)
 set_target_properties(cbf_shared PROPERTIES OUTPUT_NAME "cbf")
 set_target_properties(cbf_shared PROPERTIES LINKER_LANGUAGE C)
 set_target_properties(cbf_shared PROPERTIES SOVERSION "${CBF_APIVERSION}")
-target_link_libraries(cbf_shared ${HDF5_LIBRARY_PATH})
 set(CBF_SHARED_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libcbf.so)
 
 #
@@ -911,7 +878,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
 add_library(img_shared SHARED  ${CBF__SRC}/img.c)
 set_target_properties(img_shared PROPERTIES OUTPUT_NAME "img")
 set_target_properties(img_shared PROPERTIES LINKER_LANGUAGE C)
-target_link_libraries(img_shared ${HDF5_LIBRARY_PATH})
+target_link_libraries(img_shared PUBLIC hdf5::hdf5)
 set(IMG_SHARED_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libimg.so)
 
 
@@ -949,7 +916,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
 add_library(fcb_shared SHARED  ${CBF_F90_BUILT_SOURCES};${CBF_F90_SOURCES})
 set_target_properties(fcb_shared PROPERTIES OUTPUT_NAME "fcb")
 set_target_properties(fcb_shared PROPERTIES LINKER_LANGUAGE C)
-target_link_libraries(fcb_shared ${HDF5_LIBRARY_PATH})
+target_link_libraries(fcb_shared hdf5::hdf5_fortran)
 set(FCB_SHARED_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libfcb.so)
 
 endif (NOT (CBF_USE_FORTRAN_ENV STREQUAL "NO"))
@@ -962,36 +929,37 @@ endif (NOT (CBF_USE_FORTRAN_ENV STREQUAL "NO"))
 # Note: to add a target with multiple sources/dependencies/libraries you must pass a list
 # separated by semicolons for the appropriate parameter.
 # Note: the math library should be linked in by appending ';m' to the library list here
-macro(add_target target source dependencies libraries)
-	add_executable(${target} ${source})
-	add_dependencies(${target} ${dependencies})
-	target_link_libraries(${target} ${libraries})
+macro(add_target target)
+	cmake_parse_arguments(AT "" "" "SOURCES;LINKS;DEPENDS" ${ARGN})
+	add_executable(${target} ${SOURCES})
+	add_dependencies(${target} ${AT_DEPENDS})
+	target_link_libraries(${target} ${AT_LINKS})
 endmacro()
 
-add_target(tiff2cbf "${CBF__EXAMPLES}/tiff2cbf.c" "cbf_static;${CBF_TIFF}" "${CBF_STATIC_LIBRARY_PATH};${TIFF_LIBRARY_PATH};${HDF5_LIBRARY_PATH}")
-add_target(cbf2nexus "${CBF__EXAMPLES}/cbf2nexus.c" "cbf_static;${CBF_HDF5}" "${CBF_STATIC_LIBRARY_PATH};${HDF5_LIBRARY_PATH}")
-add_target(nexus2cbf "${CBF__EXAMPLES}/nexus2cbf.c" "cbf_static;${CBF_HDF5}" "${CBF_STATIC_LIBRARY_PATH};${HDF5_LIBRARY_PATH}")
-add_target(minicbf2nexus "${CBF__EXAMPLES}/minicbf2nexus.c" "cbf_static;${CBF_HDF5}" "${CBF_STATIC_LIBRARY_PATH};${HDF5_LIBRARY_PATH}")
-add_target(adscimg2cbf "${CBF__EXAMPLES}/adscimg2cbf.c;${CBF__EXAMPLES}/adscimg2cbf_sub.c" "cbf_static" "${CBF_STATIC_LIBRARY_PATH};m")
-add_target(cbf2adscimg "${CBF__EXAMPLES}/cbf2adscimg.c;${CBF__EXAMPLES}/cbf2adscimg_sub.c" "cbf_static" "${CBF_STATIC_LIBRARY_PATH};m")
-add_target(convert_image "${CBF__EXAMPLES}/convert_image.c" "cbf_static;img_static" "${CBF_STATIC_LIBRARY_PATH};${IMG_STATIC_LIBRARY_PATH};${HDF5_LIBRARY_PATH}")
-add_target(convert_minicbf "${CBF__EXAMPLES}/convert_minicbf.c" "cbf_static" "${CBF_STATIC_LIBRARY_PATH};${HDF5_LIBRARY_PATH}")
-add_target(makecbf "${CBF__EXAMPLES}/makecbf.c" "cbf_static;img_static" "${CBF_STATIC_LIBRARY_PATH};${IMG_STATIC_LIBRARY_PATH};${HDF5_LIBRARY_PATH}")
-add_target(cbf_tail "${CBF__EXAMPLES}/cbf_tail.c" "cbf_static" "${CBF_STATIC_LIBRARY_PATH}")
-add_target(changtestcompression "${CBF__EXAMPLES}/changtestcompression.c" "cbf_static" "${CBF_STATIC_LIBRARY_PATH};${HDF5_LIBRARY_PATH}")
-add_target(img2cif "${CBF__EXAMPLES}/img2cif.c" "cbf_static;img_static" "${CBF_STATIC_LIBRARY_PATH};${IMG_STATIC_LIBRARY_PATH};${HDF5_LIBRARY_PATH}")
-add_target(cif2cbf "${CBF__EXAMPLES}/cif2cbf.c" "cbf_static;${CBF_HDF5}" "${CBF_STATIC_LIBRARY_PATH};${HDF5_LIBRARY_PATH};m")
-add_target(cbf_template_t "${CBF__DECTRIS_EXAMPLES}/cbf_template_t.c" "cbf_static" "${CBF_STATIC_LIBRARY_PATH};${HDF5_LIBRARY_PATH}")
-add_target(testcell "${CBF__EXAMPLES}/testcell.C" "cbf_static" "${CBF_STATIC_LIBRARY_PATH}")
-add_target(sauter_test "${CBF__EXAMPLES}/sauter_test.C" "cbf_static" "${CBF_STATIC_LIBRARY_PATH}")
-add_target(sequence_match "${CBF__EXAMPLES}/sequence_match.c" "cbf_static" "${CBF_STATIC_LIBRARY_PATH};${HDF5_LIBRARY_PATH}")
-add_target(testulp "${CBF__EXAMPLES}/testulp.c" "cbf_static" "${CBF_STATIC_LIBRARY_PATH};${HDF5_LIBRARY_PATH}")
-add_target(testhdf5 "${CBF__EXAMPLES}/testhdf5.c" "cbf_static;${CBF_HDF5}" "${CBF_STATIC_LIBRARY_PATH};${HDF5_LIBRARY_PATH}")
-add_target(testtree "${CBF__EXAMPLES}/testtree.c" "cbf_static" "${CBF_STATIC_LIBRARY_PATH};;${HDF5_LIBRARY_PATH}")
-add_target(testalloc "${CBF__EXAMPLES}/testalloc.c" "cbf_static" "${CBF_STATIC_LIBRARY_PATH};${HDF5_LIBRARY_PATH}")
-add_target(testflat "${CBF__EXAMPLES}/testflat.c" "cbf_static" "${CBF_STATIC_LIBRARY_PATH};;${HDF5_LIBRARY_PATH}")
-add_target(testflatpacked "${CBF__EXAMPLES}/testflatpacked.c" "cbf_static" "${CBF_STATIC_LIBRARY_PATH};;${HDF5_LIBRARY_PATH}")
-add_target(testreals "${CBF__EXAMPLES}/testreals.c" "cbf_static" "${CBF_STATIC_LIBRARY_PATH};${HDF5_LIBRARY_PATH}")
+add_target(tiff2cbf SOURCES "${CBF__EXAMPLES}/tiff2cbf.c" LINKS cbf_static "${TIFF_LIBRARY_PATH}")
+add_target(cbf2nexus SOURCES "${CBF__EXAMPLES}/cbf2nexus.c" LINKS cbf_static)
+add_target(nexus2cbf SOURCES "${CBF__EXAMPLES}/nexus2cbf.c" LINKS cbf_static)
+add_target(minicbf2nexus SOURCES "${CBF__EXAMPLES}/minicbf2nexus.c" LINKS cbf_static hdf5::hdf5)
+add_target(adscimg2cbf SOURCES "${CBF__EXAMPLES}/adscimg2cbf.c" "${CBF__EXAMPLES}/adscimg2cbf_sub.c" LINKS cbf_static m)
+add_target(cbf2adscimg SOURCES "${CBF__EXAMPLES}/cbf2adscimg.c" "${CBF__EXAMPLES}/cbf2adscimg_sub.c" LINKS cbf_static m)
+add_target(convert_image SOURCES "${CBF__EXAMPLES}/convert_image.c" LINKS cbf_static img_static)
+add_target(convert_minicbf SOURCES "${CBF__EXAMPLES}/convert_minicbf.c" LINKS cbf_static)
+add_target(makecbf SOURCES "${CBF__EXAMPLES}/makecbf.c" LINKS cbf_static img_static)
+add_target(cbf_tail SOURCES "${CBF__EXAMPLES}/cbf_tail.c" LINKS cbf_static)
+add_target(changtestcompression SOURCES "${CBF__EXAMPLES}/changtestcompression.c" LINKS cbf_static)
+add_target(img2cif SOURCES "${CBF__EXAMPLES}/img2cif.c" LINKS cbf_static img_static)
+add_target(cif2cbf SOURCES "${CBF__EXAMPLES}/cif2cbf.c" LINKS cbf_static hdf5::hdf5 m)
+add_target(cbf_template_t SOURCES "${CBF__DECTRIS_EXAMPLES}/cbf_template_t.c" LINKS cbf_static)
+add_target(testcell SOURCES "${CBF__EXAMPLES}/testcell.C" LINKS cbf_static)
+add_target(sauter_test SOURCES "${CBF__EXAMPLES}/sauter_test.C" LINKS cbf_static)
+add_target(sequence_match SOURCES "${CBF__EXAMPLES}/sequence_match.c" LINKS cbf_static)
+add_target(testulp SOURCES "${CBF__EXAMPLES}/testulp.c" LINKS cbf_static)
+add_target(testhdf5 SOURCES "${CBF__EXAMPLES}/testhdf5.c" LINKS cbf_static hdf5::hdf5)
+add_target(testtree SOURCES "${CBF__EXAMPLES}/testtree.c" LINKS cbf_static)
+add_target(testalloc SOURCES "${CBF__EXAMPLES}/testalloc.c" LINKS cbf_static)
+add_target(testflat SOURCES "${CBF__EXAMPLES}/testflat.c" LINKS cbf_static)
+add_target(testflatpacked SOURCES "${CBF__EXAMPLES}/testflatpacked.c" LINKS cbf_static)
+add_target(testreals SOURCES "${CBF__EXAMPLES}/testreals.c" LINKS cbf_static)
 
 if (NOT (CBF_USE_FORTRAN_ENV STREQUAL "NO"))
 
@@ -1009,8 +977,8 @@ add_custom_command(OUTPUT "${CBF__BLDEXMP}/test_xds_binary.f90"
     DEPENDS ${CBF_M4_FCB_DEFINES} "${CBF__M4}/test_xds_binary.m4"
     COMMENT "Generating ${test_xds_binary.f90}")
 
-add_target(test_fcb_read_image "${CBF__BLDEXMP}/test_fcb_read_image.f90" "fcb_static" "${FCB_STATIC_LIBRARY_PATH};${HDF5_LIBRARY_PATH}")
-add_target(test_xds_binary "${CBF__BLDEXMP}/test_xds_binary.f90" "fcb_static" "${FCB_STATIC_LIBRARY_PATH};${HDF5_LIBRARY_PATH}")
+add_target(test_fcb_read_image "${CBF__BLDEXMP}/test_fcb_read_image.f90" "fcb_static" "${FCB_STATIC_LIBRARY_PATH}")
+add_target(test_xds_binary "${CBF__BLDEXMP}/test_xds_binary.f90" "fcb_static" "${FCB_STATIC_LIBRARY_PATH}")
 
 endif (NOT (CBF_USE_FORTRAN_ENV STREQUAL "NO"))
 
@@ -1070,7 +1038,7 @@ endif ()
 macro(CBF_SET_TEST_ENVIRONMENT TESTNAME)
   IF(WIN32)
     set (xrpathname "PATH")
-    set (xrpath "${HDF5_INSTALL_DIR}/lib;$ENV{PATH}")
+    set (xrpath "$ENV{PATH}")
     string(REPLACE ";" "\\;" xrpath "${xrpath}")
   ELSE(WIN32)
     IF(APPLE)
@@ -1078,7 +1046,7 @@ macro(CBF_SET_TEST_ENVIRONMENT TESTNAME)
     ELSE(APPLE)
       set(xrpathname "LD_LIBRARY_PATH")
     ENDIF(APPLE)
-    set (xrpath "${HDF5_INSTALL_DIR}/lib:$ENV{${xrpathname}}")
+    set (xrpath "$ENV{${xrpathname}}")
   ENDIF(WIN32)
   set_property(TEST ${TESTNAME} PROPERTY ENVIRONMENT "${xrpathname}=${xrpath}")
   message(status "${xrpathname}=${xrpath}")
@@ -1087,7 +1055,7 @@ endmacro(CBF_SET_TEST_ENVIRONMENT)
 macro(CBF_APPEND_TEST_ENVIRONMENT TESTNAME)
   IF(WIN32)
     set (xrpathname "PATH")
-    set (xrpath "${HDF5_INSTALL_DIR}/lib;$ENV{PATH})
+    set (xrpath "$ENV{PATH})
     string(REPLACE ";" "\\;" xrpath "${xrpath}")
   ELSE(WIN32)
     IF(APPLE)
@@ -1095,14 +1063,12 @@ macro(CBF_APPEND_TEST_ENVIRONMENT TESTNAME)
     ELSE(APPLE)
       set( xrpathname "LD_LIBRARY_PATH" )
     ENDIF(APPLE)
-    set (xrpath "${HDF5_INSTALL_DIR}/lib;$ENV{${xrpathname})
+    set (xrpath "$ENV{${xrpathname})
   ENDIF(WIN32)
   set_property(TEST ${TESTNAME} APPEND PROPERTY ENVIRONMENT "$xrpathname=${xrpath}")
 endmacro(CBF_APPEND_TEST_ENVIRONMENT TESTNAME)
 
 
-
-set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${HDF5_INSTALL_DIR}/lib)
 
 # set up a wrapper to call 'h5dump' and redirect its output to a file
 configure_file(${CBFlib_SOURCE_DIR}/h5dump.cmake ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/h5dump.cmake @ONLY)
@@ -1113,61 +1079,47 @@ add_test(makecbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/makecbf ${CBF_DATADIRI}/examp
 CBF_SET_TEST_ENVIRONMENT(makecbf)
 # $(BIN)/img2cif -c flatpacked -m headers -d digest -e base64 example.mar2300 img2cif_packed.cif
 add_test(img2cif_packed.cif ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/img2cif -c flatpacked -m headers -d digest -e base64 ${CBF_DATADIRI}/example.mar2300 ${CBF__DATA}/img2cif_packed.cif)
-set_property(TEST img2cif_packed.cif PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib")
 # $(BIN)/img2cif -c canonical -m headers -d digest -e base64 example.mar2300 img2cif_canonical.cif
 add_test(img2cif_canonical.cif ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/img2cif -c canonical -m headers -d digest -e base64 ${CBF_DATADIRI}/example.mar2300 ${CBF__DATA}/img2cif_canonical.cif)
-set_property(TEST img2cif_canonical.cif PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib")
 # $(BIN)/img2cif -c flatpacked -m headers -d digest -e none example.mar2300 img2cif_packed.cbf
 add_test(img2cif_packed.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/img2cif -c flatpacked -m headers -d digest -e none ${CBF_DATADIRI}/example.mar2300 ${CBF__DATA}/img2cif_packed.cbf)
-set_property(TEST img2cif_packed.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 # $(BIN)/img2cif -c canonical -m headers -d digest -e none example.mar2300 img2cif_canonical.cbf
 add_test(img2cif_canonical.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/img2cif -c canonical -m headers -d digest -e none ${CBF_DATADIRI}/example.mar2300 ${CBF__DATA}/img2cif_canonical.cbf)
-set_property(TEST img2cif_canonical.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib")
 # $(BIN)/cif2cbf -e none -c flatpacked img2cif_canonical.cif cif2cbf_packed.cbf
 add_test(cif2cbf_packed.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -e none -c flatpacked ${CBF__DATA}/img2cif_canonical.cif ${CBF__DATA}/cif2cbf_packed.cbf)
 set_property(TEST cif2cbf_packed.cbf APPEND PROPERTY DEPENDS img2cif_canonical.cif)
-set_property(TEST cif2cbf_packed.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib")
 # $(BIN)/cif2cbf -e none -c canonical img2cif_packed.cif cif2cbf_canonical.cbf
 add_test(cif2cbf_canonical.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -e none -c canonical ${CBF__DATA}/img2cif_packed.cif ${CBF__DATA}/cif2cbf_canonical.cbf)
 set_property(TEST cif2cbf_canonical.cbf APPEND PROPERTY DEPENDS img2cif_packed.cif)
-set_property(TEST cif2cbf_canonical.cbf  PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib")
 # -cmp cif2cbf_packed.cbf makecbf.cbf
 add_test(cmp-cif2cbf_packed.cbf-makecbf.cbf ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/cif2cbf_packed.cbf ${CBF__DATA}/makecbf.cbf)
 set_property(TEST cmp-cif2cbf_packed.cbf-makecbf.cbf APPEND PROPERTY DEPENDS cif2cbf_packed.cbf)
 set_property(TEST cmp-cif2cbf_packed.cbf-makecbf.cbf APPEND PROPERTY DEPENDS makecbf)
-set_property(TEST cmp-cif2cbf_packed.cbf-makecbf.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib")
 # -cmp cif2cbf_packed.cbf img2cif_packed.cbf
 add_test(cmp-cif2cbf_packed.cbf-img2cif_packed.cbf ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/cif2cbf_packed.cbf ${CBF__DATA}/img2cif_packed.cbf)
 set_property(TEST cmp-cif2cbf_packed.cbf-img2cif_packed.cbf APPEND PROPERTY DEPENDS cif2cbf_packed.cbf)
 set_property(TEST cmp-cif2cbf_packed.cbf-img2cif_packed.cbf APPEND PROPERTY DEPENDS img2cif_packed.cbf)
-set_property(TEST cmp-cif2cbf_packed.cbf-img2cif_packed.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 # -cmp cif2cbf_canonical.cbf img2cif_canonical.cbf
 add_test(cmp-cif2cbf_canonical.cbf-img2cif_canonical.cbf ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/cif2cbf_canonical.cbf ${CBF__DATA}/img2cif_canonical.cbf)
 set_property(TEST cmp-cif2cbf_canonical.cbf-img2cif_canonical.cbf APPEND PROPERTY DEPENDS cif2cbf_canonical.cbf)
 set_property(TEST cmp-cif2cbf_canonical.cbf-img2cif_canonical.cbf APPEND PROPERTY DEPENDS img2cif_canonical.cbf)
-set_property(TEST cmp-cif2cbf_canonical.cbf-img2cif_canonical.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 
 # $(BIN)/cif2cbf -e hex -c none makecbf.cbf cif2cbf_ehcn.cif
 add_test(cif2cbf_ehcn.cif ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -e hex -c none ${CBF__DATA}/makecbf.cbf ${CBF__DATA}/cif2cbf_ehcn.cif)
 set_property(TEST cif2cbf_ehcn.cif APPEND PROPERTY DEPENDS makecbf)
-set_property(TEST cif2cbf_ehcn.cif PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 # $(BIN)/cif2cbf -e none -c flatpacked cif2cbf_ehcn.cif cif2cbf_encp.cbf
 add_test(cif2cbf_encp.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -e none -c flatpacked ${CBF__DATA}/cif2cbf_ehcn.cif ${CBF__DATA}/cif2cbf_encp.cbf)
 set_property(TEST cif2cbf_encp.cbf APPEND PROPERTY DEPENDS cif2cbf_ehcn.cif)
-set_property(TEST cif2cbf_encp.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 #-cmp makecbf.cbf cif2cbf_encp.cbf
 add_test(cmp-makecbf.cbf-cif2cbf_encp.cbf ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/makecbf.cbf ${CBF__DATA}/cif2cbf_encp.cbf)
 set_property(TEST cmp-makecbf.cbf-cif2cbf_encp.cbf APPEND PROPERTY DEPENDS makecbf)
 set_property(TEST cmp-makecbf.cbf-cif2cbf_encp.cbf APPEND PROPERTY DEPENDS cif2cbf_encp.cbf)
-set_property(TEST cmp-makecbf.cbf-cif2cbf_encp.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 
 # $(BIN)/cif2cbf -i 9ins.cif -o 9ins.cbf
 add_test(9ins.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -i ${CBF_DATADIRI}/9ins.cif -o ${CBF__DATA}/9ins.cbf)
-set_property(TEST 9ins.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 # -cmp 9ins.cif 9ins.cbf
 add_test(cmp-9ins.cif-9ins.cbf ${CMAKE_COMMAND} -E compare_files ${CBF_DATADIRI}/9ins.cif ${CBF__DATA}/9ins.cbf)
 set_property(TEST cmp-9ins.cif-9ins.cbf APPEND PROPERTY DEPENDS 9ins.cbf)
-set_property(TEST cmp-9ins.cif-9ins.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 
 # $(BIN)/convert_image -F example.mar2300 converted_flat.cbf
 add_test(
@@ -1177,20 +1129,16 @@ add_test(
 	${CBF_DATADIRI}/example.mar2300
 	${CBF__DATA}/converted_flat.cbf
 )
-set_property(TEST converted_flat.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib")
 # -cmp converted_flat_orig.cbf converted_flat.cbf
 add_test(cmp-converted_flat_orig.cbf-converted_flat.cbf ${CMAKE_COMMAND} -E compare_files ${CBF_DATADIRO}/converted_flat_orig.cbf ${CBF__DATA}/converted_flat.cbf)
 set_property(TEST cmp-converted_flat_orig.cbf-converted_flat.cbf APPEND PROPERTY DEPENDS converted_flat.cbf)
-set_property(TEST cmp-converted_flat_orig.cbf-converted_flat.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 
 # $(BIN)/convert_image example.mar2300 converted.cbf
 add_test(converted.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/convert_image -p ${CBFlib_SOURCE_DIR}/templates/template_mar345_2300x2300.cbf ${CBF_DATADIRI}/example.mar2300 ${CBF__DATA}/converted.cbf)
-set_property(TEST converted.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 
 # -cmp converted_orig.cbf converted.cbf
 add_test(cmp-converted_orig.cbf-converted.cbf ${CMAKE_COMMAND} -E compare_files ${CBF_DATADIRO}/converted_orig.cbf ${CBF__DATA}/converted.cbf)
 set_property(TEST cmp-converted_orig.cbf-converted.cbf APPEND PROPERTY DEPENDS converted.cbf)
-set_property(TEST cmp-converted_orig.cbf-converted.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 
 # copy a file into another directory so that test input data is not modified
 add_test(mb_LP_1_001.img ${CMAKE_COMMAND} -E copy ${CBF_DATADIRI}/mb_LP_1_001.img ${CBF__DATA}/mb_LP_1_001.img)
@@ -1204,12 +1152,10 @@ add_test(
 	${CBF__DATA}/mb_LP_1_001.img
 	${CBF__DATA}/adscconverted_flat.cbf
 )
-set_property(TEST adscconverted_flat.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib")
 set_property(TEST adscconverted_flat.cbf APPEND PROPERTY DEPENDS mb_LP_1_001.img)
 # -cmp adscconverted_flat_orig.cbf adscconverted_flat.cbf
 add_test(cmp-adscconverted_flat_orig.cbf-adscconverted_flat.cbf ${CMAKE_COMMAND} -E compare_files ${CBF_DATADIRO}/adscconverted_flat_orig.cbf ${CBF__DATA}/adscconverted_flat.cbf)
 set_property(TEST cmp-adscconverted_flat_orig.cbf-adscconverted_flat.cbf APPEND PROPERTY DEPENDS adscconverted_flat.cbf)
-set_property(TEST cmp-adscconverted_flat_orig.cbf-adscconverted_flat.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 
 # $(BIN)/convert_image -d adscquantum315 mb_LP_1_001.img adscconverted.cbf
 add_test(
@@ -1221,29 +1167,23 @@ add_test(
 	${CBF__DATA}/adscconverted.cbf
 )
 set_property(TEST adscconverted.cbf APPEND PROPERTY DEPENDS mb_LP_1_001.img)
-set_property(TEST adscconverted.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib")
 # -cmp adscconverted_orig.cbf adscconverted.cbf
 add_test(cmp-adscconverted_orig.cbf-adscconverted.cbf ${CMAKE_COMMAND} -E compare_files ${CBF_DATADIRO}/adscconverted_orig.cbf ${CBF__DATA}/adscconverted.cbf)
 set_property(TEST cmp-adscconverted_orig.cbf-adscconverted.cbf APPEND PROPERTY DEPENDS adscconverted.cbf)
-set_property(TEST cmp-adscconverted_orig.cbf-adscconverted.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 
 # $(BIN)/adscimg2cbf --no_pad --cbf_packed,flat mb_LP_1_001.img
 add_test(mb_LP_1_001.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/adscimg2cbf --no_pad --cbf_packed,flat ${CBF__DATA}/mb_LP_1_001.img)
 set_property(TEST mb_LP_1_001.cbf APPEND PROPERTY DEPENDS mb_LP_1_001.img)
-set_property(TEST mb_LP_1_001.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 # -cmp mb_LP_1_001_orig.cbf mb_LP_1_001.cbf
 add_test(cmp-mb_LP_1_001_orig.cbf-mb_LP_1_001.cbf ${CMAKE_COMMAND} -E compare_files ${CBF_DATADIRO}/mb_LP_1_001_orig.cbf ${CBF__DATA}/mb_LP_1_001.cbf)
 set_property(TEST cmp-mb_LP_1_001_orig.cbf-mb_LP_1_001.cbf APPEND PROPERTY DEPENDS mb_LP_1_001.cbf)
-set_property(TEST cmp-mb_LP_1_001_orig.cbf-mb_LP_1_001.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 
 # cp mb_LP_1_001.cbf nmb_LP_1_001.cbf
 add_test(nmb_LP_1_001.cbf ${CMAKE_COMMAND} -E copy ${CBF__DATA}/mb_LP_1_001.cbf ${CBF__DATA}/nmb_LP_1_001.cbf)
 set_property(TEST nmb_LP_1_001.cbf APPEND PROPERTY DEPENDS mb_LP_1_001.cbf)
-set_property(TEST nmb_LP_1_001.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 # $(BIN)/cbf2adscimg nmb_LP_1_001.cbf
 add_test(nmb_LP_1_001.img ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cbf2adscimg ${CBF__DATA}/nmb_LP_1_001.cbf)
 set_property(TEST nmb_LP_1_001.img APPEND PROPERTY DEPENDS nmb_LP_1_001.cbf)
-set_property(TEST nmb_LP_1_001.img PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 # -cmp mb_LP_1_001.img nmb_LP_1_001.img
 add_test(cmp-mb_LP_1_001.img-nmb_LP_1_001.img ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/mb_LP_1_001.img ${CBF__DATA}/nmb_LP_1_001.img)
 set_property(TEST cmp-mb_LP_1_001.img-nmb_LP_1_001.img APPEND PROPERTY DEPENDS mb_LP_1_001.img)
@@ -1258,7 +1198,6 @@ add_test(
 	${CBF_DATADIRI}/insulin_pilatus6m.cbf
 	${CBF__DATA}/insulin_pilatus6mconverted.cbf
 )
-set_property(TEST insulin_pilatus6mconverted.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 
 # -cmp insulin_pilatus6mconverted_rev_orig.cbf insulin_pilatus6mconverted.cbf
 add_test(
@@ -1268,7 +1207,6 @@ add_test(
 	${CBF__DATA}/insulin_pilatus6mconverted.cbf
 )
 set_property(TEST cmp-insulin_pilatus6mconverted_rev_orig.cbf-insulin_pilatus6mconverted.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf)
-set_property(TEST cmp-insulin_pilatus6mconverted_rev_orig.cbf-insulin_pilatus6mconverted.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 
 # $(BIN)/convert_minicbf -d pilatus6m insulin_pilatus6m.cbf insulin_pilatus6mconverted_v2.cbf
 add_test(
@@ -1279,7 +1217,6 @@ add_test(
 	${CBF_DATADIRI}/insulin_pilatus6m.cbf
 	${CBF__DATA}/insulin_pilatus6mconverted_v2.cbf
 )
-set_property(TEST insulin_pilatus6mconverted_v2.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 # -cmp insulin_pilatus6mconverted_v2_orig.cbf insulin_pilatus6mconverted_v2.cbf
 add_test(
 	cmp-insulin_pilatus6mconverted_v2_orig.cbf-insulin_pilatus6mconverted_v2.cbf
@@ -1287,7 +1224,6 @@ add_test(
 	${CBF_DATADIRO}/insulin_pilatus6mconverted_v2_orig.cbf
 	${CBF__DATA}/insulin_pilatus6mconverted_v2.cbf
 )
-set_property(TEST cmp-insulin_pilatus6mconverted_v2_orig.cbf-insulin_pilatus6mconverted_v2.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 set_property(TEST cmp-insulin_pilatus6mconverted_v2_orig.cbf-insulin_pilatus6mconverted_v2.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_v2.cbf)
 
 # cif2cbf basic round-trip to hdf5 tests
@@ -1302,7 +1238,6 @@ add_test(
 )
 set_property(TEST insulin_pilatus6mconverted.cbf.h5 APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
 set_property(TEST insulin_pilatus6mconverted.cbf.h5 APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf)
-set_property(TEST insulin_pilatus6mconverted.cbf.h5 PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib") 
 
 # $(BIN)/cif2cbf -5 rn $(HDF5REGISTER) -en -cp -i insulin_pilatus6mconverted.cbf.h5 -o insulin_pilatus6mconverted.cbf.h5.cbf
 add_test(
@@ -1314,7 +1249,6 @@ add_test(
 )
 set_property(TEST insulin_pilatus6mconverted.cbf.h5.cbf APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
 set_property(TEST insulin_pilatus6mconverted.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf.h5)
-set_property(TEST insulin_pilatus6mconverted.cbf.h5.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib")
 # -cmp insulin_pilatus6mconverted.cbf.h5.cbf insulin_pilatus6mconverted_orig.cbf.h5.cbf
 add_test(
 	cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted.cbf.h5.cbf
@@ -1575,19 +1509,15 @@ set_property(TEST cmp-minicbf_original.dump-minicbf.dump APPEND PROPERTY DEPENDS
 
 # generate the data
 add_test(i19-1.h5 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cbf2nexus -c zlib --list -o ${CBF__DATA}/i19-1.h5 ${CBF_DATADIRI}/1191_00005.cbf)
-set_property(TEST i19-1.h5 PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib")
 
 add_test(i19-1.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/nexus2cbf -o ${CBF__DATA}/i19-1.cbf ${CBF__DATA}/i19-1.h5)
 set_property(TEST i19-1.cbf APPEND PROPERTY DEPENDS i19-1.h5)
-set_property(TEST i19-1.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib")
 
 add_test(i19-2.h5 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cbf2nexus -c zlib --list -o ${CBF__DATA}/i19-2.h5 ${CBF__DATA}/i19-1.cbf)
 set_property(TEST i19-2.h5 APPEND PROPERTY DEPENDS i19-1.cbf)
-set_property(TEST i19-2.h5 PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib")
 
 add_test(i19-2.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/nexus2cbf -o ${CBF__DATA}/i19-2.cbf ${CBF__DATA}/i19-2.h5)
 set_property(TEST i19-2.cbf APPEND PROPERTY DEPENDS i19-2.h5)
-set_property(TEST i19-1.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib")
 
 
 # compare the cbf files from i19 data
@@ -1622,19 +1552,15 @@ set_property(TEST cmp-i19-1.dump-i19-2.dump APPEND PROPERTY DEPENDS i19-2.dump)
 
 # generate the data
 add_test(i03-1.h5 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cbf2nexus -c zlib --list -o ${CBF__DATA}/i03-1.h5 ${CBF_DATADIRI}/thaumatin_die_M1S5_1_0005_2.cbf)
-set_property(TEST i03-1.h5 PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib")
 
 add_test(i03-1.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/nexus2cbf -o ${CBF__DATA}/i03-1.cbf ${CBF__DATA}/i03-1.h5)
 set_property(TEST i03-1.cbf APPEND PROPERTY DEPENDS i03-1.h5)
-set_property(TEST i03-1.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib")
 
 add_test(i03-2.h5 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cbf2nexus -c zlib --list -o ${CBF__DATA}/i03-2.h5 ${CBF__DATA}/i03-1.cbf)
 set_property(TEST i03-2.h5 APPEND PROPERTY DEPENDS i03-1.cbf)
-set_property(TEST i03-2.h5 PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib")
 
 add_test(i03-2.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/nexus2cbf -o ${CBF__DATA}/i03-2.cbf ${CBF__DATA}/i03-2.h5)
 set_property(TEST i03-2.cbf APPEND PROPERTY DEPENDS i03-2.h5)
-set_property(TEST i03-2.cbf PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${HDF5_INSTALL_DIR}/lib")
 
 
 # compare the cbf files from i03 data
