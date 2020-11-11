@@ -262,7 +262,6 @@
 #    CBFlib_BINARY_DIR        CBFlib build directory                 #
 #                               usually ${CBFlib_SOURCE_DIR}/build   #
 #      external_packages      Directory for libtiff, etc.      #
-#        tiff-3.9.4-rev-6Feb11                                       #
 #        regex-20090805                                              #
 #        zlib-1.2.8                                                  #
 #      data_files             Directory for test files               #
@@ -487,12 +486,7 @@ set(MINICBF_TEST "${CBFlib_SOURCE_DIR}/minicbf_test" CACHE STRING "")
 set(GRAPHICS  "${CBFlib_SOURCE_DIR}/html_graphics" CACHE STRING "")
 
 
-#
-# Definition to get a version of tifflib to support tiff2cbf
-#
-set(CBF_TIFF        "tiff-4.0.3-rev-29Sep13")
-set(TIFF_INSTALL_DIR "${CMAKE_BINARY_DIR}/${CBF_TIFF}")
-
+find_package(TIFF REQUIRED)
 find_package(HDF5 REQUIRED COMPONENTS C Fortran)
 
 # Backport the 3.19 HDF5 target definitions
@@ -551,7 +545,6 @@ set(CBF_REGEX    "regex-20090805")
 set(CBF_PCRE     "pcre-8.33")
 set(CBF_REGEXURL "http://downloads.sf.net/cbflib/${CBF_REGEX}.tar.gz")
 set(CBF_PCREURL  "http://downloads.sf.net/cbflib/${CBF_PCRE}.tar.gz")
-set(CBF_TIFFURL  "http://downloads.sf.net/cbflib/${CBF_TIFF}.tar.gz")
 
 
 #
@@ -564,21 +557,6 @@ CBF_DEBUG_MESSAGE( "WGET found at ${WGET_EXECUTABLE}")
 #  ZLIB
 #
 find_package(ZLIB)
-
-include(ExternalProject)
-
-ExternalProject_Add(
-	${CBF_TIFF}
-	URL "${CBF_TIFFURL}"
-	SOURCE_DIR ${CMAKE_BINARY_DIR}/external_packages/${CBF_TIFF}
-	CMAKE_ARGS
-		-DCMAKE_BUILD_TYPE:STRING=RELEASE DEBUG
-		-DCMAKE_INSTALL_PREFIX:PATH=${TIFF_INSTALL_DIR}
-		-DCMAKE_INSTALL_RPATH:PATH=${TIFF_INSTALL_DIR}/lib
-	INSTALL_DIR ${CMAKE_BINARY_DIR}/${CBF_TIFF}
-)
-
-set(TIFF_LIBRARY_PATH ${TIFF_INSTALL_DIR}/lib/libtiff${CMAKE_SHARED_LIBRARY_SUFFIX})
 
 #
 # CBF_REGEX or CBF_PCRE
@@ -865,8 +843,7 @@ set(
 
 include_directories(
 	BEFORE SYSTEM
-                      ${CBFlib_SOURCE_DIR}/include 
-	${CBFlib_BINARY_DIR}/${CBF_TIFF}/include
+                      ${CBFlib_SOURCE_DIR}/include
                       ${CBF_REGEXLIB_INCLUDE_DIR}
                       )
 
@@ -879,8 +856,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
 add_library(cbf_static STATIC ${CBF_C_SOURCES})
-add_dependencies(cbf_static ${CBF_RE} ${CBF_TIFF})
-target_link_libraries(cbf_static PUBLIC hdf5::hdf5)
+if (CBF_RE)
+  add_dependencies(cbf_static "${CBF_RE}")
+endif()
+target_link_libraries(cbf_static PUBLIC hdf5::hdf5 TIFF::TIFF)
 set_target_properties(cbf_static PROPERTIES OUTPUT_NAME "cbf")
 set_target_properties(cbf_static PROPERTIES LINKER_LANGUAGE C)
 set_target_properties(cbf_static PROPERTIES SOVERSION "${CBF_APIVERSION}")
@@ -890,8 +869,10 @@ set(CBF_STATIC_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libcbf.a)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
 add_library(cbf_shared SHARED  ${CBF_C_SOURCES})
-add_dependencies(cbf_shared ${CBF_RE} ${CBF_TIFF})
-target_link_libraries(cbf_shared PUBLIC hdf5::hdf5)
+if (CBF_RE)
+  add_dependencies(cbf_shared ${CBF_RE})
+endif()
+target_link_libraries(cbf_shared PUBLIC hdf5::hdf5 TIFF:TIFF)
 set_target_properties(cbf_shared PROPERTIES OUTPUT_NAME "cbf")
 set_target_properties(cbf_shared PROPERTIES LINKER_LANGUAGE C)
 set_target_properties(cbf_shared PROPERTIES SOVERSION "${CBF_APIVERSION}")
@@ -974,7 +955,7 @@ macro(add_target target)
 	endif()
 endmacro()
 
-add_target(tiff2cbf SOURCES "${CBF__EXAMPLES}/tiff2cbf.c" LINKS cbf_static "${TIFF_LIBRARY_PATH}")
+add_target(tiff2cbf SOURCES "${CBF__EXAMPLES}/tiff2cbf.c" LINKS cbf_static TIFF:TIFF)
 add_target(cbf2nexus SOURCES "${CBF__EXAMPLES}/cbf2nexus.c" LINKS cbf_static)
 add_target(nexus2cbf SOURCES "${CBF__EXAMPLES}/nexus2cbf.c" LINKS cbf_static)
 add_target(minicbf2nexus SOURCES "${CBF__EXAMPLES}/minicbf2nexus.c" LINKS cbf_static hdf5::hdf5)
@@ -1453,7 +1434,6 @@ set_property(TEST cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus
 
 # $(BIN)/tiff2cbf XRD1621.tif XRD1621.cbf
 add_test(XRD1621.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tiff2cbf ${CBF_DATADIRI}/XRD1621.tif ${CBF__DATA}/XRD1621.cbf)
-set_property(TEST XRD1621.cbf APPEND PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/${CBF_TIFF}/lib")
 # $(DIFF) XRD1621_orig.cbf XRD1621.cbf
 add_test(
 	cmp-XRD1621_orig.cbf-XRD1621.cbf
