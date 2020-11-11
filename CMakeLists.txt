@@ -272,7 +272,10 @@
 #                                                                    #
 ######################################################################
 
-cmake_minimum_required(VERSION 2.8)
+# Currently limited by - 	<ignore>3.19 	hdf5 targets included by default
+# 							3.5		cmake_parse_arguments
+#               3.9   Per-language HDF5 include in FindHDF5
+cmake_minimum_required(VERSION 3.9)
 
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
@@ -369,20 +372,20 @@ endmacro(CBF_REQUIRE_DIRECTORY)
 #                     Use an absolute path for UNPACKED_DIRECTORY
 #
 macro(CBF_LOAD_TARBALL WORK_DIR UNPACKED_DIRECTORY TARBALL)
-if (NOT EXISTS ${UNPACKED_DIRECTORY})
-execute_process(
-  COMMAND ${WGET_EXECUTABLE} ${TARBALL}
-  WORKING_DIRECTORY ${WORK_DIR}
-)
-execute_process(
-  COMMAND ${CMAKE_COMMAND} -E tar xzvf ${UNPACKED_DIRECTORY}.tar.gz
-  WORKING_DIRECTORY ${WORK_DIR}
-)
-execute_process(
-  COMMAND ${CMAKE_COMMAND} -E remove ${UNPACKED_DIRECTORY}.tar.gz
-  WORKING_DIRECTORY ${WORK_DIR}
-)
-endif (NOT EXISTS ${UNPACKED_DIRECTORY})
+	if (NOT EXISTS ${UNPACKED_DIRECTORY})
+		execute_process(
+		COMMAND ${WGET_EXECUTABLE} ${TARBALL}
+		WORKING_DIRECTORY ${WORK_DIR}
+		)
+		execute_process(
+		COMMAND ${CMAKE_COMMAND} -E tar xzvf ${UNPACKED_DIRECTORY}.tar.gz
+		WORKING_DIRECTORY ${WORK_DIR}
+		)
+		execute_process(
+		COMMAND ${CMAKE_COMMAND} -E remove ${UNPACKED_DIRECTORY}.tar.gz
+		WORKING_DIRECTORY ${WORK_DIR}
+		)
+	endif (NOT EXISTS ${UNPACKED_DIRECTORY})
 endmacro(CBF_LOAD_TARBALL)
 
 
@@ -490,7 +493,38 @@ set(GRAPHICS  "${CBFlib_SOURCE_DIR}/html_graphics" CACHE STRING "")
 set(CBF_TIFF        "tiff-4.0.3-rev-29Sep13")
 set(TIFF_INSTALL_DIR "${CMAKE_BINARY_DIR}/${CBF_TIFF}")
 
-find_package(HDF5 REQUIRED)
+find_package(HDF5 REQUIRED COMPONENTS C Fortran)
+
+# Backport the 3.19 HDF5 target definitions
+if (NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
+  if (NOT TARGET HDF5::HDF5)
+    add_library(HDF5::HDF5 INTERFACE IMPORTED)
+    string(REPLACE "-D" "" _hdf5_definitions "${HDF5_DEFINITIONS}")
+    set_target_properties(HDF5::HDF5 PROPERTIES
+      INTERFACE_LINK_LIBRARIES "${HDF5_LIBRARIES}"
+      INTERFACE_INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIRS}"
+      INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
+    unset(_hdf5_definitions)
+  endif ()
+
+  if (HDF5_C_LIBRARIES AND NOT TARGET "hdf5::hdf5")
+    add_library("hdf5::hdf5" INTERFACE IMPORTED)
+    string(REPLACE "-D" "" _hdf5_definitions "${HDF5_C_DEFINITIONS}")
+    set_target_properties("hdf5::hdf5" PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${HDF5_C_INCLUDE_DIRS}"
+      INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
+    unset(_hdf5_definitions)
+  endif()
+
+  if (HDF5_Fortran_LIBRARIES AND NOT TARGET "hdf5::hdf5_fortran")
+    add_library("hdf5::hdf5_fortran" INTERFACE IMPORTED)
+    string(REPLACE "-D" "" _hdf5_definitions "${HDF5_Fortran_DEFINITIONS}")
+    set_target_properties("hdf5::hdf5_fortran" PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${HDF5_Fortran_INCLUDE_DIRS}"
+      INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
+    unset(_hdf5_definitions)
+  endif()
+endif()
 
 #
 # Definitions to get a version of zlib
@@ -931,9 +965,13 @@ endif (NOT (CBF_USE_FORTRAN_ENV STREQUAL "NO"))
 # Note: the math library should be linked in by appending ';m' to the library list here
 macro(add_target target)
 	cmake_parse_arguments(AT "" "" "SOURCES;LINKS;DEPENDS" ${ARGN})
-	add_executable(${target} ${SOURCES})
-	add_dependencies(${target} ${AT_DEPENDS})
-	target_link_libraries(${target} ${AT_LINKS})
+	add_executable(${target} ${AT_SOURCES})
+	if (AT_DEPENDS)
+		add_dependencies(${target} ${AT_DEPENDS})
+	endif()
+	if (AT_LINKS)
+		target_link_libraries(${target} ${AT_LINKS})
+	endif()
 endmacro()
 
 add_target(tiff2cbf SOURCES "${CBF__EXAMPLES}/tiff2cbf.c" LINKS cbf_static "${TIFF_LIBRARY_PATH}")
@@ -977,8 +1015,8 @@ add_custom_command(OUTPUT "${CBF__BLDEXMP}/test_xds_binary.f90"
     DEPENDS ${CBF_M4_FCB_DEFINES} "${CBF__M4}/test_xds_binary.m4"
     COMMENT "Generating ${test_xds_binary.f90}")
 
-add_target(test_fcb_read_image "${CBF__BLDEXMP}/test_fcb_read_image.f90" "fcb_static" "${FCB_STATIC_LIBRARY_PATH}")
-add_target(test_xds_binary "${CBF__BLDEXMP}/test_xds_binary.f90" "fcb_static" "${FCB_STATIC_LIBRARY_PATH}")
+add_target(test_fcb_read_image SOURCES "${CBF__BLDEXMP}/test_fcb_read_image.f90" LINKS fcb_static)
+add_target(test_xds_binary SOURCES "${CBF__BLDEXMP}/test_xds_binary.f90" LINKS fcb_static)
 
 endif (NOT (CBF_USE_FORTRAN_ENV STREQUAL "NO"))
 
@@ -1055,7 +1093,7 @@ endmacro(CBF_SET_TEST_ENVIRONMENT)
 macro(CBF_APPEND_TEST_ENVIRONMENT TESTNAME)
   IF(WIN32)
     set (xrpathname "PATH")
-    set (xrpath "$ENV{PATH})
+    set (xrpath "$ENV{PATH}")
     string(REPLACE ";" "\\;" xrpath "${xrpath}")
   ELSE(WIN32)
     IF(APPLE)
@@ -1063,7 +1101,7 @@ macro(CBF_APPEND_TEST_ENVIRONMENT TESTNAME)
     ELSE(APPLE)
       set( xrpathname "LD_LIBRARY_PATH" )
     ENDIF(APPLE)
-    set (xrpath "$ENV{${xrpathname})
+    set (xrpath "$ENV{${xrpathname}")
   ENDIF(WIN32)
   set_property(TEST ${TESTNAME} APPEND PROPERTY ENVIRONMENT "$xrpathname=${xrpath}")
 endmacro(CBF_APPEND_TEST_ENVIRONMENT TESTNAME)
