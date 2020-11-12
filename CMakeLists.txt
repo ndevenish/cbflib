@@ -277,7 +277,7 @@
 #               3.9   Per-language HDF5 include in FindHDF5
 #              ~3.12  add_compile_definitions
 #               3.12  TARGET_NAME_IF_EXISTS
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.12)
 
 set(USE_FORTRAN OFF CACHE BOOL "Build Fortran Bindings")
 set(USE_HDF5    ON CACHE  BOOL "Build HDF5-related bindings")
@@ -304,9 +304,16 @@ if (${FORCE_COLORED_OUTPUT})
     endif ()
 endif ()
 
-enable_testing()
+# make sure that the default configuration is Release
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set (CMAKE_BUILD_TYPE Release CACHE STRING
+      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel ..."
+      FORCE )
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
 
-set (CBF_CMAKE_DEBUG "ON")
 
 if (CBF_USE_ULP)
   add_definitions(-DCBF_USE_ULP)
@@ -331,16 +338,6 @@ if (USE_FORTRAN)
     set(CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG}   -fno-range-check")
   endif (CBF_F90FLAGS_ENV)
 endif ()
-
-# make sure that the default is a RELEASE
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  set (CMAKE_BUILD_TYPE Release CACHE STRING
-      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel ..."
-      FORCE )
-  # Set the possible values of build type for cmake-gui
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS 
-    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
-endif()
 
 #
 #  Favor static libraries
@@ -1104,11 +1101,20 @@ macro(CBF_APPEND_TEST_ENVIRONMENT TESTNAME)
 endmacro(CBF_APPEND_TEST_ENVIRONMENT TESTNAME)
 
 
+###############################################################################
+#
+# Testing
+#
+###############################################################################
+
+enable_testing()
 
 # set up a wrapper to call 'h5dump' and redirect its output to a file
 configure_file(${CBFlib_SOURCE_DIR}/h5dump.cmake ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/h5dump.cmake @ONLY)
 
 # core tests
+
+
 
 add_test(makecbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/makecbf ${CBF_DATADIRI}/example.mar2300 ${CBF__DATA}/makecbf.cbf)
 CBF_SET_TEST_ENVIRONMENT(makecbf)
