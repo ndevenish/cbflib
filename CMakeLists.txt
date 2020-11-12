@@ -298,11 +298,9 @@ enable_testing()
 
 set (CBF_CMAKE_DEBUG "ON")
 
-if (CBF_USE_ULP STREQUAL "YES")
-  set(CMAKE_C_FLAGS "-Wall -g -fno-strict-aliasing -DCBF_USE_ULP")
-else (CBF_USE_ULP STREQUAL "YES")
-  set(CMAKE_C_FLAGS "-Wall -g -fno-strict-aliasing")
-endif (CBF_USE_ULP STREQUAL "YES")
+if (CBF_USE_ULP)
+  add_definitions(-DCBF_USE_ULP)
+endif ()
 
 #
 #  User setable parameters
@@ -493,26 +491,6 @@ endif()
 
 # Backport the 3.19 HDF5 target definitions
 if (NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
-  message("HDF5:")
-  message("      i: ${HDF5_INCLUDE_DIRS}")
-  message("      D: ${HDF5_DEFINITIONS}")
-  message("      l: ${HDF5_LIBRARIES}")
-  message(" CXX: i: ${HDF5_CXX_INCLUDE_DIRS}")
-  message("      D: ${HDF5_CXX_DEFINITIONS}")
-  message("      l: ${HDF5_CXX_LIBRARIES}")
-  message("   C: i: ${HDF5_C_INCLUDE_DIRS}")
-  message("      D: ${HDF5_C_DEFINITIONS}")
-  message("      l: ${HDF5_C_LIBRARIES}")
-  message("C_HL: i: ${HDF5_C_HL_INCLUDE_DIRS}")
-  message("      D: ${HDF5_C_HL_DEFINITIONS}")
-  message("      l: ${HDF5_C_HL_LIBRARIES}")
-  message("CXXHL:i: ${HDF5_CXX_HL_INCLUDE_DIRS}")
-  message("      D: ${HDF5_CXX_HL_DEFINITIONS}")
-  message("      l: ${HDF5_CXX_HL_LIBRARIES}")
-  message("Fortr:i: ${HDF5_FORTRAN_INCLUDE_DIRS}")
-  message("      D: ${HDF5_FORTRAN_DEFINITIONS}")
-  message("      l: ${HDF5_FORTRAN_LIBRARIES}")
-
   if (NOT TARGET HDF5::HDF5)
     add_library(HDF5::HDF5 INTERFACE IMPORTED)
     string(REPLACE "-D" "" _hdf5_definitions "${HDF5_DEFINITIONS}")
@@ -542,72 +520,6 @@ if (NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
     unset(_hdf5_definitions)
   endif()
 endif()
-
-
-## https://stackoverflow.com/questions/32183975/how-to-print-all-the-properties-of-a-target-in-cmake/56738858#56738858
-## https://stackoverflow.com/a/56738858/3743145
-## Get all properties that cmake supports
-execute_process(COMMAND cmake --help-property-list OUTPUT_VARIABLE CMAKE_PROPERTY_LIST)
-## Convert command output into a CMake list
-STRING(REGEX REPLACE ";" "\\\\;" CMAKE_PROPERTY_LIST "${CMAKE_PROPERTY_LIST}")
-STRING(REGEX REPLACE "\n" ";" CMAKE_PROPERTY_LIST "${CMAKE_PROPERTY_LIST}")
-list(REMOVE_DUPLICATES CMAKE_PROPERTY_LIST)
-# List of valid interface properties
-set(CMAKE_PROPERTY_LIST ALIASED_TARGET
-                        # ALIAS_GLOBAL
-                        COMPATIBLE_INTERFACE_BOOL
-                        COMPATIBLE_INTERFACE_NUMBER_MAX
-                        COMPATIBLE_INTERFACE_NUMBER_MIN
-                        COMPATIBLE_INTERFACE_STRING
-                        DEPRECATION
-                        EXPORT_NAME
-                        EXPORT_PROPERTIES
-                        IMPORTED
-                        IMPORTED_CONFIGURATIONS
-                        IMPORTED_GLOBAL
-                        IMPORTED_LIBNAME
-                        IMPORTED_LIBNAME_<CONFIG>
-                        INTERFACE_AUTOUIC_OPTIONS
-                        INTERFACE_COMPILE_DEFINITIONS
-                        INTERFACE_COMPILE_FEATURES
-                        INTERFACE_COMPILE_OPTIONS
-                        INTERFACE_INCLUDE_DIRECTORIES
-                        INTERFACE_LINK_DEPENDS
-                        INTERFACE_LINK_DIRECTORIES
-                        INTERFACE_LINK_LIBRARIES
-                        INTERFACE_LINK_OPTIONS
-                        INTERFACE_POSITION_INDEPENDENT_CODE
-                        INTERFACE_PRECOMPILE_HEADERS
-                        INTERFACE_SOURCES
-                        INTERFACE_SYSTEM_INCLUDE_DIRECTORIES
-                        MANUALLY_ADDED_DEPENDENCIES
-                        MAP_IMPORTED_CONFIG_<CONFIG>
-                        NAME
-                        NO_SYSTEM_FROM_IMPORTED
-                        PRIVATE_HEADER
-                        PUBLIC_HEADER
-                        TYPE )
-function(print_target_properties tgt)
-    if(NOT TARGET ${tgt})
-      message("There is no target named '${tgt}'")
-      return()
-    endif()
-
-    foreach (prop ${CMAKE_PROPERTY_LIST})
-        string(REPLACE "<CONFIG>" "${CMAKE_BUILD_TYPE}" prop ${prop})
-        get_target_property(propval ${tgt} ${prop})
-        if (propval)
-            get_target_property(propval ${tgt} ${prop})
-            message ("${tgt} ${prop} = ${propval}")
-        endif()
-    endforeach(prop)
-endfunction(print_target_properties)
-
-
-
-set(CMAKE_DEBUG_TARGET_PROPERTIES INCLUDE_DIRECTORIES)
-print_target_properties(hdf5::hdf5)
-print_target_properties(HDF5::HDF5)
 
 #
 # Definitions to get a version of zlib
