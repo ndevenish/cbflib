@@ -948,44 +948,51 @@ endif()
 #  C and C++ examples
 #
 
-# Note: to add a target with multiple sources/dependencies/libraries you must pass a list
-# separated by semicolons for the appropriate parameter.
-# Note: the math library should be linked in by appending ';m' to the library list here
-macro(add_target target)
-	cmake_parse_arguments(AT "" "" "SOURCES;LINKS" ${ARGN})
-	add_executable(${target} ${AT_SOURCES})
+# ::
+#   add_target( <name>
+#               source1 [source2 ...]
+#               [LINKS <link_library> [<link_library> ...]]
+#             )
+#
+# Convenience function for adding a target executable with it's
+# dependencies in a single command. If specified, LINKS will be added to
+# the target with target_link_libraries(...)
+#
+function(add_target target)
+	cmake_parse_arguments(AT "" "" "LINKS" ${ARGN})
+	add_executable(${target} ${AT_UNPARSED_ARGUMENTS})
 	if (AT_LINKS)
 		target_link_libraries(${target} ${AT_LINKS})
 	endif()
-endmacro()
+endfunction()
 
-add_target(adscimg2cbf SOURCES "${CBF__EXAMPLES}/adscimg2cbf.c" "${CBF__EXAMPLES}/adscimg2cbf_sub.c" LINKS cbf_shared m)
-add_target(cbf2adscimg SOURCES "${CBF__EXAMPLES}/cbf2adscimg.c" "${CBF__EXAMPLES}/cbf2adscimg_sub.c" LINKS cbf_shared m)
-add_target(convert_image SOURCES "${CBF__EXAMPLES}/convert_image.c" LINKS cbf_shared img_static m)
-add_target(convert_minicbf SOURCES "${CBF__EXAMPLES}/convert_minicbf.c" LINKS cbf_shared m)
-add_target(makecbf SOURCES "${CBF__EXAMPLES}/makecbf.c" LINKS cbf_shared img_static m)
-add_target(cbf_tail SOURCES "${CBF__EXAMPLES}/cbf_tail.c" LINKS cbf_shared)
-add_target(changtestcompression SOURCES "${CBF__EXAMPLES}/changtestcompression.c" LINKS cbf_shared)
-add_target(img2cif SOURCES "${CBF__EXAMPLES}/img2cif.c" LINKS cbf_shared img_static m)
-add_target(cbf_template_t SOURCES "${CBF__DECTRIS_EXAMPLES}/cbf_template_t.c" LINKS cbf_shared)
-add_target(testcell SOURCES "${CBF__EXAMPLES}/testcell.C" LINKS cbf_shared)
-add_target(sauter_test SOURCES "${CBF__EXAMPLES}/sauter_test.C" LINKS cbf_shared)
-add_target(sequence_match SOURCES "${CBF__EXAMPLES}/sequence_match.c" LINKS cbf_shared)
-add_target(testulp SOURCES "${CBF__EXAMPLES}/testulp.c" LINKS cbf_shared)
-add_target(testtree SOURCES "${CBF__EXAMPLES}/testtree.c" LINKS cbf_shared)
-add_target(testalloc SOURCES "${CBF__EXAMPLES}/testalloc.c" LINKS cbf_shared)
-add_target(testflat SOURCES "${CBF__EXAMPLES}/testflat.c" LINKS cbf_shared)
-add_target(testflatpacked SOURCES "${CBF__EXAMPLES}/testflatpacked.c" LINKS cbf_shared)
-add_target(testreals SOURCES "${CBF__EXAMPLES}/testreals.c" LINKS cbf_shared)
+add_target(adscimg2cbf "${CBF__EXAMPLES}/adscimg2cbf.c" "${CBF__EXAMPLES}/adscimg2cbf_sub.c" LINKS cbf_shared m)
+add_target(cbf2adscimg "${CBF__EXAMPLES}/cbf2adscimg.c" "${CBF__EXAMPLES}/cbf2adscimg_sub.c" LINKS cbf_shared m)
+add_target(convert_image "${CBF__EXAMPLES}/convert_image.c" LINKS cbf_shared img_static m)
+add_target(convert_minicbf "${CBF__EXAMPLES}/convert_minicbf.c" LINKS cbf_shared m)
+add_target(makecbf "${CBF__EXAMPLES}/makecbf.c" LINKS cbf_shared img_static m)
+add_target(cbf_tail "${CBF__EXAMPLES}/cbf_tail.c" LINKS cbf_shared)
+add_target(changtestcompression "${CBF__EXAMPLES}/changtestcompression.c" LINKS cbf_shared)
+add_target(img2cif "${CBF__EXAMPLES}/img2cif.c" LINKS cbf_shared img_static m)
+add_target(cbf_template_t "${CBF__DECTRIS_EXAMPLES}/cbf_template_t.c" LINKS cbf_shared)
+add_target(testcell "${CBF__EXAMPLES}/testcell.C" LINKS cbf_shared)
+add_target(sauter_test "${CBF__EXAMPLES}/sauter_test.C" LINKS cbf_shared)
+add_target(sequence_match "${CBF__EXAMPLES}/sequence_match.c" LINKS cbf_shared)
+add_target(testulp "${CBF__EXAMPLES}/testulp.c" LINKS cbf_shared)
+add_target(testtree "${CBF__EXAMPLES}/testtree.c" LINKS cbf_shared)
+add_target(testalloc "${CBF__EXAMPLES}/testalloc.c" LINKS cbf_shared)
+add_target(testflat "${CBF__EXAMPLES}/testflat.c" LINKS cbf_shared)
+add_target(testflatpacked "${CBF__EXAMPLES}/testflatpacked.c" LINKS cbf_shared)
+add_target(testreals "${CBF__EXAMPLES}/testreals.c" LINKS cbf_shared)
 if(USE_HDF5)
-  add_target(cbf2nexus SOURCES "${CBF__EXAMPLES}/cbf2nexus.c" LINKS cbf_shared m)
-  add_target(nexus2cbf SOURCES "${CBF__EXAMPLES}/nexus2cbf.c" LINKS cbf_shared m)
-  add_target(minicbf2nexus SOURCES "${CBF__EXAMPLES}/minicbf2nexus.c" LINKS cbf_shared hdf5::hdf5 m)
-  add_target(cif2cbf SOURCES "${CBF__EXAMPLES}/cif2cbf.c" LINKS cbf_shared img_static hdf5::hdf5 m)
-  add_target(testhdf5 SOURCES "${CBF__EXAMPLES}/testhdf5.c" LINKS cbf_shared hdf5::hdf5 m)
+  add_target(cbf2nexus "${CBF__EXAMPLES}/cbf2nexus.c" LINKS cbf_shared m)
+  add_target(nexus2cbf "${CBF__EXAMPLES}/nexus2cbf.c" LINKS cbf_shared m)
+  add_target(minicbf2nexus "${CBF__EXAMPLES}/minicbf2nexus.c" LINKS cbf_shared hdf5::hdf5 m)
+  add_target(cif2cbf "${CBF__EXAMPLES}/cif2cbf.c" LINKS cbf_shared img_static hdf5::hdf5 m)
+  add_target(testhdf5 "${CBF__EXAMPLES}/testhdf5.c" LINKS cbf_shared hdf5::hdf5 m)
 endif()
 if(USE_TIFF)
-  add_target(tiff2cbf SOURCES "${CBF__EXAMPLES}/tiff2cbf.c" LINKS cbf_shared TIFF::TIFF)
+  add_target(tiff2cbf "${CBF__EXAMPLES}/tiff2cbf.c" LINKS cbf_shared TIFF::TIFF)
 endif()
 
 if(USE_FORTRAN)
@@ -1003,8 +1010,8 @@ if(USE_FORTRAN)
       DEPENDS ${CBF_M4_FCB_DEFINES} "${CBF__M4}/test_xds_binary.m4"
       COMMENT "Generating ${test_xds_binary.f90}")
 
-  add_target(test_fcb_read_image SOURCES "${CBF__BLDEXMP}/test_fcb_read_image.f90" LINKS fcb_static)
-  add_target(test_xds_binary SOURCES "${CBF__BLDEXMP}/test_xds_binary.f90" LINKS fcb_static)
+  add_target(test_fcb_read_image "${CBF__BLDEXMP}/test_fcb_read_image.f90" LINKS fcb_static)
+  add_target(test_xds_binary "${CBF__BLDEXMP}/test_xds_binary.f90" LINKS fcb_static)
 endif()
 
 
