@@ -968,7 +968,7 @@ add_target(makecbf SOURCES "${CBF__EXAMPLES}/makecbf.c" LINKS cbf_static img_sta
 add_target(cbf_tail SOURCES "${CBF__EXAMPLES}/cbf_tail.c" LINKS cbf_static)
 add_target(changtestcompression SOURCES "${CBF__EXAMPLES}/changtestcompression.c" LINKS cbf_static)
 add_target(img2cif SOURCES "${CBF__EXAMPLES}/img2cif.c" LINKS cbf_static img_static)
-add_target(cif2cbf SOURCES "${CBF__EXAMPLES}/cif2cbf.c" LINKS cbf_static hdf5::hdf5 m)
+add_target(cif2cbf SOURCES "${CBF__EXAMPLES}/cif2cbf.c" LINKS cbf_static img_static hdf5::hdf5 m)
 add_target(cbf_template_t SOURCES "${CBF__DECTRIS_EXAMPLES}/cbf_template_t.c" LINKS cbf_static)
 add_target(testcell SOURCES "${CBF__EXAMPLES}/testcell.C" LINKS cbf_static)
 add_target(sauter_test SOURCES "${CBF__EXAMPLES}/sauter_test.C" LINKS cbf_static)
