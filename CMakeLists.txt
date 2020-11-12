@@ -1060,47 +1060,6 @@ else ()
 	CBF_DEBUG_MESSAGE("valgrind could not be not found")
 endif ()
 
-#
-# tests  -- to be extended
-#
-
-#
-# CBF_SET_TEST_ENVIRONMENT
-#
-macro(CBF_SET_TEST_ENVIRONMENT TESTNAME)
-  IF(WIN32)
-    set (xrpathname "PATH")
-    set (xrpath "$ENV{PATH}")
-    string(REPLACE ";" "\\;" xrpath "${xrpath}")
-  ELSE(WIN32)
-    IF(APPLE)
-      set(xrpathname "DYLD_LIBRARY_PATH")
-    ELSE(APPLE)
-      set(xrpathname "LD_LIBRARY_PATH")
-    ENDIF(APPLE)
-    set (xrpath "$ENV{${xrpathname}}")
-  ENDIF(WIN32)
-  set_property(TEST ${TESTNAME} PROPERTY ENVIRONMENT "${xrpathname}=${xrpath}")
-  message(status "${xrpathname}=${xrpath}")
-endmacro(CBF_SET_TEST_ENVIRONMENT)
-
-macro(CBF_APPEND_TEST_ENVIRONMENT TESTNAME)
-  IF(WIN32)
-    set (xrpathname "PATH")
-    set (xrpath "$ENV{PATH}")
-    string(REPLACE ";" "\\;" xrpath "${xrpath}")
-  ELSE(WIN32)
-    IF(APPLE)
-      set( xrpathname "DYLD_LIBRARY_PATH" )
-    ELSE(APPLE)
-      set( xrpathname "LD_LIBRARY_PATH" )
-    ENDIF(APPLE)
-    set (xrpath "$ENV{${xrpathname}")
-  ENDIF(WIN32)
-  set_property(TEST ${TESTNAME} APPEND PROPERTY ENVIRONMENT "$xrpathname=${xrpath}")
-endmacro(CBF_APPEND_TEST_ENVIRONMENT TESTNAME)
-
-
 ###############################################################################
 #
 # Testing
