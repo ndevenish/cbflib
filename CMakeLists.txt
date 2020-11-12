@@ -487,10 +487,11 @@ set(GRAPHICS  "${CBFlib_SOURCE_DIR}/html_graphics" CACHE STRING "")
 
 
 find_package(TIFF REQUIRED)
+set(HDF5_VERSION_REQUIRED 1.10)
 if (USE_FORTRAN)
-  find_package(HDF5 REQUIRED COMPONENTS C Fortran)
+  find_package(HDF5 ${HDF5_VERSION_REQUIRED} REQUIRED COMPONENTS C Fortran)
 else()
-  find_package(HDF5 REQUIRED COMPONENTS C)
+  find_package(HDF5 ${HDF5_VERSION_REQUIRED} REQUIRED COMPONENTS C)
 endif()
 
 # Backport the CMake 3.19 HDF5 target definitions
