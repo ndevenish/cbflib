@@ -279,6 +279,8 @@
 cmake_minimum_required(VERSION 3.9)
 
 set(USE_FORTRAN OFF CACHE BOOL "Build Fortran Bindings")
+set(USE_HDF5    ON CACHE  BOOL "Build HDF5-related bindings")
+set(USE_TIFF    ON CACHE  BOOL "Build tiff2cbf")
 
 set(CBF_F90FLAGS_ENV $ENV{F90FLAGS})
 set(CBF_USE_ULP $ENV{CBF_USE_ULP})
@@ -486,46 +488,53 @@ set(MINICBF_TEST "${CBFlib_SOURCE_DIR}/minicbf_test" CACHE STRING "")
 set(GRAPHICS  "${CBFlib_SOURCE_DIR}/html_graphics" CACHE STRING "")
 
 
-find_package(TIFF REQUIRED)
-set(HDF5_VERSION_REQUIRED 1.10)
-if (USE_FORTRAN)
-  find_package(HDF5 ${HDF5_VERSION_REQUIRED} REQUIRED COMPONENTS C Fortran)
+if(USE_TIFF)
+  find_package(TIFF REQUIRED)
+endif()
+
+if(USE_HDF5)
+  set(HDF5_VERSION_REQUIRED 1.10)
+  if (USE_FORTRAN)
+    find_package(HDF5 ${HDF5_VERSION_REQUIRED} REQUIRED COMPONENTS C Fortran)
+  else()
+    find_package(HDF5 ${HDF5_VERSION_REQUIRED} REQUIRED COMPONENTS C)
+  endif()
+
+  # Backport the CMake 3.19 HDF5 target definitions
+  if (NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
+    if (NOT TARGET HDF5::HDF5)
+      add_library(HDF5::HDF5 INTERFACE IMPORTED)
+      string(REPLACE "-D" "" _hdf5_definitions "${HDF5_DEFINITIONS}")
+      set_target_properties(HDF5::HDF5 PROPERTIES
+        INTERFACE_LINK_LIBRARIES "${HDF5_LIBRARIES}"
+        INTERFACE_INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIRS}"
+        INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
+      unset(_hdf5_definitions)
+    endif ()
+
+    if (HDF5_C_LIBRARIES AND NOT TARGET "hdf5::hdf5")
+      add_library("hdf5::hdf5" INTERFACE IMPORTED)
+      string(REPLACE "-D" "" _hdf5_definitions "${HDF5_C_DEFINITIONS}")
+      set_target_properties("hdf5::hdf5" PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${HDF5_C_INCLUDE_DIRS}"
+        INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}"
+        INTERFACE_LINK_LIBRARIES "HDF5::HDF5")
+      unset(_hdf5_definitions)
+    endif()
+
+    if (HDF5_Fortran_LIBRARIES AND NOT TARGET "hdf5::hdf5_fortran")
+      add_library("hdf5::hdf5_fortran" INTERFACE IMPORTED)
+      string(REPLACE "-D" "" _hdf5_definitions "${HDF5_Fortran_DEFINITIONS}")
+      set_target_properties("hdf5::hdf5_fortran" PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${HDF5_Fortran_INCLUDE_DIRS}"
+        INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
+      unset(_hdf5_definitions)
+    endif()
+  endif()
 else()
-  find_package(HDF5 ${HDF5_VERSION_REQUIRED} REQUIRED COMPONENTS C)
+  # Make dummy hdf5 targets
+  add_library(hdf5::hdf5 INTERFACE IMPORTED)
 endif()
-
-# Backport the CMake 3.19 HDF5 target definitions
-if (NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
-  if (NOT TARGET HDF5::HDF5)
-    add_library(HDF5::HDF5 INTERFACE IMPORTED)
-    string(REPLACE "-D" "" _hdf5_definitions "${HDF5_DEFINITIONS}")
-    set_target_properties(HDF5::HDF5 PROPERTIES
-      INTERFACE_LINK_LIBRARIES "${HDF5_LIBRARIES}"
-      INTERFACE_INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIRS}"
-      INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
-    unset(_hdf5_definitions)
-  endif ()
-
-  if (HDF5_C_LIBRARIES AND NOT TARGET "hdf5::hdf5")
-    add_library("hdf5::hdf5" INTERFACE IMPORTED)
-    string(REPLACE "-D" "" _hdf5_definitions "${HDF5_C_DEFINITIONS}")
-    set_target_properties("hdf5::hdf5" PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES "${HDF5_C_INCLUDE_DIRS}"
-      INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}"
-      INTERFACE_LINK_LIBRARIES "HDF5::HDF5")
-    unset(_hdf5_definitions)
-  endif()
-
-  if (HDF5_Fortran_LIBRARIES AND NOT TARGET "hdf5::hdf5_fortran")
-    add_library("hdf5::hdf5_fortran" INTERFACE IMPORTED)
-    string(REPLACE "-D" "" _hdf5_definitions "${HDF5_Fortran_DEFINITIONS}")
-    set_target_properties("hdf5::hdf5_fortran" PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES "${HDF5_Fortran_INCLUDE_DIRS}"
-      INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
-    unset(_hdf5_definitions)
-  endif()
-endif()
-
 #
 #  ZLIB
 #
@@ -666,9 +675,6 @@ set(
     ${CBF__SRC}/cbf_copy.c
     ${CBF__SRC}/cbf_file.c
     ${CBF__SRC}/cbf_getopt.c
-    ${CBF__SRC}/cbf_hdf5.c
-    ${CBF__SRC}/cbf_hdf5_filter.c
-    ${CBF__SRC}/cbf_lex.c
     ${CBF__SRC}/cbf_nibble_offset.c
     ${CBF__SRC}/cbf_packed.c
     ${CBF__SRC}/cbf_predictor.c
@@ -683,12 +689,16 @@ set(
     ${CBF__SRC}/cbf_write.c
     ${CBF__SRC}/cbf_write_binary.c
     ${CBF__SRC}/cbf_ws.c
-	${CBF__SRC}/md5c.c
+    ${CBF__SRC}/md5c.c
     ${CBF__SRC}/img.c
     ${CBF__SRC}/cbf_airy_disk.c
     ${CBF__SRC}/cbf_minicbf_header.c
     ${CBF__SRC}/cbff.c
+    ${CBF__SRC}/cbf_lex.c
 )
+if (USE_HDF5)
+  list(APPEND CBF_C_SOURCES ${CBF__SRC}/cbf_hdf5.c ${CBF__SRC}/cbf_hdf5_filter.c)
+endif()
 
 if (USE_FORTRAN)
   set(
@@ -861,7 +871,7 @@ add_library(cbf_static STATIC ${CBF_C_SOURCES})
 # if (CBF_RE)
 #   add_dependencies(cbf_static "${CBF_RE}")
 # endif()
-target_link_libraries(cbf_static PUBLIC hdf5::hdf5 TIFF::TIFF)
+target_link_libraries(cbf_static PUBLIC hdf5::hdf5)
 set_target_properties(cbf_static PROPERTIES OUTPUT_NAME "cbf")
 set_target_properties(cbf_static PROPERTIES LINKER_LANGUAGE C)
 set_target_properties(cbf_static PROPERTIES SOVERSION "${CBF_APIVERSION}")
@@ -874,7 +884,7 @@ add_library(cbf_shared SHARED  ${CBF_C_SOURCES})
 if (CBF_RE)
   add_dependencies(cbf_shared ${CBF_RE})
 endif()
-target_link_libraries(cbf_shared PUBLIC hdf5::hdf5 TIFF::TIFF)
+target_link_libraries(cbf_shared PUBLIC hdf5::hdf5)
 set_target_properties(cbf_shared PROPERTIES OUTPUT_NAME "cbf")
 set_target_properties(cbf_shared PROPERTIES LINKER_LANGUAGE C)
 set_target_properties(cbf_shared PROPERTIES SOVERSION "${CBF_APIVERSION}")
@@ -956,10 +966,6 @@ macro(add_target target)
 	endif()
 endmacro()
 
-add_target(tiff2cbf SOURCES "${CBF__EXAMPLES}/tiff2cbf.c" LINKS cbf_static TIFF::TIFF)
-add_target(cbf2nexus SOURCES "${CBF__EXAMPLES}/cbf2nexus.c" LINKS cbf_static)
-add_target(nexus2cbf SOURCES "${CBF__EXAMPLES}/nexus2cbf.c" LINKS cbf_static)
-add_target(minicbf2nexus SOURCES "${CBF__EXAMPLES}/minicbf2nexus.c" LINKS cbf_static hdf5::hdf5)
 add_target(adscimg2cbf SOURCES "${CBF__EXAMPLES}/adscimg2cbf.c" "${CBF__EXAMPLES}/adscimg2cbf_sub.c" LINKS cbf_static m)
 add_target(cbf2adscimg SOURCES "${CBF__EXAMPLES}/cbf2adscimg.c" "${CBF__EXAMPLES}/cbf2adscimg_sub.c" LINKS cbf_static m)
 add_target(convert_image SOURCES "${CBF__EXAMPLES}/convert_image.c" LINKS cbf_static img_static)
@@ -968,18 +974,26 @@ add_target(makecbf SOURCES "${CBF__EXAMPLES}/makecbf.c" LINKS cbf_static img_sta
 add_target(cbf_tail SOURCES "${CBF__EXAMPLES}/cbf_tail.c" LINKS cbf_static)
 add_target(changtestcompression SOURCES "${CBF__EXAMPLES}/changtestcompression.c" LINKS cbf_static)
 add_target(img2cif SOURCES "${CBF__EXAMPLES}/img2cif.c" LINKS cbf_static img_static)
-add_target(cif2cbf SOURCES "${CBF__EXAMPLES}/cif2cbf.c" LINKS cbf_static img_static hdf5::hdf5 m)
 add_target(cbf_template_t SOURCES "${CBF__DECTRIS_EXAMPLES}/cbf_template_t.c" LINKS cbf_static)
 add_target(testcell SOURCES "${CBF__EXAMPLES}/testcell.C" LINKS cbf_static)
 add_target(sauter_test SOURCES "${CBF__EXAMPLES}/sauter_test.C" LINKS cbf_static)
 add_target(sequence_match SOURCES "${CBF__EXAMPLES}/sequence_match.c" LINKS cbf_static)
 add_target(testulp SOURCES "${CBF__EXAMPLES}/testulp.c" LINKS cbf_static)
-add_target(testhdf5 SOURCES "${CBF__EXAMPLES}/testhdf5.c" LINKS cbf_static hdf5::hdf5)
 add_target(testtree SOURCES "${CBF__EXAMPLES}/testtree.c" LINKS cbf_static)
 add_target(testalloc SOURCES "${CBF__EXAMPLES}/testalloc.c" LINKS cbf_static)
 add_target(testflat SOURCES "${CBF__EXAMPLES}/testflat.c" LINKS cbf_static)
 add_target(testflatpacked SOURCES "${CBF__EXAMPLES}/testflatpacked.c" LINKS cbf_static)
 add_target(testreals SOURCES "${CBF__EXAMPLES}/testreals.c" LINKS cbf_static)
+if(USE_HDF5)
+  add_target(cbf2nexus SOURCES "${CBF__EXAMPLES}/cbf2nexus.c" LINKS cbf_static)
+  add_target(nexus2cbf SOURCES "${CBF__EXAMPLES}/nexus2cbf.c" LINKS cbf_static)
+  add_target(minicbf2nexus SOURCES "${CBF__EXAMPLES}/minicbf2nexus.c" LINKS cbf_static hdf5::hdf5)
+  add_target(cif2cbf SOURCES "${CBF__EXAMPLES}/cif2cbf.c" LINKS cbf_static img_static hdf5::hdf5 m)
+  add_target(testhdf5 SOURCES "${CBF__EXAMPLES}/testhdf5.c" LINKS cbf_static hdf5::hdf5)
+endif()
+if(USE_TIFF)
+  add_target(tiff2cbf SOURCES "${CBF__EXAMPLES}/tiff2cbf.c" LINKS cbf_static TIFF::TIFF)
+endif()
 
 if(USE_FORTRAN)
   #
@@ -1007,22 +1021,26 @@ endif()
 #
 install (TARGETS makecbf DESTINATION bin)
 install (TARGETS img2cif DESTINATION bin)
-install (TARGETS cif2cbf DESTINATION bin)
 install (TARGETS adscimg2cbf DESTINATION bin)
 install (TARGETS cbf2adscimg DESTINATION bin)
 install (TARGETS changtestcompression DESTINATION bin)
 install (TARGETS convert_image DESTINATION bin)
 install (TARGETS convert_minicbf DESTINATION bin)
-install (TARGETS minicbf2nexus DESTINATION bin)
-install (TARGETS cbf2nexus DESTINATION bin)
-install (TARGETS nexus2cbf DESTINATION bin)
 install (TARGETS cbf_template_t DESTINATION bin)
 install (TARGETS testcell DESTINATION bin)
 install (TARGETS sauter_test DESTINATION bin)
 install (TARGETS sequence_match DESTINATION bin)
-install (TARGETS tiff2cbf DESTINATION bin)
 install (TARGETS cbf_static DESTINATION lib)
 install (TARGETS cbf_shared DESTINATION lib)
+if(USE_HDF5)
+install (TARGETS cif2cbf DESTINATION bin)
+install (TARGETS minicbf2nexus DESTINATION bin)
+install (TARGETS cbf2nexus DESTINATION bin)
+install (TARGETS nexus2cbf DESTINATION bin)
+endif()
+if(USE_TIFF)
+  install (TARGETS tiff2cbf DESTINATION bin)
+endif()
 
 if(USE_FORTRAN)
   install (TARGETS fcb_static DESTINATION lib)
@@ -1447,7 +1465,9 @@ set_property(TEST cmp-XRD1621_orig.cbf-XRD1621.cbf APPEND PROPERTY DEPENDS XRD16
 # unit tests
 
 add_test(testalloc ${VALGRIND_COMMAND} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testalloc)
-add_test(testhdf5 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testhdf5)
+if(USE_HDF5)
+  add_test(testhdf5 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testhdf5)
+endif()
 add_test(testtree ${VALGRIND_COMMAND} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testtree)
 add_test(testulp ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testulp)
 
