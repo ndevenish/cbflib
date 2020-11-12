@@ -281,19 +281,19 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 
-set(CBF_USE_FORTRAN_ENV $ENV{CBF_USE_FORTRAN})
+set(USE_FORTRAN OFF CACHE BOOL "Build Fortran Bindings")
+
 set(CBF_F90FLAGS_ENV $ENV{F90FLAGS})
 set(CBF_USE_ULP $ENV{CBF_USE_ULP})
 set(CBF_M4FLAGS_ENV $ENV{M4FLAGS})
 set(CBF_HDF5REGISTER_MANUAL_ENV $ENV{CBF_HDF5REGISTER_MANUAL})
 
-if (CBF_USE_FORTRAN_ENV STREQUAL "NO")
-  project (CBFlib C CXX)
-  set(CBF_HDF5_ENABLE_FORTRAN "no")
-else (CBF_USE_FORTRAN_ENV STREQUAL "NO")
+if (USE_FORTRAN)
   project (CBFlib C CXX Fortran)
-  set(CBF_HDF5_ENABLE_FORTRAN "yes")
-endif (CBF_USE_FORTRAN_ENV STREQUAL "NO")
+else ()
+  project (CBFlib C CXX)
+endif()
+
 enable_testing()
 
 set (CBF_CMAKE_DEBUG "ON")
@@ -314,17 +314,15 @@ else (CBF_M4FLAGS_ENV)
   set(CBF_M4FLAGS "-Dfcb_bytes_in_rec=4096")
 endif (CBF_M4FLAGS_ENV)
 
-if (NOT (CBF_USE_FORTRAN_ENV STREQUAL "NO"))
-
-if (CBF_F90FLAGS_ENV)
-  set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${CBF_F90FLAGS_ENV}")
-  set(CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG}   ${CBF_F90FLAGS_ENV}")
-else (CBF_F90FLAGS_ENV)
-  set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -fno-range-check")
-  set(CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG}   -fno-range-check")
-endif (CBF_F90FLAGS_ENV)
-
-endif (NOT (CBF_USE_FORTRAN_ENV STREQUAL "NO"))
+if (USE_FORTRAN)
+  if (CBF_F90FLAGS_ENV)
+    set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${CBF_F90FLAGS_ENV}")
+    set(CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG}   ${CBF_F90FLAGS_ENV}")
+  else (CBF_F90FLAGS_ENV)
+    set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -fno-range-check")
+    set(CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG}   -fno-range-check")
+  endif (CBF_F90FLAGS_ENV)
+endif ()
 
 # make sure that the default is a RELEASE
 if (NOT CMAKE_BUILD_TYPE)
@@ -400,7 +398,7 @@ set(CBF__INCLUDE   "${CBFlib_SOURCE_DIR}/include" )
 set(CBF__M4        "${CBFlib_SOURCE_DIR}/m4" )
 set(CBF__DOC       "${CBFlib_SOURCE_DIR}/doc" )
 set(CBF__EXAMPLES  "${CBFlib_SOURCE_DIR}/examples" )
-set(CBF__EXTERNAL_PACKAGES 
+set(CBF__EXTERNAL_PACKAGES
                    "${CBFlib_SOURCE_DIR}/external_packages" )
 set(CBF__DECTRIS_EXAMPLES
                    "${CBF__EXAMPLES}/dectris_cbf_template_test" )
@@ -487,10 +485,34 @@ set(GRAPHICS  "${CBFlib_SOURCE_DIR}/html_graphics" CACHE STRING "")
 
 
 find_package(TIFF REQUIRED)
-find_package(HDF5 REQUIRED COMPONENTS C Fortran)
+if (USE_FORTRAN)
+  find_package(HDF5 REQUIRED COMPONENTS C Fortran)
+else()
+  find_package(HDF5 REQUIRED COMPONENTS C)
+endif()
 
 # Backport the 3.19 HDF5 target definitions
 if (NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
+  message("HDF5:")
+  message("      i: ${HDF5_INCLUDE_DIRS}")
+  message("      D: ${HDF5_DEFINITIONS}")
+  message("      l: ${HDF5_LIBRARIES}")
+  message(" CXX: i: ${HDF5_CXX_INCLUDE_DIRS}")
+  message("      D: ${HDF5_CXX_DEFINITIONS}")
+  message("      l: ${HDF5_CXX_LIBRARIES}")
+  message("   C: i: ${HDF5_C_INCLUDE_DIRS}")
+  message("      D: ${HDF5_C_DEFINITIONS}")
+  message("      l: ${HDF5_C_LIBRARIES}")
+  message("C_HL: i: ${HDF5_C_HL_INCLUDE_DIRS}")
+  message("      D: ${HDF5_C_HL_DEFINITIONS}")
+  message("      l: ${HDF5_C_HL_LIBRARIES}")
+  message("CXXHL:i: ${HDF5_CXX_HL_INCLUDE_DIRS}")
+  message("      D: ${HDF5_CXX_HL_DEFINITIONS}")
+  message("      l: ${HDF5_CXX_HL_LIBRARIES}")
+  message("Fortr:i: ${HDF5_FORTRAN_INCLUDE_DIRS}")
+  message("      D: ${HDF5_FORTRAN_DEFINITIONS}")
+  message("      l: ${HDF5_FORTRAN_LIBRARIES}")
+
   if (NOT TARGET HDF5::HDF5)
     add_library(HDF5::HDF5 INTERFACE IMPORTED)
     string(REPLACE "-D" "" _hdf5_definitions "${HDF5_DEFINITIONS}")
@@ -506,7 +528,8 @@ if (NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
     string(REPLACE "-D" "" _hdf5_definitions "${HDF5_C_DEFINITIONS}")
     set_target_properties("hdf5::hdf5" PROPERTIES
       INTERFACE_INCLUDE_DIRECTORIES "${HDF5_C_INCLUDE_DIRS}"
-      INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
+      INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}"
+      INTERFACE_LINK_LIBRARIES "HDF5::HDF5")
     unset(_hdf5_definitions)
   endif()
 
@@ -519,6 +542,72 @@ if (NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
     unset(_hdf5_definitions)
   endif()
 endif()
+
+
+## https://stackoverflow.com/questions/32183975/how-to-print-all-the-properties-of-a-target-in-cmake/56738858#56738858
+## https://stackoverflow.com/a/56738858/3743145
+## Get all properties that cmake supports
+execute_process(COMMAND cmake --help-property-list OUTPUT_VARIABLE CMAKE_PROPERTY_LIST)
+## Convert command output into a CMake list
+STRING(REGEX REPLACE ";" "\\\\;" CMAKE_PROPERTY_LIST "${CMAKE_PROPERTY_LIST}")
+STRING(REGEX REPLACE "\n" ";" CMAKE_PROPERTY_LIST "${CMAKE_PROPERTY_LIST}")
+list(REMOVE_DUPLICATES CMAKE_PROPERTY_LIST)
+# List of valid interface properties
+set(CMAKE_PROPERTY_LIST ALIASED_TARGET
+                        # ALIAS_GLOBAL
+                        COMPATIBLE_INTERFACE_BOOL
+                        COMPATIBLE_INTERFACE_NUMBER_MAX
+                        COMPATIBLE_INTERFACE_NUMBER_MIN
+                        COMPATIBLE_INTERFACE_STRING
+                        DEPRECATION
+                        EXPORT_NAME
+                        EXPORT_PROPERTIES
+                        IMPORTED
+                        IMPORTED_CONFIGURATIONS
+                        IMPORTED_GLOBAL
+                        IMPORTED_LIBNAME
+                        IMPORTED_LIBNAME_<CONFIG>
+                        INTERFACE_AUTOUIC_OPTIONS
+                        INTERFACE_COMPILE_DEFINITIONS
+                        INTERFACE_COMPILE_FEATURES
+                        INTERFACE_COMPILE_OPTIONS
+                        INTERFACE_INCLUDE_DIRECTORIES
+                        INTERFACE_LINK_DEPENDS
+                        INTERFACE_LINK_DIRECTORIES
+                        INTERFACE_LINK_LIBRARIES
+                        INTERFACE_LINK_OPTIONS
+                        INTERFACE_POSITION_INDEPENDENT_CODE
+                        INTERFACE_PRECOMPILE_HEADERS
+                        INTERFACE_SOURCES
+                        INTERFACE_SYSTEM_INCLUDE_DIRECTORIES
+                        MANUALLY_ADDED_DEPENDENCIES
+                        MAP_IMPORTED_CONFIG_<CONFIG>
+                        NAME
+                        NO_SYSTEM_FROM_IMPORTED
+                        PRIVATE_HEADER
+                        PUBLIC_HEADER
+                        TYPE )
+function(print_target_properties tgt)
+    if(NOT TARGET ${tgt})
+      message("There is no target named '${tgt}'")
+      return()
+    endif()
+
+    foreach (prop ${CMAKE_PROPERTY_LIST})
+        string(REPLACE "<CONFIG>" "${CMAKE_BUILD_TYPE}" prop ${prop})
+        get_target_property(propval ${tgt} ${prop})
+        if (propval)
+            get_target_property(propval ${tgt} ${prop})
+            message ("${tgt} ${prop} = ${propval}")
+        endif()
+    endforeach(prop)
+endfunction(print_target_properties)
+
+
+
+set(CMAKE_DEBUG_TARGET_PROPERTIES INCLUDE_DIRECTORIES)
+print_target_properties(hdf5::hdf5)
+print_target_properties(HDF5::HDF5)
 
 #
 # Definitions to get a version of zlib
@@ -687,37 +776,35 @@ set(
     ${CBF__SRC}/img.c
 )
 
-if (NOT (CBF_USE_FORTRAN_ENV STREQUAL "NO"))
+if (USE_FORTRAN)
+  set(
+    CBF_F90_BUILT_SOURCES
+        ${CBF__BLDSRC}/fcb_exit_binary.f90
+        ${CBF__BLDSRC}/fcb_next_binary.f90
+        ${CBF__BLDSRC}/fcb_open_cifin.f90
+        ${CBF__BLDSRC}/fcb_packed.f90
+        ${CBF__BLDSRC}/fcb_read_bits.f90
+        ${CBF__BLDSRC}/fcb_read_image.f90
+    ${CBF__BLDSRC}/fcb_read_xds_i2.f90
+  )
 
-set(
-	CBF_F90_BUILT_SOURCES 
-			${CBF__BLDSRC}/fcb_exit_binary.f90
-			${CBF__BLDSRC}/fcb_next_binary.f90
-			${CBF__BLDSRC}/fcb_open_cifin.f90
-			${CBF__BLDSRC}/fcb_packed.f90
-			${CBF__BLDSRC}/fcb_read_bits.f90
-			${CBF__BLDSRC}/fcb_read_image.f90
-	${CBF__BLDSRC}/fcb_read_xds_i2.f90
-)
-            
-set(
-	CBF_F90_SOURCES
-	${CBF__SRC}/fcb_atol_wcnt.f90
-			${CBF__SRC}/fcb_ci_strncmparr.f90
-			${CBF__SRC}/fcb_nblen_array.f90
-			${CBF__SRC}/fcb_read_byte.f90
-			${CBF__SRC}/fcb_read_line.f90
-	${CBF__SRC}/fcb_skip_whitespace.f90
-)
-
-endif (NOT (CBF_USE_FORTRAN_ENV STREQUAL "NO"))
+  set(
+    CBF_F90_SOURCES
+    ${CBF__SRC}/fcb_atol_wcnt.f90
+        ${CBF__SRC}/fcb_ci_strncmparr.f90
+        ${CBF__SRC}/fcb_nblen_array.f90
+        ${CBF__SRC}/fcb_read_byte.f90
+        ${CBF__SRC}/fcb_read_line.f90
+    ${CBF__SRC}/fcb_skip_whitespace.f90
+  )
+endif()
 
 # use, i.e. don't skip the full RPATH for the build tree
 SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 
 # when building, don't use the install RPATH already
 # (but later on when installing)
-SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) 
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
@@ -732,34 +819,34 @@ IF("${isSystemDir}" STREQUAL "-1")
    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib" )
 ENDIF("${isSystemDir}" STREQUAL "-1")
 
-			
+
 #
 # Header files
 #
 set(
 	CBF_HEADERS
-	${CBF__INCLUDE}/cbf.h			
+	${CBF__INCLUDE}/cbf.h
     ${CBF__INCLUDE}/cbf_alloc.h
     ${CBF__INCLUDE}/cbf_ascii.h
-    ${CBF__INCLUDE}/cbf_binary.h		
+    ${CBF__INCLUDE}/cbf_binary.h
     ${CBF__INCLUDE}/cbf_byte_offset.h
     ${CBF__INCLUDE}/cbf_canonical.h
     ${CBF__INCLUDE}/cbf_codes.h
-    ${CBF__INCLUDE}/cbf_compress.h		
-    ${CBF__INCLUDE}/cbf_context.h		
-    ${CBF__INCLUDE}/cbf_copy.h			
-    ${CBF__INCLUDE}/cbf_file.h			
-    ${CBF__INCLUDE}/cbf_getopt.h		
-    ${CBF__INCLUDE}/cbf_hdf5.h			
+    ${CBF__INCLUDE}/cbf_compress.h
+    ${CBF__INCLUDE}/cbf_context.h
+    ${CBF__INCLUDE}/cbf_copy.h
+    ${CBF__INCLUDE}/cbf_file.h
+    ${CBF__INCLUDE}/cbf_getopt.h
+    ${CBF__INCLUDE}/cbf_hdf5.h
     ${CBF__INCLUDE}/cbf_hdf5_filter.h
-    ${CBF__INCLUDE}/cbf_lex.h			
+    ${CBF__INCLUDE}/cbf_lex.h
     ${CBF__INCLUDE}/cbf_nibble_offset.h
-    ${CBF__INCLUDE}/cbf_packed.h		
+    ${CBF__INCLUDE}/cbf_packed.h
     ${CBF__INCLUDE}/cbf_predictor.h
     ${CBF__INCLUDE}/cbf_read_binary.h
-    ${CBF__INCLUDE}/cbf_read_mime.h		
-    ${CBF__INCLUDE}/cbf_simple.h		
-    ${CBF__INCLUDE}/cbf_string.h		
+    ${CBF__INCLUDE}/cbf_read_mime.h
+    ${CBF__INCLUDE}/cbf_simple.h
+    ${CBF__INCLUDE}/cbf_string.h
     ${CBF__INCLUDE}/cbf_stx.h
     ${CBF__INCLUDE}/cbf_tree.h
     ${CBF__INCLUDE}/cbf_uncompressed.h
@@ -768,42 +855,42 @@ set(
     ${CBF__INCLUDE}/cbf_write_binary.h
     ${CBF__INCLUDE}/cbf_ws.h
     ${CBF__INCLUDE}/global.h
-    ${CBF__INCLUDE}/cbff.h			
+    ${CBF__INCLUDE}/cbff.h
 	${CBF__INCLUDE}/md5.h
     ${CBF__INCLUDE}/img.h
 )
 
 
-if (NOT (CBF_USE_FORTRAN_ENV STREQUAL "NO"))
+if(USE_FORTRAN)
 
-#
-# m4 FCB library macro files
-#
-set(
-	CBF_M4_FCB_DEFINES
-	${CBF__M4}/fcblib_defines.m4
-)
+  #
+  # m4 FCB library macro files
+  #
+  set(
+    CBF_M4_FCB_DEFINES
+    ${CBF__M4}/fcblib_defines.m4
+  )
 
-set(
-	CBF_M4_FCB_FILES 
-			${CBF__M4}/fcb_exit_binary.m4
-			${CBF__M4}/fcb_next_binary.m4
-			${CBF__M4}/fcb_open_cifin.m4
-			${CBF__M4}/fcb_packed.m4
-			${CBF__M4}/fcb_read_bits.m4
-			${CBF__M4}/fcb_read_image.m4
-	${CBF__M4}/fcb_read_xds_i2.m4
-)
-#
-# m4 F90 examples macro files
-#
-set(
-	CBF_M4_F90_EXAMPLES
-            ${CBF__M4}/test_fcb_read_image.m4
-	${CBF__M4}/test_xds_binary.m4
-)
+  set(
+    CBF_M4_FCB_FILES
+        ${CBF__M4}/fcb_exit_binary.m4
+        ${CBF__M4}/fcb_next_binary.m4
+        ${CBF__M4}/fcb_open_cifin.m4
+        ${CBF__M4}/fcb_packed.m4
+        ${CBF__M4}/fcb_read_bits.m4
+        ${CBF__M4}/fcb_read_image.m4
+    ${CBF__M4}/fcb_read_xds_i2.m4
+  )
+  #
+  # m4 F90 examples macro files
+  #
+  set(
+    CBF_M4_F90_EXAMPLES
+              ${CBF__M4}/test_fcb_read_image.m4
+    ${CBF__M4}/test_xds_binary.m4
+  )
 
-endif (NOT (CBF_USE_FORTRAN_ENV STREQUAL "NO"))
+endif()
 
 
 #
@@ -841,11 +928,12 @@ set(
 
 # Set up the necessary includes
 
-include_directories(
-	BEFORE SYSTEM
-                      ${CBFlib_SOURCE_DIR}/include
-                      ${CBF_REGEXLIB_INCLUDE_DIR}
-                      )
+include_directories(${CBFlib_SOURCE_DIR}/include)
+message("CBF_REGEXLIB_INCLUDE_DIR ${CBF_REGEXLIB_INCLUDE_DIR}")
+# 	BEFORE SYSTEM
+#                       
+#                       ${CBF_REGEXLIB_INCLUDE_DIR}
+#                       )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/bin")
 
@@ -856,9 +944,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
 add_library(cbf_static STATIC ${CBF_C_SOURCES})
-if (CBF_RE)
-  add_dependencies(cbf_static "${CBF_RE}")
-endif()
+# if (CBF_RE)
+#   add_dependencies(cbf_static "${CBF_RE}")
+# endif()
 target_link_libraries(cbf_static PUBLIC hdf5::hdf5 TIFF::TIFF)
 set_target_properties(cbf_static PROPERTIES OUTPUT_NAME "cbf")
 set_target_properties(cbf_static PROPERTIES LINKER_LANGUAGE C)
@@ -897,44 +985,43 @@ target_link_libraries(img_shared PUBLIC hdf5::hdf5)
 set(IMG_SHARED_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libimg.so)
 
 
-if (NOT (CBF_USE_FORTRAN_ENV STREQUAL "NO"))
-
-#
-# Build the f90 library sources
-#
-find_program(M4 m4)
-foreach(f90src IN LISTS CBF_F90_BUILT_SOURCES)
-  get_filename_component(filename "${f90src}" NAME_WE )
-  set(f90bldsrc "${CBF__BLDSRC}/${filename}.f90")
-  set(f90srcm4 "${CBF__M4}/${filename}.m4")
-	add_custom_command(
-		OUTPUT "${f90bldsrc}"
-    WORKING_DIRECTORY "${CBF__M4}"
-    COMMAND ${M4} -P "${CBF_M4FLAGS}" "${f90srcm4}" > "${f90bldsrc}"
-    DEPENDS ${CBF_M4_FCB_DEFINES} ${f90srcm4}
-		COMMENT "Generating ${f90bldsrc}"
-	)
-endforeach(f90src)
-
-
-#
-# Build the fcb libraries
-#
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
-add_library(fcb_static STATIC ${CBF_F90_BUILT_SOURCES};${CBF_F90_SOURCES})
-set_target_properties(fcb_static PROPERTIES OUTPUT_NAME "fcb")
-set_target_properties(fcb_static PROPERTIES LINKER_LANGUAGE C)
-set(FCB_STATIC_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libfcb.a)
+if(USE_FORTRAN)
+  #
+  # Build the f90 library sources
+  #
+  find_program(M4 m4)
+  foreach(f90src IN LISTS CBF_F90_BUILT_SOURCES)
+    get_filename_component(filename "${f90src}" NAME_WE )
+    set(f90bldsrc "${CBF__BLDSRC}/${filename}.f90")
+    set(f90srcm4 "${CBF__M4}/${filename}.m4")
+    add_custom_command(
+      OUTPUT "${f90bldsrc}"
+      WORKING_DIRECTORY "${CBF__M4}"
+      COMMAND ${M4} -P "${CBF_M4FLAGS}" "${f90srcm4}" > "${f90bldsrc}"
+      DEPENDS ${CBF_M4_FCB_DEFINES} ${f90srcm4}
+      COMMENT "Generating ${f90bldsrc}"
+    )
+  endforeach(f90src)
 
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
-add_library(fcb_shared SHARED  ${CBF_F90_BUILT_SOURCES};${CBF_F90_SOURCES})
-set_target_properties(fcb_shared PROPERTIES OUTPUT_NAME "fcb")
-set_target_properties(fcb_shared PROPERTIES LINKER_LANGUAGE C)
-target_link_libraries(fcb_shared hdf5::hdf5_fortran)
-set(FCB_SHARED_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libfcb.so)
+  #
+  # Build the fcb libraries
+  #
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
+  add_library(fcb_static STATIC ${CBF_F90_BUILT_SOURCES};${CBF_F90_SOURCES})
+  set_target_properties(fcb_static PROPERTIES OUTPUT_NAME "fcb")
+  set_target_properties(fcb_static PROPERTIES LINKER_LANGUAGE C)
+  set(FCB_STATIC_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libfcb.a)
 
-endif (NOT (CBF_USE_FORTRAN_ENV STREQUAL "NO"))
+
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
+  add_library(fcb_shared SHARED  ${CBF_F90_BUILT_SOURCES};${CBF_F90_SOURCES})
+  set_target_properties(fcb_shared PROPERTIES OUTPUT_NAME "fcb")
+  set_target_properties(fcb_shared PROPERTIES LINKER_LANGUAGE C)
+  target_link_libraries(fcb_shared hdf5::hdf5_fortran)
+  set(FCB_SHARED_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libfcb.so)
+
+endif()
 
 
 #
@@ -980,26 +1067,24 @@ add_target(testflat SOURCES "${CBF__EXAMPLES}/testflat.c" LINKS cbf_static)
 add_target(testflatpacked SOURCES "${CBF__EXAMPLES}/testflatpacked.c" LINKS cbf_static)
 add_target(testreals SOURCES "${CBF__EXAMPLES}/testreals.c" LINKS cbf_static)
 
-if (NOT (CBF_USE_FORTRAN_ENV STREQUAL "NO"))
+if(USE_FORTRAN)
+  #
+  #  F90 examples
+  #
+  add_custom_command(OUTPUT "${CBF__BLDEXMP}/test_fcb_read_image.f90"
+      WORKING_DIRECTORY "${CBF__M4}"
+      COMMAND ${M4} -P "${CBF_M4FLAGS}" "${CBF__M4}/test_fcb_read_image.m4" > "${CBF__BLDEXMP}/test_fcb_read_image.f90"
+      DEPENDS ${CBF_M4_FCB_DEFINES} "${CBF__M4}/test_fcb_read_image.m4"
+      COMMENT "Generating ${test_fcb_read_image.f90}")
+  add_custom_command(OUTPUT "${CBF__BLDEXMP}/test_xds_binary.f90"
+      WORKING_DIRECTORY "${CBF__M4}"
+      COMMAND ${M4} -P "${CBF_M4FLAGS}" "${CBF__M4}/test_xds_binary.m4" > "${CBF__BLDEXMP}/test_xds_binary.f90"
+      DEPENDS ${CBF_M4_FCB_DEFINES} "${CBF__M4}/test_xds_binary.m4"
+      COMMENT "Generating ${test_xds_binary.f90}")
 
-#
-#  F90 examples
-#
-add_custom_command(OUTPUT "${CBF__BLDEXMP}/test_fcb_read_image.f90"
-    WORKING_DIRECTORY "${CBF__M4}"
-    COMMAND ${M4} -P "${CBF_M4FLAGS}" "${CBF__M4}/test_fcb_read_image.m4" > "${CBF__BLDEXMP}/test_fcb_read_image.f90"
-    DEPENDS ${CBF_M4_FCB_DEFINES} "${CBF__M4}/test_fcb_read_image.m4"
-    COMMENT "Generating ${test_fcb_read_image.f90}")
-add_custom_command(OUTPUT "${CBF__BLDEXMP}/test_xds_binary.f90"
-    WORKING_DIRECTORY "${CBF__M4}"
-    COMMAND ${M4} -P "${CBF_M4FLAGS}" "${CBF__M4}/test_xds_binary.m4" > "${CBF__BLDEXMP}/test_xds_binary.f90"
-    DEPENDS ${CBF_M4_FCB_DEFINES} "${CBF__M4}/test_xds_binary.m4"
-    COMMENT "Generating ${test_xds_binary.f90}")
-
-add_target(test_fcb_read_image SOURCES "${CBF__BLDEXMP}/test_fcb_read_image.f90" LINKS fcb_static)
-add_target(test_xds_binary SOURCES "${CBF__BLDEXMP}/test_xds_binary.f90" LINKS fcb_static)
-
-endif (NOT (CBF_USE_FORTRAN_ENV STREQUAL "NO"))
+  add_target(test_fcb_read_image SOURCES "${CBF__BLDEXMP}/test_fcb_read_image.f90" LINKS fcb_static)
+  add_target(test_xds_binary SOURCES "${CBF__BLDEXMP}/test_xds_binary.f90" LINKS fcb_static)
+endif()
 
 
 
@@ -1025,10 +1110,10 @@ install (TARGETS tiff2cbf DESTINATION bin)
 install (TARGETS cbf_static DESTINATION lib)
 install (TARGETS cbf_shared DESTINATION lib)
 
-if (NOT (CBF_USE_FORTRAN_ENV STREQUAL "NO"))
+if(USE_FORTRAN)
   install (TARGETS fcb_static DESTINATION lib)
   install (TARGETS fcb_shared DESTINATION lib)
-endif (NOT (CBF_USE_FORTRAN_ENV STREQUAL "NO"))
+endif()
 
 install (TARGETS img_static DESTINATION lib)
 install (TARGETS img_shared DESTINATION lib)
@@ -1485,7 +1570,7 @@ add_test(cmp-testcell_orig.prt-testcell.prt ${CMAKE_COMMAND} -E compare_files ${
 set_property(TEST cmp-testcell_orig.prt-testcell.prt APPEND PROPERTY DEPENDS testcell)
 
 # basic minicbf2nexus tests
-  
+
 # generate a hfd5 file from minicbf data
 add_test(
 	minicbf.h5
@@ -1500,7 +1585,7 @@ add_test(
 	${CBF_DATADIRI}/X4_lots_M1S4_1_0004.cbf
 	${CBF_DATADIRI}/X4_lots_M1S4_1_0005.cbf
 )
-  
+
 # dump the content of generated and reference hdf5 files & use 'cbf_tail' to strip off some file names
 add_test(
 	minicbf_original.dump
