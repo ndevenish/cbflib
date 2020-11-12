@@ -333,11 +333,14 @@ if (USE_FORTRAN)
 endif ()
 
 # make sure that the default is a RELEASE
-if (NOT CMAKE_BUILD_TYPE)
-  set (CMAKE_BUILD_TYPE RELEASE CACHE STRING
-      "Choose the type of build, options are: None Debug Release."
-      FORCE)
-endif (NOT CMAKE_BUILD_TYPE)
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set (CMAKE_BUILD_TYPE Release CACHE STRING
+      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel ..."
+      FORCE )
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS 
+    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
 
 #
 #  Favor static libraries
@@ -493,6 +496,12 @@ if(USE_TIFF)
   find_package(TIFF REQUIRED)
 endif()
 
+if(USE_FORTRAN AND NOT USE_HDF5)
+  # I know c works without HDF5, but don't know how to make this happen
+  # for Fortran, so to be safe, assume that Fortran must have HDF5
+  message(FATAL_ERROR "Must have HDF5 build available to build Fortran bindings")
+endif()
+
 if(USE_HDF5)
   set(HDF5_VERSION_REQUIRED 1.10)
   if (USE_FORTRAN)
@@ -533,10 +542,6 @@ if(USE_HDF5)
     endif()
   endif()
 endif()
-#
-#  ZLIB
-#
-find_package(ZLIB)
 
 if(CBF_DONT_USE_LONG_LONG)
   set(CBF_NOLLFLAG "-DCBF_DONT_USE_LONG_LONG")
@@ -939,7 +944,7 @@ if(USE_FORTRAN)
   add_library(fcb_shared SHARED  ${CBF_F90_BUILT_SOURCES};${CBF_F90_SOURCES})
   set_target_properties(fcb_shared PROPERTIES OUTPUT_NAME "fcb")
   set_target_properties(fcb_shared PROPERTIES LINKER_LANGUAGE C)
-  target_link_libraries(fcb_shared $<TARGET_NAME_IF_EXISTS:hdf5::hdf5_fortran>)
+  target_link_libraries(fcb_shared hdf5::hdf5_fortran)
   set(FCB_SHARED_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libfcb.so)
 
 endif()
