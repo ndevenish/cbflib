@@ -291,6 +291,16 @@ else ()
   project (CBFlib C CXX)
 endif()
 
+# Diagnostics: Force colour on when using Ninja
+option (FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." TRUE)
+if (${FORCE_COLORED_OUTPUT})
+    if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
+       add_compile_options (-fdiagnostics-color=always)
+    elseif ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+       add_compile_options (-fcolor-diagnostics)
+    endif ()
+endif ()
+
 enable_testing()
 
 set (CBF_CMAKE_DEBUG "ON")
