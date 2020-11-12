@@ -393,11 +393,8 @@ set(CBF__INCLUDE   "${CBFlib_SOURCE_DIR}/include" )
 set(CBF__M4        "${CBFlib_SOURCE_DIR}/m4" )
 set(CBF__DOC       "${CBFlib_SOURCE_DIR}/doc" )
 set(CBF__EXAMPLES  "${CBFlib_SOURCE_DIR}/examples" )
-set(CBF__EXTERNAL_PACKAGES
-                   "${CBFlib_SOURCE_DIR}/external_packages" )
-set(CBF__DECTRIS_EXAMPLES
-                   "${CBF__EXAMPLES}/dectris_cbf_template_test" )
-
+set(CBF__EXTERNAL_PACKAGES "${CBFlib_SOURCE_DIR}/external_packages" )
+set(CBF__DECTRIS_EXAMPLES  "${CBF__EXAMPLES}/dectris_cbf_template_test" )
 
 #
 # Directories on the build side
@@ -486,7 +483,7 @@ else()
   find_package(HDF5 REQUIRED COMPONENTS C)
 endif()
 
-# Backport the 3.19 HDF5 target definitions
+# Backport the CMake 3.19 HDF5 target definitions
 if (NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
   if (NOT TARGET HDF5::HDF5)
     add_library(HDF5::HDF5 INTERFACE IMPORTED)
@@ -519,11 +516,9 @@ if (NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
 endif()
 
 #
-# Definitions to get a version of zlib
+#  ZLIB
 #
-set(CBF_ZLIB         "zlib-1.2.8")
-set(CBF_ZLIBURL      "http://downloads.sf.net/cbflib/${CBF_ZLIB}.tar.gz")
-
+find_package(ZLIB)
 
 if(CBF_DONT_USE_LONG_LONG)
   set(CBF_NOLLFLAG "-DCBF_DONT_USE_LONG_LONG")
@@ -551,10 +546,6 @@ set(CBF_PCREURL  "http://downloads.sf.net/cbflib/${CBF_PCRE}.tar.gz")
 find_program(WGET_EXECUTABLE wget)
 CBF_DEBUG_MESSAGE( "WGET found at ${WGET_EXECUTABLE}")
 
-#
-#  ZLIB
-#
-find_package(ZLIB)
 
 #
 # CBF_REGEX or CBF_PCRE
