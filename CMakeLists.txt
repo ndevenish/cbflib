@@ -685,6 +685,9 @@ set(
     ${CBF__SRC}/cbf_ws.c
 	${CBF__SRC}/md5c.c
     ${CBF__SRC}/img.c
+    ${CBF__SRC}/cbf_airy_disk.c
+    ${CBF__SRC}/cbf_minicbf_header.c
+    ${CBF__SRC}/cbff.c
 )
 
 if (USE_FORTRAN)
