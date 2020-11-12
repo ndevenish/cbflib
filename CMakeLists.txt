@@ -271,15 +271,12 @@
 #                                                                    #
 ######################################################################
 
-# Currently limited by - 	<ignore>3.19 	hdf5 targets included by default
+# Currently limited by - (~ means ignored as not used)
+#              ~3.19 	hdf5 targets included by default
 # 							3.5		cmake_parse_arguments
 #               3.9   Per-language HDF5 include in FindHDF5
+#              ~3.12  add_compile_definitions
 cmake_minimum_required(VERSION 3.9)
-
-if(COMMAND cmake_policy)
-  cmake_policy(SET CMP0003 NEW)
-endif(COMMAND cmake_policy)
-
 
 set(USE_FORTRAN OFF CACHE BOOL "Build Fortran Bindings")
 
