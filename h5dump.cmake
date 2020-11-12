@@ -1,7 +1,7 @@
 message("input: ${input}")
 message("output: ${output}")
 execute_process(
-	COMMAND @HDF5_BINARY_DIR@/h5dump ${input}
+	COMMAND h5dump ${input}
 	COMMAND @CMAKE_RUNTIME_OUTPUT_DIRECTORY@/cbf_tail -n 1
 	OUTPUT_FILE ${output}
 	RESULT_VARIABLE result
