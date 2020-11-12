@@ -875,7 +875,6 @@ target_link_libraries(cbf_static PUBLIC $<TARGET_NAME_IF_EXISTS:hdf5::hdf5>)
 set_target_properties(cbf_static PROPERTIES OUTPUT_NAME "cbf")
 set_target_properties(cbf_static PROPERTIES LINKER_LANGUAGE C)
 set_target_properties(cbf_static PROPERTIES SOVERSION "${CBF_APIVERSION}")
-set(CBF_STATIC_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libcbf.a)
 
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
@@ -888,7 +887,6 @@ target_link_libraries(cbf_shared PUBLIC $<TARGET_NAME_IF_EXISTS:hdf5::hdf5>)
 set_target_properties(cbf_shared PROPERTIES OUTPUT_NAME "cbf")
 set_target_properties(cbf_shared PROPERTIES LINKER_LANGUAGE C)
 set_target_properties(cbf_shared PROPERTIES SOVERSION "${CBF_APIVERSION}")
-set(CBF_SHARED_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libcbf.so)
 
 #
 # Build the static and shared IMG libraries
@@ -898,7 +896,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
 add_library(img_static STATIC ${CBF__SRC}/img.c)
 set_target_properties(img_static PROPERTIES OUTPUT_NAME "img")
 set_target_properties(img_static PROPERTIES LINKER_LANGUAGE C)
-set(IMG_STATIC_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libimg.a)
 
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
@@ -1054,10 +1051,11 @@ install (DIRECTORY ${CBF__BIN_INCLUDE}/* DESTINATION include/cbflib FILES_MATCHI
 set(VALGRIND_COMMAND "")
 find_program(VALGRIND valgrind)
 if (VALGRIND)
-	CBF_DEBUG_MESSAGE("valgrind found at ${VALGRIND}")
+  CBF_DEBUG_MESSAGE("valgrind found at ${VALGRIND}")
+  message(STATUS "valgrid found at ${VALGRIND}")
 	set(VALGRIND_COMMAND ${VALGRIND} --error-exitcode=3 --leak-check=full)
 else ()
-	CBF_DEBUG_MESSAGE("valgrind could not be not found")
+  message(STATUS "valgrid NOT found")
 endif ()
 
 ###############################################################################
