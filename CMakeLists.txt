@@ -297,9 +297,9 @@ endif()
 option (FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." TRUE)
 if (${FORCE_COLORED_OUTPUT})
     if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
-       add_compile_options (-fdiagnostics-color=always)
+       add_compile_options ($<$<COMPILE_LANGUAGE:C>:-fdiagnostics-color=always>)
     elseif ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
-       add_compile_options (-fcolor-diagnostics)
+       add_compile_options ($<$<COMPILE_LANGUAGE:C>:-fcolor-diagnostics>)
     endif ()
 endif ()
 
@@ -534,6 +534,7 @@ if(USE_HDF5)
 else()
   # Make dummy hdf5 targets
   add_library(hdf5::hdf5 INTERFACE IMPORTED)
+  add_library(hdf5::hdf5_fortran INTERFACE IMPORTED)
 endif()
 #
 #  ZLIB
