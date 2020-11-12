@@ -276,6 +276,7 @@
 # 							3.5		cmake_parse_arguments
 #               3.9   Per-language HDF5 include in FindHDF5
 #              ~3.12  add_compile_definitions
+#               3.12  TARGET_NAME_IF_EXISTS
 cmake_minimum_required(VERSION 3.9)
 
 set(USE_FORTRAN OFF CACHE BOOL "Build Fortran Bindings")
@@ -531,10 +532,6 @@ if(USE_HDF5)
       unset(_hdf5_definitions)
     endif()
   endif()
-else()
-  # Make dummy hdf5 targets
-  add_library(hdf5::hdf5 INTERFACE IMPORTED)
-  add_library(hdf5::hdf5_fortran INTERFACE IMPORTED)
 endif()
 #
 #  ZLIB
@@ -872,7 +869,7 @@ add_library(cbf_static STATIC ${CBF_C_SOURCES})
 # if (CBF_RE)
 #   add_dependencies(cbf_static "${CBF_RE}")
 # endif()
-target_link_libraries(cbf_static PUBLIC hdf5::hdf5)
+target_link_libraries(cbf_static PUBLIC $<TARGET_NAME_IF_EXISTS:hdf5::hdf5>)
 set_target_properties(cbf_static PROPERTIES OUTPUT_NAME "cbf")
 set_target_properties(cbf_static PROPERTIES LINKER_LANGUAGE C)
 set_target_properties(cbf_static PROPERTIES SOVERSION "${CBF_APIVERSION}")
@@ -885,7 +882,7 @@ add_library(cbf_shared SHARED  ${CBF_C_SOURCES})
 if (CBF_RE)
   add_dependencies(cbf_shared ${CBF_RE})
 endif()
-target_link_libraries(cbf_shared PUBLIC hdf5::hdf5)
+target_link_libraries(cbf_shared PUBLIC $<TARGET_NAME_IF_EXISTS:hdf5::hdf5>)
 set_target_properties(cbf_shared PROPERTIES OUTPUT_NAME "cbf")
 set_target_properties(cbf_shared PROPERTIES LINKER_LANGUAGE C)
 set_target_properties(cbf_shared PROPERTIES SOVERSION "${CBF_APIVERSION}")
@@ -906,8 +903,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
 add_library(img_shared SHARED  ${CBF__SRC}/img.c)
 set_target_properties(img_shared PROPERTIES OUTPUT_NAME "img")
 set_target_properties(img_shared PROPERTIES LINKER_LANGUAGE C)
-target_link_libraries(img_shared PUBLIC hdf5::hdf5)
-set(IMG_SHARED_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libimg.so)
+target_link_libraries(img_shared PUBLIC $<TARGET_NAME_IF_EXISTS:hdf5::hdf5>)
 
 
 if(USE_FORTRAN)
@@ -943,7 +939,7 @@ if(USE_FORTRAN)
   add_library(fcb_shared SHARED  ${CBF_F90_BUILT_SOURCES};${CBF_F90_SOURCES})
   set_target_properties(fcb_shared PROPERTIES OUTPUT_NAME "fcb")
   set_target_properties(fcb_shared PROPERTIES LINKER_LANGUAGE C)
-  target_link_libraries(fcb_shared hdf5::hdf5_fortran)
+  target_link_libraries(fcb_shared $<TARGET_NAME_IF_EXISTS:hdf5::hdf5_fortran>)
   set(FCB_SHARED_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libfcb.so)
 
 endif()
@@ -957,11 +953,8 @@ endif()
 # separated by semicolons for the appropriate parameter.
 # Note: the math library should be linked in by appending ';m' to the library list here
 macro(add_target target)
-	cmake_parse_arguments(AT "" "" "SOURCES;LINKS;DEPENDS" ${ARGN})
+	cmake_parse_arguments(AT "" "" "SOURCES;LINKS" ${ARGN})
 	add_executable(${target} ${AT_SOURCES})
-	if (AT_DEPENDS)
-		add_dependencies(${target} ${AT_DEPENDS})
-	endif()
 	if (AT_LINKS)
 		target_link_libraries(${target} ${AT_LINKS})
 	endif()
