@@ -1008,40 +1008,36 @@ endif()
 #
 # install
 #
-install (TARGETS makecbf DESTINATION bin)
-install (TARGETS img2cif DESTINATION bin)
-install (TARGETS adscimg2cbf DESTINATION bin)
-install (TARGETS cbf2adscimg DESTINATION bin)
-install (TARGETS changtestcompression DESTINATION bin)
-install (TARGETS convert_image DESTINATION bin)
-install (TARGETS convert_minicbf DESTINATION bin)
-install (TARGETS cbf_template_t DESTINATION bin)
-install (TARGETS testcell DESTINATION bin)
-install (TARGETS sauter_test DESTINATION bin)
-install (TARGETS sequence_match DESTINATION bin)
-install (TARGETS cbf_static DESTINATION lib)
-install (TARGETS cbf_shared DESTINATION lib)
+
+install(TARGETS makecbf
+                img2cif
+                adscimg2cbf
+                cbf2adscimg
+                convert_image
+                convert_minicbf
+                cbf_template_t
+                sequence_match
+                img_static
+                img_shared
+                cbf_static
+                cbf_shared
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+)
+
 if(USE_HDF5)
-install (TARGETS cif2cbf DESTINATION bin)
-install (TARGETS minicbf2nexus DESTINATION bin)
-install (TARGETS cbf2nexus DESTINATION bin)
-install (TARGETS nexus2cbf DESTINATION bin)
+    install(TARGETS cif2cbf minicbf2nexus cbf2nexus nexus2cbf)
 endif()
 if(USE_TIFF)
-  install (TARGETS tiff2cbf DESTINATION bin)
+    install(TARGETS tiff2cbf)
 endif()
-
 if(USE_FORTRAN)
-  install (TARGETS fcb_static DESTINATION lib)
-  install (TARGETS fcb_shared DESTINATION lib)
+    install(TARGETS fcb_static fcb_shared)
 endif()
 
-install (TARGETS img_static DESTINATION lib)
-install (TARGETS img_shared DESTINATION lib)
 install (DIRECTORY ${CBF__INCLUDE}/ DESTINATION include/cbflib FILES_MATCHING PATTERN "*.h")
 install (DIRECTORY ${CBF__BIN_INCLUDE}/* DESTINATION include/cbflib FILES_MATCHING PATTERN "*.h")
-
-# message(STATUS "CMAKE_INSTALL_PREFIX/lib ${CMAKE_INSTALL_PREFIX}/lib")
 
 # path to the valgrind executable
 set(VALGRIND_COMMAND "")
