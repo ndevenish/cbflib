@@ -661,8 +661,7 @@ endforeach(loop_file)
 #
 # Source files
 #
-set(
-	CBF_C_SOURCES
+set(CBF_C_SOURCES
     ${CBF__SRC}/cbf.c
     ${CBF__SRC}/cbf_alloc.c
     ${CBF__SRC}/cbf_ascii.c
@@ -747,9 +746,8 @@ endif()
 #
 # Header files
 #
-set(
-	CBF_HEADERS
-	${CBF__INCLUDE}/cbf.h
+set( CBF_HEADERS
+    ${CBF__INCLUDE}/cbf.h
     ${CBF__INCLUDE}/cbf_alloc.h
     ${CBF__INCLUDE}/cbf_ascii.h
     ${CBF__INCLUDE}/cbf_binary.h
@@ -780,7 +778,7 @@ set(
     ${CBF__INCLUDE}/cbf_ws.h
     ${CBF__INCLUDE}/global.h
     ${CBF__INCLUDE}/cbff.h
-	${CBF__INCLUDE}/md5.h
+    ${CBF__INCLUDE}/md5.h
     ${CBF__INCLUDE}/img.h
 )
 
