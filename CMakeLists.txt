@@ -865,44 +865,33 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/bin")
 #  Build the static and shared CBF libraries
 #
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
 add_library(cbf_static STATIC ${CBF_C_SOURCES})
-# if (CBF_RE)
-#   add_dependencies(cbf_static "${CBF_RE}")
-# endif()
 target_link_libraries(cbf_static PUBLIC $<TARGET_NAME_IF_EXISTS:hdf5::hdf5>)
-set_target_properties(cbf_static PROPERTIES OUTPUT_NAME "cbf")
-set_target_properties(cbf_static PROPERTIES LINKER_LANGUAGE C)
-set_target_properties(cbf_static PROPERTIES SOVERSION "${CBF_APIVERSION}")
+set_target_properties(cbf_static PROPERTIES OUTPUT_NAME     cbf
+                                            LINKER_LANGUAGE C
+                                            SOVERSION       "${CBF_APIVERSION}")
 
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
-add_library(cbf_shared SHARED  ${CBF_C_SOURCES})
-if (CBF_RE)
-  add_dependencies(cbf_shared ${CBF_RE})
-endif()
+
+
+add_library(cbf_shared SHARED $<TARGET_OBJECTS:cbf_static>)
 target_link_libraries(cbf_shared PUBLIC $<TARGET_NAME_IF_EXISTS:hdf5::hdf5>)
-set_target_properties(cbf_shared PROPERTIES OUTPUT_NAME "cbf")
-set_target_properties(cbf_shared PROPERTIES LINKER_LANGUAGE C)
-set_target_properties(cbf_shared PROPERTIES SOVERSION "${CBF_APIVERSION}")
+set_target_properties(cbf_shared PROPERTIES OUTPUT_NAME     cbf
+                                            LINKER_LANGUAGE C
+                                            SOVERSION       "${CBF_APIVERSION}")
 
 #
 # Build the static and shared IMG libraries
 #
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
 add_library(img_static STATIC ${CBF__SRC}/img.c)
-set_target_properties(img_static PROPERTIES OUTPUT_NAME "img")
-set_target_properties(img_static PROPERTIES LINKER_LANGUAGE C)
+set_target_properties(img_static PROPERTIES OUTPUT_NAME "img"
+                                            LINKER_LANGUAGE C)
 
-
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
-add_library(img_shared SHARED  ${CBF__SRC}/img.c)
-set_target_properties(img_shared PROPERTIES OUTPUT_NAME "img")
-set_target_properties(img_shared PROPERTIES LINKER_LANGUAGE C)
+add_library(img_shared SHARED $<TARGET_OBJECTS:cbf_static>)
 target_link_libraries(img_shared PUBLIC $<TARGET_NAME_IF_EXISTS:hdf5::hdf5>)
+set_target_properties(img_shared PROPERTIES OUTPUT_NAME "img"
+                                            LINKER_LANGUAGE C)
 
 
 if(USE_FORTRAN)
