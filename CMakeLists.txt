@@ -1062,7 +1062,7 @@ if (VALGRIND)
   message(STATUS "valgrid found at ${VALGRIND}")
 	set(VALGRIND_COMMAND ${VALGRIND} --error-exitcode=3 --leak-check=full)
 else ()
-  message(STATUS "valgrid NOT found")
+  message(STATUS "valgrid NOT found. Testing will be incomplete.")
 endif ()
 
 ###############################################################################
@@ -1437,12 +1437,14 @@ endif()
 
 # unit tests
 
-add_test(testalloc ${VALGRIND_COMMAND} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testalloc)
 if(USE_HDF5)
   add_test(testhdf5 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testhdf5)
 endif()
-add_test(testtree ${VALGRIND_COMMAND} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testtree)
-add_test(testulp ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testulp)
+if(VALGRIND)
+  add_test(testalloc ${VALGRIND_COMMAND} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testalloc)
+  add_test(testtree ${VALGRIND_COMMAND} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testtree)
+  add_test(testulp ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testulp)
+endif()
 
 add_test(testflatin.cbf ${CMAKE_COMMAND} -E copy ${CBF_DATADIRI}/testflatin.cbf ${CBF__DATA}/testflatin.cbf)
 add_test(NAME testflat COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testflat WORKING_DIRECTORY ${CBF__DATA})
