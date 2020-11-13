@@ -421,8 +421,11 @@ set(CBF__LIB       "${CBFlib_BINARY_DIR}/lib" )
 set(CBF__BIN_INCLUDE "${CBFlib_BINARY_DIR}/include" )
 set(CBF__SHARE     "${CBFlib_BINARY_DIR}/share" )
 set(CBF__EXT_PKG   "${CBFlib_BINARY_DIR}/external_packages" )
-set(CBF__DATA      "${CBFlib_BINARY_DIR}/data_files" )
-
+set(CBF__DATA $ENV{CBF_DATA_FILES})
+if(NOT CBF__DATA)
+    set(CBF__DATA      "${CBFlib_BINARY_DIR}/data_files" )
+endif()
+message(STATUS "Using ${CBF__DATA} for test data files")
 set(HDF5_PLUGIN_PATH ${CBF__LIB})
 
 
