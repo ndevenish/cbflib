@@ -888,7 +888,7 @@ add_library(img_static STATIC ${CBF__SRC}/img.c)
 set_target_properties(img_static PROPERTIES OUTPUT_NAME "img"
                                             LINKER_LANGUAGE C)
 
-add_library(img_shared SHARED $<TARGET_OBJECTS:cbf_static>)
+add_library(img_shared SHARED ${CBF__SRC}/img.c)
 target_link_libraries(img_shared PUBLIC $<TARGET_NAME_IF_EXISTS:hdf5::hdf5>)
 set_target_properties(img_shared PROPERTIES OUTPUT_NAME "img"
                                             LINKER_LANGUAGE C)
