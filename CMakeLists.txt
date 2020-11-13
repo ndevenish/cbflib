@@ -916,14 +916,14 @@ if(USE_FORTRAN)
   #
   # Build the fcb libraries
   #
-  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
+#   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
   add_library(fcb_static STATIC ${CBF_F90_BUILT_SOURCES};${CBF_F90_SOURCES})
   set_target_properties(fcb_static PROPERTIES OUTPUT_NAME "fcb")
   set_target_properties(fcb_static PROPERTIES LINKER_LANGUAGE C)
   set(FCB_STATIC_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libfcb.a)
 
 
-  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
+#   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
   add_library(fcb_shared SHARED  ${CBF_F90_BUILT_SOURCES};${CBF_F90_SOURCES})
   set_target_properties(fcb_shared PROPERTIES OUTPUT_NAME "fcb")
   set_target_properties(fcb_shared PROPERTIES LINKER_LANGUAGE C)
