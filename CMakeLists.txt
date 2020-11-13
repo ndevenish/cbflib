@@ -283,6 +283,8 @@ set(USE_FORTRAN OFF CACHE BOOL "Build Fortran Bindings")
 set(USE_HDF5    ON CACHE  BOOL "Build HDF5-related bindings")
 set(USE_TIFF    ON CACHE  BOOL "Build tiff2cbf")
 
+set(BUILD_PYCBF OFF CACHE BOOL "Build the PyCBF bindings")
+
 set(CBF_F90FLAGS_ENV $ENV{F90FLAGS})
 set(CBF_USE_ULP $ENV{CBF_USE_ULP})
 set(CBF_M4FLAGS_ENV $ENV{M4FLAGS})
@@ -450,6 +452,12 @@ CBF_DEBUG_MESSAGE( "RELEASE: ${CBF_VERS_RELEASE}")
 string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_SUBRELEASE[ \t]+\"([0-9A-Za-z.]*)\".*$"
     "\\1" CBF_VERS_SUBRELEASE ${CBFlib_cbf_h_contents})
 CBF_DEBUG_MESSAGE( "SUBRELEASE: ${CBF_VERS_SUBRELEASE}")
+
+# This should be set by the project call, do here manually for now
+set(PROJECT_VERSION "${CBF_VERS_MAJOR}.${CBF_VERS_MINOR}.${CBF_VERS_RELEASE}")
+set(PROJECT_VERSION_MAJOR "${CBF_VERS_MAJOR}")
+set(PROJECT_VERSION_MINOR "${CBF_VERS_MINOR}")
+set(PROJECT_VERSION_PATCH "${CBF_VERS_RELEASE}")
 
 # Extract the API version components
 
@@ -893,6 +901,28 @@ target_link_libraries(img_shared PUBLIC $<TARGET_NAME_IF_EXISTS:hdf5::hdf5>)
 set_target_properties(img_shared PROPERTIES OUTPUT_NAME "img"
                                             LINKER_LANGUAGE C)
 
+if(BUILD_PYCBF)
+    find_package(Python COMPONENTS Interpreter Development REQUIRED )
+    Python_add_library (_pycbf MODULE ${PYCBF}/pycbf_wrap.c)
+    target_link_libraries(_pycbf PUBLIC cbf_shared)
+    # We want to let setup.py install this, so build with install-time RPATH
+    set_target_properties(_pycbf PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE
+                                            LIBRARY_OUTPUT_DIRECTORY pycbf_setup/pycbf)
+    configure_file(${PYCBF}/setup.py.in pycbf_setup/setup.py )
+    # Don't want to explicitly rearrange the package layout, so copy the required
+    # python files into a new folder substructure under the build directory
+    add_custom_command( OUTPUT pycbf_setup/pycbf/__init__.py
+                        DEPENDS ${PYCBF}/pycbf.py
+                        COMMAND ${CMAKE_COMMAND} -E copy
+                                ${PYCBF}/pycbf.py
+                                ${CMAKE_BINARY_DIR}/pycbf_setup/pycbf/__init__.py)
+
+    add_custom_target(pycbf ALL DEPENDS
+        # ${CMAKE_BINARY_DIR}/pycbf_setup/pycbf/pycbf.py
+        ${CMAKE_BINARY_DIR}/pycbf_setup/pycbf/__init__.py
+    )
+    install(CODE "execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${CMAKE_BINARY_DIR}/pycbf_setup )")
+endif()
 
 if(USE_FORTRAN)
   #
