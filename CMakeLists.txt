@@ -283,6 +283,8 @@ set(USE_FORTRAN OFF CACHE BOOL "Build Fortran Bindings")
 set(USE_HDF5    ON CACHE  BOOL "Build HDF5-related bindings")
 set(USE_TIFF    ON CACHE  BOOL "Build tiff2cbf")
 
+set(DOWNLOAD_TEST_DATA    ON CACHE  BOOL "Should the test data be downloaded?")
+
 set(BUILD_PYCBF OFF CACHE BOOL "Build the PyCBF bindings")
 
 set(CBF_F90FLAGS_ENV $ENV{F90FLAGS})
@@ -641,9 +643,11 @@ set(CBF_DATAURLS  "${CBF_DATAURLBASE}/CBFlib_${CBF_VERSION}_Data_Files_Output_Si
 #
 # Load and unpack the Data Files
 #
-CBF_LOAD_TARBALL(${CBF__DATA} ${CBF_DATADIRI} ${CBF_DATAURLI})
-CBF_LOAD_TARBALL(${CBF__DATA} ${CBF_DATADIRO} ${CBF_DATAURLO})
-CBF_LOAD_TARBALL(${CBF__DATA} ${CBF_DATADIRS} ${CBF_DATAURLS})
+if (DOWNLOAD_TEST_DATA)
+  CBF_LOAD_TARBALL(${CBF__DATA} ${CBF_DATADIRI} ${CBF_DATAURLI})
+  CBF_LOAD_TARBALL(${CBF__DATA} ${CBF_DATADIRO} ${CBF_DATAURLO})
+  CBF_LOAD_TARBALL(${CBF__DATA} ${CBF_DATADIRS} ${CBF_DATAURLS})
+endif()
 #
 # Verify the checksums
 #
