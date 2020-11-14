@@ -928,12 +928,12 @@ if(BUILD_PYCBF)
         # ${CMAKE_BINARY_DIR}/pycbf_setup/pycbf/pycbf.py
         ${CMAKE_BINARY_DIR}/pycbf_setup/pycbf/__init__.py
     )
-    install(CODE "execute_process(COMMAND \
-        ${Python_EXECUTABLE} -m pip install ${CMAKE_BINARY_DIR}/pycbf_setup \
-        RESULT_VARIABLE _error ) \
-        if(_error) \
-          message(FATAL_ERROR \"Failed to install python package\") \
-        endif()")
+    install(CODE "
+    execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${CMAKE_BINARY_DIR}/pycbf_setup
+                    RESULT_VARIABLE _error )
+    if(_error)
+        message(FATAL_ERROR \"Failed to install python package\")
+    endif()")
 endif()
 
 if(USE_FORTRAN)
