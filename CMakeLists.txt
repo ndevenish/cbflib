@@ -280,7 +280,6 @@
 cmake_minimum_required(VERSION 3.12)
 
 set(USE_FORTRAN OFF CACHE BOOL "Build Fortran Bindings")
-set(USE_HDF5    ON CACHE  BOOL "Build HDF5-related bindings")
 set(USE_TIFF    ON CACHE  BOOL "Build tiff2cbf")
 
 set(DOWNLOAD_TEST_DATA    ON CACHE  BOOL "Should the test data be downloaded?")
@@ -506,50 +505,42 @@ if(USE_TIFF)
   find_package(TIFF REQUIRED)
 endif()
 
-if(USE_FORTRAN AND NOT USE_HDF5)
-  # I know c works without HDF5, but don't know how to make this happen
-  # for Fortran, so to be safe, assume that Fortran must have HDF5
-  message(FATAL_ERROR "Must have HDF5 build available to build Fortran bindings")
+set(HDF5_VERSION_REQUIRED 1.10)
+if (USE_FORTRAN)
+  find_package(HDF5 ${HDF5_VERSION_REQUIRED} REQUIRED COMPONENTS C Fortran)
+else()
+  find_package(HDF5 ${HDF5_VERSION_REQUIRED} REQUIRED COMPONENTS C)
 endif()
 
-if(USE_HDF5)
-  set(HDF5_VERSION_REQUIRED 1.10)
-  if (USE_FORTRAN)
-    find_package(HDF5 ${HDF5_VERSION_REQUIRED} REQUIRED COMPONENTS C Fortran)
-  else()
-    find_package(HDF5 ${HDF5_VERSION_REQUIRED} REQUIRED COMPONENTS C)
+# Backport the CMake 3.19 HDF5 target definitions
+if (NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
+  if (NOT TARGET HDF5::HDF5)
+    add_library(HDF5::HDF5 INTERFACE IMPORTED)
+    string(REPLACE "-D" "" _hdf5_definitions "${HDF5_DEFINITIONS}")
+    set_target_properties(HDF5::HDF5 PROPERTIES
+      INTERFACE_LINK_LIBRARIES "${HDF5_LIBRARIES}"
+      INTERFACE_INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIRS}"
+      INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
+    unset(_hdf5_definitions)
+  endif ()
+
+  if (HDF5_C_LIBRARIES AND NOT TARGET "hdf5::hdf5")
+    add_library("hdf5::hdf5" INTERFACE IMPORTED)
+    string(REPLACE "-D" "" _hdf5_definitions "${HDF5_C_DEFINITIONS}")
+    set_target_properties("hdf5::hdf5" PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${HDF5_C_INCLUDE_DIRS}"
+      INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}"
+      INTERFACE_LINK_LIBRARIES "HDF5::HDF5")
+    unset(_hdf5_definitions)
   endif()
 
-  # Backport the CMake 3.19 HDF5 target definitions
-  if (NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
-    if (NOT TARGET HDF5::HDF5)
-      add_library(HDF5::HDF5 INTERFACE IMPORTED)
-      string(REPLACE "-D" "" _hdf5_definitions "${HDF5_DEFINITIONS}")
-      set_target_properties(HDF5::HDF5 PROPERTIES
-        INTERFACE_LINK_LIBRARIES "${HDF5_LIBRARIES}"
-        INTERFACE_INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIRS}"
-        INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
-      unset(_hdf5_definitions)
-    endif ()
-
-    if (HDF5_C_LIBRARIES AND NOT TARGET "hdf5::hdf5")
-      add_library("hdf5::hdf5" INTERFACE IMPORTED)
-      string(REPLACE "-D" "" _hdf5_definitions "${HDF5_C_DEFINITIONS}")
-      set_target_properties("hdf5::hdf5" PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "${HDF5_C_INCLUDE_DIRS}"
-        INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}"
-        INTERFACE_LINK_LIBRARIES "HDF5::HDF5")
-      unset(_hdf5_definitions)
-    endif()
-
-    if (HDF5_Fortran_LIBRARIES AND NOT TARGET "hdf5::hdf5_fortran")
-      add_library("hdf5::hdf5_fortran" INTERFACE IMPORTED)
-      string(REPLACE "-D" "" _hdf5_definitions "${HDF5_Fortran_DEFINITIONS}")
-      set_target_properties("hdf5::hdf5_fortran" PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "${HDF5_Fortran_INCLUDE_DIRS}"
-        INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
-      unset(_hdf5_definitions)
-    endif()
+  if (HDF5_Fortran_LIBRARIES AND NOT TARGET "hdf5::hdf5_fortran")
+    add_library("hdf5::hdf5_fortran" INTERFACE IMPORTED)
+    string(REPLACE "-D" "" _hdf5_definitions "${HDF5_Fortran_DEFINITIONS}")
+    set_target_properties("hdf5::hdf5_fortran" PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${HDF5_Fortran_INCLUDE_DIRS}"
+      INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
+    unset(_hdf5_definitions)
   endif()
 endif()
 
@@ -709,10 +700,9 @@ set(CBF_C_SOURCES
     ${CBF__SRC}/cbf_minicbf_header.c
     ${CBF__SRC}/cbff.c
     ${CBF__SRC}/cbf_lex.c
+    src/cbf_hdf5.c
+    src/cbf_hdf5_filter.c
 )
-if (USE_HDF5)
-  list(APPEND CBF_C_SOURCES ${CBF__SRC}/cbf_hdf5.c ${CBF__SRC}/cbf_hdf5_filter.c)
-endif()
 
 if (USE_FORTRAN)
   set(
@@ -1015,13 +1005,11 @@ add_target(testalloc "${CBF__EXAMPLES}/testalloc.c" LINKS cbf_shared)
 add_target(testflat "${CBF__EXAMPLES}/testflat.c" LINKS cbf_shared)
 add_target(testflatpacked "${CBF__EXAMPLES}/testflatpacked.c" LINKS cbf_shared)
 add_target(testreals "${CBF__EXAMPLES}/testreals.c" LINKS cbf_shared)
-if(USE_HDF5)
-  add_target(cbf2nexus "${CBF__EXAMPLES}/cbf2nexus.c" LINKS cbf_shared m)
-  add_target(nexus2cbf "${CBF__EXAMPLES}/nexus2cbf.c" LINKS cbf_shared m)
-  add_target(minicbf2nexus "${CBF__EXAMPLES}/minicbf2nexus.c" LINKS cbf_shared hdf5::hdf5 m)
-  add_target(cif2cbf "${CBF__EXAMPLES}/cif2cbf.c" LINKS cbf_shared img_static hdf5::hdf5 m)
-  add_target(testhdf5 "${CBF__EXAMPLES}/testhdf5.c" LINKS cbf_shared hdf5::hdf5 m)
-endif()
+add_target(cbf2nexus "${CBF__EXAMPLES}/cbf2nexus.c" LINKS cbf_shared m)
+add_target(nexus2cbf "${CBF__EXAMPLES}/nexus2cbf.c" LINKS cbf_shared m)
+add_target(minicbf2nexus "${CBF__EXAMPLES}/minicbf2nexus.c" LINKS cbf_shared hdf5::hdf5 m)
+add_target(cif2cbf "${CBF__EXAMPLES}/cif2cbf.c" LINKS cbf_shared img_static hdf5::hdf5 m)
+add_target(testhdf5 "${CBF__EXAMPLES}/testhdf5.c" LINKS cbf_shared hdf5::hdf5 m)
 if(USE_TIFF)
   add_target(tiff2cbf "${CBF__EXAMPLES}/tiff2cbf.c" LINKS cbf_shared TIFF::TIFF)
 endif()
@@ -1051,26 +1039,24 @@ endif()
 # install
 #
 
-install(TARGETS makecbf
-                img2cif
-                adscimg2cbf
-                cbf2adscimg
-                convert_image
-                convert_minicbf
-                cbf_template_t
-                sequence_match
-                img_static
-                img_shared
-                cbf_static
-                cbf_shared
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
+install(TARGETS
+    makecbf
+    img2cif
+    adscimg2cbf
+    cbf2adscimg
+    convert_image
+    convert_minicbf
+    cbf_template_t
+    sequence_match
+    img_static
+    img_shared
+    cbf_static
+    cbf_shared
+    cif2cbf
+    minicbf2nexus
+    cbf2nexus
+    nexus2cbf
 )
-
-if(USE_HDF5)
-    install(TARGETS cif2cbf minicbf2nexus cbf2nexus nexus2cbf)
-endif()
 if(USE_TIFF)
     install(TARGETS tiff2cbf)
 endif()
@@ -1224,227 +1210,225 @@ add_test(
 set_property(TEST cmp-insulin_pilatus6mconverted_v2_orig.cbf-insulin_pilatus6mconverted_v2.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_v2.cbf)
 
 
-if (USE_HDF5)
-  # cif2cbf basic round-trip to hdf5 tests
-  # $(BIN)/cif2cbf -e none -c flatpacked img2cif_canonical.cif cif2cbf_packed.cbf
-  add_test(cif2cbf_packed.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -e none -c flatpacked ${CBF__DATA}/img2cif_canonical.cif ${CBF__DATA}/cif2cbf_packed.cbf)
-  set_property(TEST cif2cbf_packed.cbf APPEND PROPERTY DEPENDS img2cif_canonical.cif)
-  # $(BIN)/cif2cbf -e none -c canonical img2cif_packed.cif cif2cbf_canonical.cbf
-  add_test(cif2cbf_canonical.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -e none -c canonical ${CBF__DATA}/img2cif_packed.cif ${CBF__DATA}/cif2cbf_canonical.cbf)
-  set_property(TEST cif2cbf_canonical.cbf APPEND PROPERTY DEPENDS img2cif_packed.cif)
-  # -cmp cif2cbf_packed.cbf makecbf.cbf
-  add_test(cmp-cif2cbf_packed.cbf-makecbf.cbf ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/cif2cbf_packed.cbf ${CBF__DATA}/makecbf.cbf)
-  set_property(TEST cmp-cif2cbf_packed.cbf-makecbf.cbf APPEND PROPERTY DEPENDS cif2cbf_packed.cbf)
-  set_property(TEST cmp-cif2cbf_packed.cbf-makecbf.cbf APPEND PROPERTY DEPENDS makecbf)
-  # -cmp cif2cbf_packed.cbf img2cif_packed.cbf
-  add_test(cmp-cif2cbf_packed.cbf-img2cif_packed.cbf ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/cif2cbf_packed.cbf ${CBF__DATA}/img2cif_packed.cbf)
-  set_property(TEST cmp-cif2cbf_packed.cbf-img2cif_packed.cbf APPEND PROPERTY DEPENDS cif2cbf_packed.cbf)
-  set_property(TEST cmp-cif2cbf_packed.cbf-img2cif_packed.cbf APPEND PROPERTY DEPENDS img2cif_packed.cbf)
-  # -cmp cif2cbf_canonical.cbf img2cif_canonical.cbf
-  add_test(cmp-cif2cbf_canonical.cbf-img2cif_canonical.cbf ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/cif2cbf_canonical.cbf ${CBF__DATA}/img2cif_canonical.cbf)
-  set_property(TEST cmp-cif2cbf_canonical.cbf-img2cif_canonical.cbf APPEND PROPERTY DEPENDS cif2cbf_canonical.cbf)
-  set_property(TEST cmp-cif2cbf_canonical.cbf-img2cif_canonical.cbf APPEND PROPERTY DEPENDS img2cif_canonical.cbf)
+# cif2cbf basic round-trip to hdf5 tests
+# $(BIN)/cif2cbf -e none -c flatpacked img2cif_canonical.cif cif2cbf_packed.cbf
+add_test(cif2cbf_packed.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -e none -c flatpacked ${CBF__DATA}/img2cif_canonical.cif ${CBF__DATA}/cif2cbf_packed.cbf)
+set_property(TEST cif2cbf_packed.cbf APPEND PROPERTY DEPENDS img2cif_canonical.cif)
+# $(BIN)/cif2cbf -e none -c canonical img2cif_packed.cif cif2cbf_canonical.cbf
+add_test(cif2cbf_canonical.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -e none -c canonical ${CBF__DATA}/img2cif_packed.cif ${CBF__DATA}/cif2cbf_canonical.cbf)
+set_property(TEST cif2cbf_canonical.cbf APPEND PROPERTY DEPENDS img2cif_packed.cif)
+# -cmp cif2cbf_packed.cbf makecbf.cbf
+add_test(cmp-cif2cbf_packed.cbf-makecbf.cbf ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/cif2cbf_packed.cbf ${CBF__DATA}/makecbf.cbf)
+set_property(TEST cmp-cif2cbf_packed.cbf-makecbf.cbf APPEND PROPERTY DEPENDS cif2cbf_packed.cbf)
+set_property(TEST cmp-cif2cbf_packed.cbf-makecbf.cbf APPEND PROPERTY DEPENDS makecbf)
+# -cmp cif2cbf_packed.cbf img2cif_packed.cbf
+add_test(cmp-cif2cbf_packed.cbf-img2cif_packed.cbf ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/cif2cbf_packed.cbf ${CBF__DATA}/img2cif_packed.cbf)
+set_property(TEST cmp-cif2cbf_packed.cbf-img2cif_packed.cbf APPEND PROPERTY DEPENDS cif2cbf_packed.cbf)
+set_property(TEST cmp-cif2cbf_packed.cbf-img2cif_packed.cbf APPEND PROPERTY DEPENDS img2cif_packed.cbf)
+# -cmp cif2cbf_canonical.cbf img2cif_canonical.cbf
+add_test(cmp-cif2cbf_canonical.cbf-img2cif_canonical.cbf ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/cif2cbf_canonical.cbf ${CBF__DATA}/img2cif_canonical.cbf)
+set_property(TEST cmp-cif2cbf_canonical.cbf-img2cif_canonical.cbf APPEND PROPERTY DEPENDS cif2cbf_canonical.cbf)
+set_property(TEST cmp-cif2cbf_canonical.cbf-img2cif_canonical.cbf APPEND PROPERTY DEPENDS img2cif_canonical.cbf)
 
-  # $(BIN)/cif2cbf -e hex -c none makecbf.cbf cif2cbf_ehcn.cif
-  add_test(cif2cbf_ehcn.cif ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -e hex -c none ${CBF__DATA}/makecbf.cbf ${CBF__DATA}/cif2cbf_ehcn.cif)
-  set_property(TEST cif2cbf_ehcn.cif APPEND PROPERTY DEPENDS makecbf)
-  # $(BIN)/cif2cbf -e none -c flatpacked cif2cbf_ehcn.cif cif2cbf_encp.cbf
-  add_test(cif2cbf_encp.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -e none -c flatpacked ${CBF__DATA}/cif2cbf_ehcn.cif ${CBF__DATA}/cif2cbf_encp.cbf)
-  set_property(TEST cif2cbf_encp.cbf APPEND PROPERTY DEPENDS cif2cbf_ehcn.cif)
-  #-cmp makecbf.cbf cif2cbf_encp.cbf
-  add_test(cmp-makecbf.cbf-cif2cbf_encp.cbf ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/makecbf.cbf ${CBF__DATA}/cif2cbf_encp.cbf)
-  set_property(TEST cmp-makecbf.cbf-cif2cbf_encp.cbf APPEND PROPERTY DEPENDS makecbf)
-  set_property(TEST cmp-makecbf.cbf-cif2cbf_encp.cbf APPEND PROPERTY DEPENDS cif2cbf_encp.cbf)
+# $(BIN)/cif2cbf -e hex -c none makecbf.cbf cif2cbf_ehcn.cif
+add_test(cif2cbf_ehcn.cif ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -e hex -c none ${CBF__DATA}/makecbf.cbf ${CBF__DATA}/cif2cbf_ehcn.cif)
+set_property(TEST cif2cbf_ehcn.cif APPEND PROPERTY DEPENDS makecbf)
+# $(BIN)/cif2cbf -e none -c flatpacked cif2cbf_ehcn.cif cif2cbf_encp.cbf
+add_test(cif2cbf_encp.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -e none -c flatpacked ${CBF__DATA}/cif2cbf_ehcn.cif ${CBF__DATA}/cif2cbf_encp.cbf)
+set_property(TEST cif2cbf_encp.cbf APPEND PROPERTY DEPENDS cif2cbf_ehcn.cif)
+#-cmp makecbf.cbf cif2cbf_encp.cbf
+add_test(cmp-makecbf.cbf-cif2cbf_encp.cbf ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/makecbf.cbf ${CBF__DATA}/cif2cbf_encp.cbf)
+set_property(TEST cmp-makecbf.cbf-cif2cbf_encp.cbf APPEND PROPERTY DEPENDS makecbf)
+set_property(TEST cmp-makecbf.cbf-cif2cbf_encp.cbf APPEND PROPERTY DEPENDS cif2cbf_encp.cbf)
 
-  # $(BIN)/cif2cbf -i 9ins.cif -o 9ins.cbf
-  add_test(9ins.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -i ${CBF_DATADIRI}/9ins.cif -o ${CBF__DATA}/9ins.cbf)
-  # -cmp 9ins.cif 9ins.cbf
-  add_test(cmp-9ins.cif-9ins.cbf ${CMAKE_COMMAND} -E compare_files ${CBF_DATADIRI}/9ins.cif ${CBF__DATA}/9ins.cbf)
-  set_property(TEST cmp-9ins.cif-9ins.cbf APPEND PROPERTY DEPENDS 9ins.cbf)
+# $(BIN)/cif2cbf -i 9ins.cif -o 9ins.cbf
+add_test(9ins.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -i ${CBF_DATADIRI}/9ins.cif -o ${CBF__DATA}/9ins.cbf)
+# -cmp 9ins.cif 9ins.cbf
+add_test(cmp-9ins.cif-9ins.cbf ${CMAKE_COMMAND} -E compare_files ${CBF_DATADIRI}/9ins.cif ${CBF__DATA}/9ins.cbf)
+set_property(TEST cmp-9ins.cif-9ins.cbf APPEND PROPERTY DEPENDS 9ins.cbf)
 
-  # $(BIN)/cif2cbf -5 w -O $(HDF5REGISTER) -i insulin_pilatus6mconverted.cbf -o insulin_pilatus6mconverted.cbf.h5
-  add_test(
-    insulin_pilatus6mconverted.cbf.h5
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 w -O
-    ${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
-    -i ${CBF__DATA}/insulin_pilatus6mconverted.cbf
-    -o ${CBF__DATA}/insulin_pilatus6mconverted.cbf.h5
-  )
-  set_property(TEST insulin_pilatus6mconverted.cbf.h5 APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
-  set_property(TEST insulin_pilatus6mconverted.cbf.h5 APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf)
+# $(BIN)/cif2cbf -5 w -O $(HDF5REGISTER) -i insulin_pilatus6mconverted.cbf -o insulin_pilatus6mconverted.cbf.h5
+add_test(
+insulin_pilatus6mconverted.cbf.h5
+${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 w -O
+${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
+-i ${CBF__DATA}/insulin_pilatus6mconverted.cbf
+-o ${CBF__DATA}/insulin_pilatus6mconverted.cbf.h5
+)
+set_property(TEST insulin_pilatus6mconverted.cbf.h5 APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
+set_property(TEST insulin_pilatus6mconverted.cbf.h5 APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf)
 
-  # $(BIN)/cif2cbf -5 rn $(HDF5REGISTER) -en -cp -i insulin_pilatus6mconverted.cbf.h5 -o insulin_pilatus6mconverted.cbf.h5.cbf
-  add_test(
-    insulin_pilatus6mconverted.cbf.h5.cbf
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 rn -en -cp
-    ${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
-    -i ${CBF__DATA}/insulin_pilatus6mconverted.cbf.h5
-    -o ${CBF__DATA}/insulin_pilatus6mconverted.cbf.h5.cbf
-  )
-  set_property(TEST insulin_pilatus6mconverted.cbf.h5.cbf APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
-  set_property(TEST insulin_pilatus6mconverted.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf.h5)
-  # -cmp insulin_pilatus6mconverted.cbf.h5.cbf insulin_pilatus6mconverted_orig.cbf.h5.cbf
-  add_test(
-    cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted.cbf.h5.cbf
-    ${CMAKE_COMMAND} -E compare_files
-    ${CBF_DATADIRO}/insulin_pilatus6mconverted_orig.cbf.h5.cbf
-    ${CBF__DATA}/insulin_pilatus6mconverted.cbf.h5.cbf
-  )
-  set_property(TEST cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf.h5.cbf)
+# $(BIN)/cif2cbf -5 rn $(HDF5REGISTER) -en -cp -i insulin_pilatus6mconverted.cbf.h5 -o insulin_pilatus6mconverted.cbf.h5.cbf
+add_test(
+insulin_pilatus6mconverted.cbf.h5.cbf
+${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 rn -en -cp
+${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
+-i ${CBF__DATA}/insulin_pilatus6mconverted.cbf.h5
+-o ${CBF__DATA}/insulin_pilatus6mconverted.cbf.h5.cbf
+)
+set_property(TEST insulin_pilatus6mconverted.cbf.h5.cbf APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
+set_property(TEST insulin_pilatus6mconverted.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf.h5)
+# -cmp insulin_pilatus6mconverted.cbf.h5.cbf insulin_pilatus6mconverted_orig.cbf.h5.cbf
+add_test(
+cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted.cbf.h5.cbf
+${CMAKE_COMMAND} -E compare_files
+${CBF_DATADIRO}/insulin_pilatus6mconverted_orig.cbf.h5.cbf
+${CBF__DATA}/insulin_pilatus6mconverted.cbf.h5.cbf
+)
+set_property(TEST cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf.h5.cbf)
 
-  # $(BIN)/h5dump insulin_pilatus6mconverted_orig.cbf.h5 | $(ALLBUTONE) > insulin_pilatus6mconverted_orig.cbf.h5.dump
-  add_test(
-    insulin_pilatus6mconverted_orig.cbf.h5.dump
-    ${CMAKE_COMMAND}
-    -Dinput=${CBF_DATADIRO}/insulin_pilatus6mconverted_orig.cbf.h5
-    -Doutput=${CBF__DATA}/insulin_pilatus6mconverted_orig.cbf.h5.dump
-    -P ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/h5dump.cmake
-  )
-  # $(BIN)/h5dump insulin_pilatus6mconverted.cbf.h5 | $(ALLBUTONE)  > insulin_pilatus6mconverted.cbf.h5.dump
-  add_test(
-    insulin_pilatus6mconverted.cbf.h5.dump
-    ${CMAKE_COMMAND}
-    -Dinput=${CBF__DATA}/insulin_pilatus6mconverted.cbf.h5
-    -Doutput=${CBF__DATA}/insulin_pilatus6mconverted.cbf.h5.dump
-    -P ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/h5dump.cmake
-  )
-  set_property(TEST insulin_pilatus6mconverted.cbf.h5.dump APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf.h5)
-  # $(DIFF) insulin_pilatus6mconverted_orig.cbf.h5.dump insulin_pilatus6mconverted.cbf.h5.dump
-  add_test(
-    cmp-insulin_pilatus6mconverted_orig.cbf.h5.dump-insulin_pilatus6mconverted.cbf.h5.dump
-    ${CMAKE_COMMAND} -E compare_files
-    ${CBF__DATA}/insulin_pilatus6mconverted_orig.cbf.h5.dump
-    ${CBF__DATA}/insulin_pilatus6mconverted.cbf.h5.dump
-  )
-  set_property(TEST cmp-insulin_pilatus6mconverted_orig.cbf.h5.dump-insulin_pilatus6mconverted.cbf.h5.dump APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_orig.cbf.h5.dump)
-  set_property(TEST cmp-insulin_pilatus6mconverted_orig.cbf.h5.dump-insulin_pilatus6mconverted.cbf.h5.dump APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf.h5.dump)
+# $(BIN)/h5dump insulin_pilatus6mconverted_orig.cbf.h5 | $(ALLBUTONE) > insulin_pilatus6mconverted_orig.cbf.h5.dump
+add_test(
+insulin_pilatus6mconverted_orig.cbf.h5.dump
+${CMAKE_COMMAND}
+-Dinput=${CBF_DATADIRO}/insulin_pilatus6mconverted_orig.cbf.h5
+-Doutput=${CBF__DATA}/insulin_pilatus6mconverted_orig.cbf.h5.dump
+-P ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/h5dump.cmake
+)
+# $(BIN)/h5dump insulin_pilatus6mconverted.cbf.h5 | $(ALLBUTONE)  > insulin_pilatus6mconverted.cbf.h5.dump
+add_test(
+insulin_pilatus6mconverted.cbf.h5.dump
+${CMAKE_COMMAND}
+-Dinput=${CBF__DATA}/insulin_pilatus6mconverted.cbf.h5
+-Doutput=${CBF__DATA}/insulin_pilatus6mconverted.cbf.h5.dump
+-P ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/h5dump.cmake
+)
+set_property(TEST insulin_pilatus6mconverted.cbf.h5.dump APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf.h5)
+# $(DIFF) insulin_pilatus6mconverted_orig.cbf.h5.dump insulin_pilatus6mconverted.cbf.h5.dump
+add_test(
+cmp-insulin_pilatus6mconverted_orig.cbf.h5.dump-insulin_pilatus6mconverted.cbf.h5.dump
+${CMAKE_COMMAND} -E compare_files
+${CBF__DATA}/insulin_pilatus6mconverted_orig.cbf.h5.dump
+${CBF__DATA}/insulin_pilatus6mconverted.cbf.h5.dump
+)
+set_property(TEST cmp-insulin_pilatus6mconverted_orig.cbf.h5.dump-insulin_pilatus6mconverted.cbf.h5.dump APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_orig.cbf.h5.dump)
+set_property(TEST cmp-insulin_pilatus6mconverted_orig.cbf.h5.dump-insulin_pilatus6mconverted.cbf.h5.dump APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf.h5.dump)
 
-  # cif2cbf round-trip tests
+# cif2cbf round-trip tests
 
-  # convert to hdf5 with '-en -cI' options, then back to cbf with '-en -cp' options to check the file against a reference file
+# convert to hdf5 with '-en -cI' options, then back to cbf with '-en -cp' options to check the file against a reference file
 
-  # $(BIN)/cif2cbf -5 w $(HDF5REGISTER) -en -cI -i insulin_pilatus6mconverted.cbf -o insulin_pilatus6mconverted_encI.cbf.h5
-  add_test(
-    insulin_pilatus6mconverted_encI.cbf.h5
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 w -en -cI
-    ${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
-    -i ${CBF__DATA}/insulin_pilatus6mconverted.cbf
-    -o ${CBF__DATA}/insulin_pilatus6mconverted_encI.cbf.h5
-  )
-  set_property(TEST insulin_pilatus6mconverted_encI.cbf.h5 APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
-  set_property(TEST insulin_pilatus6mconverted_encI.cbf.h5 APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf)
-  # $(BIN)/cif2cbf -5 rn $(HDF5REGISTER) -en -cp -i insulin_pilatus6mconverted_encI.cbf.h5 -o insulin_pilatus6mconverted_encI.cbf.h5.cbf
-  add_test(
-    insulin_pilatus6mconverted_encI.cbf.h5.cbf
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 rn -en -cp
-    ${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
-    -i ${CBF__DATA}/insulin_pilatus6mconverted_encI.cbf.h5
-    -o ${CBF__DATA}/insulin_pilatus6mconverted_encI.cbf.h5.cbf
-  )
-  set_property(TEST insulin_pilatus6mconverted_encI.cbf.h5.cbf APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
-  set_property(TEST insulin_pilatus6mconverted_encI.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_encI.cbf.h5)
-  # -cmp insulin_pilatus6mconverted_encI.cbf.h5.cbf insulin_pilatus6mconverted_orig.cbf.h5.cbf
-  add_test(
-    cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted_encI.cbf.h5.cbf
-    ${CMAKE_COMMAND} -E compare_files
-    ${CBF_DATADIRO}/insulin_pilatus6mconverted_orig.cbf.h5.cbf
-    ${CBF__DATA}/insulin_pilatus6mconverted_encI.cbf.h5.cbf
-  )
-  set_property(TEST cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted_encI.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_encI.cbf.h5.cbf)
+# $(BIN)/cif2cbf -5 w $(HDF5REGISTER) -en -cI -i insulin_pilatus6mconverted.cbf -o insulin_pilatus6mconverted_encI.cbf.h5
+add_test(
+insulin_pilatus6mconverted_encI.cbf.h5
+${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 w -en -cI
+${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
+-i ${CBF__DATA}/insulin_pilatus6mconverted.cbf
+-o ${CBF__DATA}/insulin_pilatus6mconverted_encI.cbf.h5
+)
+set_property(TEST insulin_pilatus6mconverted_encI.cbf.h5 APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
+set_property(TEST insulin_pilatus6mconverted_encI.cbf.h5 APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf)
+# $(BIN)/cif2cbf -5 rn $(HDF5REGISTER) -en -cp -i insulin_pilatus6mconverted_encI.cbf.h5 -o insulin_pilatus6mconverted_encI.cbf.h5.cbf
+add_test(
+insulin_pilatus6mconverted_encI.cbf.h5.cbf
+${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 rn -en -cp
+${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
+-i ${CBF__DATA}/insulin_pilatus6mconverted_encI.cbf.h5
+-o ${CBF__DATA}/insulin_pilatus6mconverted_encI.cbf.h5.cbf
+)
+set_property(TEST insulin_pilatus6mconverted_encI.cbf.h5.cbf APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
+set_property(TEST insulin_pilatus6mconverted_encI.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_encI.cbf.h5)
+# -cmp insulin_pilatus6mconverted_encI.cbf.h5.cbf insulin_pilatus6mconverted_orig.cbf.h5.cbf
+add_test(
+cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted_encI.cbf.h5.cbf
+${CMAKE_COMMAND} -E compare_files
+${CBF_DATADIRO}/insulin_pilatus6mconverted_orig.cbf.h5.cbf
+${CBF__DATA}/insulin_pilatus6mconverted_encI.cbf.h5.cbf
+)
+set_property(TEST cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted_encI.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_encI.cbf.h5.cbf)
 
-  # convert to hdf5 with '-en -cp' options, then back to cbf with '-en -cp' options to check the file against a reference file
+# convert to hdf5 with '-en -cp' options, then back to cbf with '-en -cp' options to check the file against a reference file
 
-  # $(BIN)/cif2cbf -5 w $(HDF5REGISTER) -en -cp -i insulin_pilatus6mconverted.cbf -o insulin_pilatus6mconverted_encp.cbf.h5
-  add_test(
-    insulin_pilatus6mconverted_encp.cbf.h5
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 w -en -cp
-    ${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
-    -i ${CBF__DATA}/insulin_pilatus6mconverted.cbf
-    -o ${CBF__DATA}/insulin_pilatus6mconverted_encp.cbf.h5
-  )
-  set_property(TEST insulin_pilatus6mconverted_encp.cbf.h5 APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
-  set_property(TEST insulin_pilatus6mconverted_encp.cbf.h5 APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf)
-  # $(BIN)/cif2cbf -5 rn $(HDF5REGISTER) -en -cp -i insulin_pilatus6mconverted_encp.cbf.h5 -o insulin_pilatus6mconverted_encp.cbf.h5.cbf
-  add_test(
-    insulin_pilatus6mconverted_encp.cbf.h5.cbf
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 rn -en -cp
-    ${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
-    -i ${CBF__DATA}/insulin_pilatus6mconverted_encp.cbf.h5
-    -o ${CBF__DATA}/insulin_pilatus6mconverted_encp.cbf.h5.cbf
-  )
-  set_property(TEST insulin_pilatus6mconverted_encp.cbf.h5.cbf APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
-  set_property(TEST insulin_pilatus6mconverted_encp.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_encp.cbf.h5)
-  # -cmp insulin_pilatus6mconverted_encp.cbf.h5.cbf insulin_pilatus6mconverted_orig.cbf.h5.cbf
-  add_test(
-    cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted_encp.cbf.h5.cbf
-    ${CMAKE_COMMAND} -E compare_files
-    ${CBF_DATADIRO}/insulin_pilatus6mconverted_orig.cbf.h5.cbf
-    ${CBF__DATA}/insulin_pilatus6mconverted_encp.cbf.h5.cbf
-  )
-  set_property(TEST cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted_encp.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_encp.cbf.h5.cbf)
+# $(BIN)/cif2cbf -5 w $(HDF5REGISTER) -en -cp -i insulin_pilatus6mconverted.cbf -o insulin_pilatus6mconverted_encp.cbf.h5
+add_test(
+insulin_pilatus6mconverted_encp.cbf.h5
+${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 w -en -cp
+${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
+-i ${CBF__DATA}/insulin_pilatus6mconverted.cbf
+-o ${CBF__DATA}/insulin_pilatus6mconverted_encp.cbf.h5
+)
+set_property(TEST insulin_pilatus6mconverted_encp.cbf.h5 APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
+set_property(TEST insulin_pilatus6mconverted_encp.cbf.h5 APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf)
+# $(BIN)/cif2cbf -5 rn $(HDF5REGISTER) -en -cp -i insulin_pilatus6mconverted_encp.cbf.h5 -o insulin_pilatus6mconverted_encp.cbf.h5.cbf
+add_test(
+insulin_pilatus6mconverted_encp.cbf.h5.cbf
+${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 rn -en -cp
+${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
+-i ${CBF__DATA}/insulin_pilatus6mconverted_encp.cbf.h5
+-o ${CBF__DATA}/insulin_pilatus6mconverted_encp.cbf.h5.cbf
+)
+set_property(TEST insulin_pilatus6mconverted_encp.cbf.h5.cbf APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
+set_property(TEST insulin_pilatus6mconverted_encp.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_encp.cbf.h5)
+# -cmp insulin_pilatus6mconverted_encp.cbf.h5.cbf insulin_pilatus6mconverted_orig.cbf.h5.cbf
+add_test(
+cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted_encp.cbf.h5.cbf
+${CMAKE_COMMAND} -E compare_files
+${CBF_DATADIRO}/insulin_pilatus6mconverted_orig.cbf.h5.cbf
+${CBF__DATA}/insulin_pilatus6mconverted_encp.cbf.h5.cbf
+)
+set_property(TEST cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted_encp.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_encp.cbf.h5.cbf)
 
-  # convert to hdf5 with '-en -cb' options, then back to cbf with '-en -cp' options to check the file against a reference file
+# convert to hdf5 with '-en -cb' options, then back to cbf with '-en -cp' options to check the file against a reference file
 
-  # $(BIN)/cif2cbf -5 w $(HDF5REGISTER) -en -cb -i insulin_pilatus6mconverted.cbf -o insulin_pilatus6mconverted_encb.cbf.h5
-  add_test(
-    insulin_pilatus6mconverted_encb.cbf.h5
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 w -en -cb
-    ${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
-    -i ${CBF__DATA}/insulin_pilatus6mconverted.cbf
-    -o ${CBF__DATA}/insulin_pilatus6mconverted_encb.cbf.h5
-  )
-  set_property(TEST insulin_pilatus6mconverted_encb.cbf.h5 APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
-  set_property(TEST insulin_pilatus6mconverted_encb.cbf.h5 APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf)
-  # $(BIN)/cif2cbf -5 rn $(HDF5REGISTER) -en -cp -i insulin_pilatus6mconverted_encb.cbf.h5 -o insulin_pilatus6mconverted_encb.cbf.h5.cbf
-  add_test(
-    insulin_pilatus6mconverted_encb.cbf.h5.cbf
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 rn -en -cp
-    ${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
-    -i ${CBF__DATA}/insulin_pilatus6mconverted_encb.cbf.h5
-    -o ${CBF__DATA}/insulin_pilatus6mconverted_encb.cbf.h5.cbf
-  )
-  set_property(TEST insulin_pilatus6mconverted_encb.cbf.h5.cbf APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
-  set_property(TEST insulin_pilatus6mconverted_encb.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_encb.cbf.h5)
-  # -cmp insulin_pilatus6mconverted_encb.cbf.h5.cbf insulin_pilatus6mconverted_orig.cbf.h5.cbf
-  add_test(
-    cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted_encb.cbf.h5.cbf
-    ${CMAKE_COMMAND} -E compare_files
-    ${CBF_DATADIRO}/insulin_pilatus6mconverted_orig.cbf.h5.cbf
-    ${CBF__DATA}/insulin_pilatus6mconverted_encb.cbf.h5.cbf
-  )
-  set_property(TEST cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted_encb.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_encb.cbf.h5.cbf)
+# $(BIN)/cif2cbf -5 w $(HDF5REGISTER) -en -cb -i insulin_pilatus6mconverted.cbf -o insulin_pilatus6mconverted_encb.cbf.h5
+add_test(
+insulin_pilatus6mconverted_encb.cbf.h5
+${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 w -en -cb
+${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
+-i ${CBF__DATA}/insulin_pilatus6mconverted.cbf
+-o ${CBF__DATA}/insulin_pilatus6mconverted_encb.cbf.h5
+)
+set_property(TEST insulin_pilatus6mconverted_encb.cbf.h5 APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
+set_property(TEST insulin_pilatus6mconverted_encb.cbf.h5 APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf)
+# $(BIN)/cif2cbf -5 rn $(HDF5REGISTER) -en -cp -i insulin_pilatus6mconverted_encb.cbf.h5 -o insulin_pilatus6mconverted_encb.cbf.h5.cbf
+add_test(
+insulin_pilatus6mconverted_encb.cbf.h5.cbf
+${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 rn -en -cp
+${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
+-i ${CBF__DATA}/insulin_pilatus6mconverted_encb.cbf.h5
+-o ${CBF__DATA}/insulin_pilatus6mconverted_encb.cbf.h5.cbf
+)
+set_property(TEST insulin_pilatus6mconverted_encb.cbf.h5.cbf APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
+set_property(TEST insulin_pilatus6mconverted_encb.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_encb.cbf.h5)
+# -cmp insulin_pilatus6mconverted_encb.cbf.h5.cbf insulin_pilatus6mconverted_orig.cbf.h5.cbf
+add_test(
+cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted_encb.cbf.h5.cbf
+${CMAKE_COMMAND} -E compare_files
+${CBF_DATADIRO}/insulin_pilatus6mconverted_orig.cbf.h5.cbf
+${CBF__DATA}/insulin_pilatus6mconverted_encb.cbf.h5.cbf
+)
+set_property(TEST cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted_encb.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_encb.cbf.h5.cbf)
 
-  # convert to hdf5 with '-en -cc' options, then back to cbf with '-en -cp' options to check the file against a reference file
+# convert to hdf5 with '-en -cc' options, then back to cbf with '-en -cp' options to check the file against a reference file
 
-  # $(BIN)/cif2cbf -5 w $(HDF5REGISTER) -en -cc -i insulin_pilatus6mconverted.cbf -o insulin_pilatus6mconverted_encc.cbf.h5
-  add_test(
-    insulin_pilatus6mconverted_encc.cbf.h5
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 w -en -cc
-    ${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
-    -i ${CBF__DATA}/insulin_pilatus6mconverted.cbf
-    -o ${CBF__DATA}/insulin_pilatus6mconverted_encc.cbf.h5
-  )
-  set_property(TEST insulin_pilatus6mconverted_encc.cbf.h5 APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
-  set_property(TEST insulin_pilatus6mconverted_encc.cbf.h5 APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf)
-  # $(BIN)/cif2cbf -5 rn $(HDF5REGISTER) -en -cp -i insulin_pilatus6mconverted_encc.cbf.h5 -o insulin_pilatus6mconverted_encc.cbf.h5.cbf
-  add_test(
-    insulin_pilatus6mconverted_encc.cbf.h5.cbf
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 rn -en -cp
-    ${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
-    -i ${CBF__DATA}/insulin_pilatus6mconverted_encc.cbf.h5
-    -o ${CBF__DATA}/insulin_pilatus6mconverted_encc.cbf.h5.cbf
-  )
-  set_property(TEST insulin_pilatus6mconverted_encc.cbf.h5.cbf APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
-  set_property(TEST insulin_pilatus6mconverted_encc.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_encc.cbf.h5)
-  # -cmp insulin_pilatus6mconverted_encc.cbf.h5.cbf insulin_pilatus6mconverted_orig.cbf.h5.cbf
-  add_test(
-    cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted_encc.cbf.h5.cbf
-    ${CMAKE_COMMAND} -E compare_files
-    ${CBF_DATADIRO}/insulin_pilatus6mconverted_orig.cbf.h5.cbf
-    ${CBF__DATA}/insulin_pilatus6mconverted_encc.cbf.h5.cbf
-  )
-  set_property(TEST cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted_encc.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_encc.cbf.h5.cbf)
-endif(USE_HDF5)
+# $(BIN)/cif2cbf -5 w $(HDF5REGISTER) -en -cc -i insulin_pilatus6mconverted.cbf -o insulin_pilatus6mconverted_encc.cbf.h5
+add_test(
+insulin_pilatus6mconverted_encc.cbf.h5
+${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 w -en -cc
+${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
+-i ${CBF__DATA}/insulin_pilatus6mconverted.cbf
+-o ${CBF__DATA}/insulin_pilatus6mconverted_encc.cbf.h5
+)
+set_property(TEST insulin_pilatus6mconverted_encc.cbf.h5 APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
+set_property(TEST insulin_pilatus6mconverted_encc.cbf.h5 APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf)
+# $(BIN)/cif2cbf -5 rn $(HDF5REGISTER) -en -cp -i insulin_pilatus6mconverted_encc.cbf.h5 -o insulin_pilatus6mconverted_encc.cbf.h5.cbf
+add_test(
+insulin_pilatus6mconverted_encc.cbf.h5.cbf
+${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cif2cbf -5 rn -en -cp
+${CBF_HDF5REGISTER_ARG} ${CBF_HDF5REGISTER_VAL}
+-i ${CBF__DATA}/insulin_pilatus6mconverted_encc.cbf.h5
+-o ${CBF__DATA}/insulin_pilatus6mconverted_encc.cbf.h5.cbf
+)
+set_property(TEST insulin_pilatus6mconverted_encc.cbf.h5.cbf APPEND PROPERTY ENVIRONMENT "HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}")
+set_property(TEST insulin_pilatus6mconverted_encc.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_encc.cbf.h5)
+# -cmp insulin_pilatus6mconverted_encc.cbf.h5.cbf insulin_pilatus6mconverted_orig.cbf.h5.cbf
+add_test(
+cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted_encc.cbf.h5.cbf
+${CMAKE_COMMAND} -E compare_files
+${CBF_DATADIRO}/insulin_pilatus6mconverted_orig.cbf.h5.cbf
+${CBF__DATA}/insulin_pilatus6mconverted_encc.cbf.h5.cbf
+)
+set_property(TEST cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus6mconverted_encc.cbf.h5.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_encc.cbf.h5.cbf)
 
 # conversion tests for tiff2cbf
 if(USE_TIFF)
@@ -1463,10 +1447,8 @@ if(USE_TIFF)
 endif()
 
 # unit tests
+add_test(testhdf5 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testhdf5)
 
-if(USE_HDF5)
-  add_test(testhdf5 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testhdf5)
-endif()
 if(VALGRIND)
   add_test(testalloc ${VALGRIND_COMMAND} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testalloc)
   add_test(testtree ${VALGRIND_COMMAND} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testtree)
@@ -1517,116 +1499,114 @@ set_property(TEST cmp-i03-1.cbf-i03-2.cbf APPEND PROPERTY DEPENDS i03-2.cbf)
 
 
 # basic minicbf2nexus tests
-if(USE_HDF5)
-  # generate a hfd5 file from minicbf data
-  add_test(
-    minicbf.h5
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/minicbf2nexus
-    -c zlib
-    -C ${CBFlib_SOURCE_DIR}/minicbf_test/config
-    --register manual
-    -o ${CBF__DATA}/minicbf.h5
-    ${CBF_DATADIRI}/X4_lots_M1S4_1_0001.cbf
-    ${CBF_DATADIRI}/X4_lots_M1S4_1_0002.cbf
-    ${CBF_DATADIRI}/X4_lots_M1S4_1_0003.cbf
-    ${CBF_DATADIRI}/X4_lots_M1S4_1_0004.cbf
-    ${CBF_DATADIRI}/X4_lots_M1S4_1_0005.cbf
-  )
+# generate a hfd5 file from minicbf data
+add_test(
+minicbf.h5
+${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/minicbf2nexus
+-c zlib
+-C ${CBFlib_SOURCE_DIR}/minicbf_test/config
+--register manual
+-o ${CBF__DATA}/minicbf.h5
+${CBF_DATADIRI}/X4_lots_M1S4_1_0001.cbf
+${CBF_DATADIRI}/X4_lots_M1S4_1_0002.cbf
+${CBF_DATADIRI}/X4_lots_M1S4_1_0003.cbf
+${CBF_DATADIRI}/X4_lots_M1S4_1_0004.cbf
+${CBF_DATADIRI}/X4_lots_M1S4_1_0005.cbf
+)
 
-  # dump the content of generated and reference hdf5 files & use 'cbf_tail' to strip off some file names
-  add_test(
-    minicbf_original.dump
-    ${CMAKE_COMMAND}
-    -Dinput=${CBF_DATADIRO}/minicbf_original.h5
-    -Doutput=${CBF__DATA}/minicbf_original.dump
-    -P ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/h5dump.cmake
-  )
-  add_test(
-    minicbf.dump
-    ${CMAKE_COMMAND}
-    -Dinput=${CBF__DATA}/minicbf.h5
-    -Doutput=${CBF__DATA}/minicbf.dump
-    -P ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/h5dump.cmake
-  )
-  set_property(TEST minicbf.dump APPEND PROPERTY DEPENDS minicbf.h5)
+# dump the content of generated and reference hdf5 files & use 'cbf_tail' to strip off some file names
+add_test(
+minicbf_original.dump
+${CMAKE_COMMAND}
+-Dinput=${CBF_DATADIRO}/minicbf_original.h5
+-Doutput=${CBF__DATA}/minicbf_original.dump
+-P ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/h5dump.cmake
+)
+add_test(
+minicbf.dump
+${CMAKE_COMMAND}
+-Dinput=${CBF__DATA}/minicbf.h5
+-Doutput=${CBF__DATA}/minicbf.dump
+-P ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/h5dump.cmake
+)
+set_property(TEST minicbf.dump APPEND PROPERTY DEPENDS minicbf.h5)
 
-  # compare dumped hdf5 file content
-  add_test(cmp-minicbf_original.dump-minicbf.dump ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/minicbf_original.dump ${CBF__DATA}/minicbf.dump)
-  set_property(TEST cmp-minicbf_original.dump-minicbf.dump APPEND PROPERTY DEPENDS minicbf_original.dump)
-  set_property(TEST cmp-minicbf_original.dump-minicbf.dump APPEND PROPERTY DEPENDS minicbf.dump)
+# compare dumped hdf5 file content
+add_test(cmp-minicbf_original.dump-minicbf.dump ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/minicbf_original.dump ${CBF__DATA}/minicbf.dump)
+set_property(TEST cmp-minicbf_original.dump-minicbf.dump APPEND PROPERTY DEPENDS minicbf_original.dump)
+set_property(TEST cmp-minicbf_original.dump-minicbf.dump APPEND PROPERTY DEPENDS minicbf.dump)
 
-  # round-trip cbf2nexus & nexus2cbf tests using i19 data
+# round-trip cbf2nexus & nexus2cbf tests using i19 data
 
-  # generate the data
-  add_test(i19-1.h5 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cbf2nexus -c zlib --list -o ${CBF__DATA}/i19-1.h5 ${CBF_DATADIRI}/1191_00005.cbf)
+# generate the data
+add_test(i19-1.h5 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cbf2nexus -c zlib --list -o ${CBF__DATA}/i19-1.h5 ${CBF_DATADIRI}/1191_00005.cbf)
 
-  add_test(i19-1.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/nexus2cbf -o ${CBF__DATA}/i19-1.cbf ${CBF__DATA}/i19-1.h5)
-  set_property(TEST i19-1.cbf APPEND PROPERTY DEPENDS i19-1.h5)
+add_test(i19-1.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/nexus2cbf -o ${CBF__DATA}/i19-1.cbf ${CBF__DATA}/i19-1.h5)
+set_property(TEST i19-1.cbf APPEND PROPERTY DEPENDS i19-1.h5)
 
-  add_test(i19-2.h5 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cbf2nexus -c zlib --list -o ${CBF__DATA}/i19-2.h5 ${CBF__DATA}/i19-1.cbf)
-  set_property(TEST i19-2.h5 APPEND PROPERTY DEPENDS i19-1.cbf)
+add_test(i19-2.h5 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cbf2nexus -c zlib --list -o ${CBF__DATA}/i19-2.h5 ${CBF__DATA}/i19-1.cbf)
+set_property(TEST i19-2.h5 APPEND PROPERTY DEPENDS i19-1.cbf)
 
-  add_test(i19-2.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/nexus2cbf -o ${CBF__DATA}/i19-2.cbf ${CBF__DATA}/i19-2.h5)
-  set_property(TEST i19-2.cbf APPEND PROPERTY DEPENDS i19-2.h5)
+add_test(i19-2.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/nexus2cbf -o ${CBF__DATA}/i19-2.cbf ${CBF__DATA}/i19-2.h5)
+set_property(TEST i19-2.cbf APPEND PROPERTY DEPENDS i19-2.h5)
 
-  # dump the content of generated hdf5 files & use 'cbf_tail' to strip off some file names
-  add_test(
-    i19-1.dump
-    ${CMAKE_COMMAND}
-    -Dinput=${CBF__DATA}/i19-1.h5
-    -Doutput=${CBF__DATA}/i19-1.dump
-    -P ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/h5dump.cmake
-  )
-  set_property(TEST i19-1.dump APPEND PROPERTY DEPENDS i19-1.h5)
-  add_test(
-    i19-2.dump
-    ${CMAKE_COMMAND}
-    -Dinput=${CBF__DATA}/i19-2.h5
-    -Doutput=${CBF__DATA}/i19-2.dump
-    -P ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/h5dump.cmake
-  )
-  set_property(TEST i19-2.dump APPEND PROPERTY DEPENDS i19-2.h5)
+# dump the content of generated hdf5 files & use 'cbf_tail' to strip off some file names
+add_test(
+i19-1.dump
+${CMAKE_COMMAND}
+-Dinput=${CBF__DATA}/i19-1.h5
+-Doutput=${CBF__DATA}/i19-1.dump
+-P ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/h5dump.cmake
+)
+set_property(TEST i19-1.dump APPEND PROPERTY DEPENDS i19-1.h5)
+add_test(
+i19-2.dump
+${CMAKE_COMMAND}
+-Dinput=${CBF__DATA}/i19-2.h5
+-Doutput=${CBF__DATA}/i19-2.dump
+-P ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/h5dump.cmake
+)
+set_property(TEST i19-2.dump APPEND PROPERTY DEPENDS i19-2.h5)
 
-  # compare dumped hdf5 file content
-  add_test(cmp-i19-1.dump-i19-2.dump ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/i19-1.dump ${CBF__DATA}/i19-2.dump)
-  set_property(TEST cmp-i19-1.dump-i19-2.dump APPEND PROPERTY DEPENDS i19-1.dump)
-  set_property(TEST cmp-i19-1.dump-i19-2.dump APPEND PROPERTY DEPENDS i19-2.dump)
+# compare dumped hdf5 file content
+add_test(cmp-i19-1.dump-i19-2.dump ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/i19-1.dump ${CBF__DATA}/i19-2.dump)
+set_property(TEST cmp-i19-1.dump-i19-2.dump APPEND PROPERTY DEPENDS i19-1.dump)
+set_property(TEST cmp-i19-1.dump-i19-2.dump APPEND PROPERTY DEPENDS i19-2.dump)
 
-  # round-trip cbf2nexus & nexus2cbf tests using i03 data
+# round-trip cbf2nexus & nexus2cbf tests using i03 data
 
-  # generate the data
-  add_test(i03-1.h5 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cbf2nexus -c zlib --list -o ${CBF__DATA}/i03-1.h5 ${CBF_DATADIRI}/thaumatin_die_M1S5_1_0005_2.cbf)
+# generate the data
+add_test(i03-1.h5 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cbf2nexus -c zlib --list -o ${CBF__DATA}/i03-1.h5 ${CBF_DATADIRI}/thaumatin_die_M1S5_1_0005_2.cbf)
 
-  add_test(i03-1.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/nexus2cbf -o ${CBF__DATA}/i03-1.cbf ${CBF__DATA}/i03-1.h5)
-  set_property(TEST i03-1.cbf APPEND PROPERTY DEPENDS i03-1.h5)
+add_test(i03-1.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/nexus2cbf -o ${CBF__DATA}/i03-1.cbf ${CBF__DATA}/i03-1.h5)
+set_property(TEST i03-1.cbf APPEND PROPERTY DEPENDS i03-1.h5)
 
-  add_test(i03-2.h5 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cbf2nexus -c zlib --list -o ${CBF__DATA}/i03-2.h5 ${CBF__DATA}/i03-1.cbf)
-  set_property(TEST i03-2.h5 APPEND PROPERTY DEPENDS i03-1.cbf)
+add_test(i03-2.h5 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cbf2nexus -c zlib --list -o ${CBF__DATA}/i03-2.h5 ${CBF__DATA}/i03-1.cbf)
+set_property(TEST i03-2.h5 APPEND PROPERTY DEPENDS i03-1.cbf)
 
-  add_test(i03-2.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/nexus2cbf -o ${CBF__DATA}/i03-2.cbf ${CBF__DATA}/i03-2.h5)
-  set_property(TEST i03-2.cbf APPEND PROPERTY DEPENDS i03-2.h5)
+add_test(i03-2.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/nexus2cbf -o ${CBF__DATA}/i03-2.cbf ${CBF__DATA}/i03-2.h5)
+set_property(TEST i03-2.cbf APPEND PROPERTY DEPENDS i03-2.h5)
 
-  # dump the content of generated hdf5 files & use 'cbf_tail' to strip off some file names
-  add_test(
-    i03-1.dump
-    ${CMAKE_COMMAND}
-    -Dinput=${CBF__DATA}/i03-1.h5
-    -Doutput=${CBF__DATA}/i03-1.dump
-    -P ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/h5dump.cmake
-  )
-  set_property(TEST i03-1.dump APPEND PROPERTY DEPENDS i03-1.h5)
-  add_test(
-    i03-2.dump
-    ${CMAKE_COMMAND}
-    -Dinput=${CBF__DATA}/i03-2.h5
-    -Doutput=${CBF__DATA}/i03-2.dump
-    -P ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/h5dump.cmake
-  )
-  set_property(TEST i03-2.dump APPEND PROPERTY DEPENDS i03-2.h5)
+# dump the content of generated hdf5 files & use 'cbf_tail' to strip off some file names
+add_test(
+i03-1.dump
+${CMAKE_COMMAND}
+-Dinput=${CBF__DATA}/i03-1.h5
+-Doutput=${CBF__DATA}/i03-1.dump
+-P ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/h5dump.cmake
+)
+set_property(TEST i03-1.dump APPEND PROPERTY DEPENDS i03-1.h5)
+add_test(
+i03-2.dump
+${CMAKE_COMMAND}
+-Dinput=${CBF__DATA}/i03-2.h5
+-Doutput=${CBF__DATA}/i03-2.dump
+-P ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/h5dump.cmake
+)
+set_property(TEST i03-2.dump APPEND PROPERTY DEPENDS i03-2.h5)
 
-  # compare dumped hdf5 file content
-  add_test(cmp-i03-1.dump-i03-2.dump ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/i03-1.dump ${CBF__DATA}/i03-2.dump)
-  set_property(TEST cmp-i03-1.dump-i03-2.dump APPEND PROPERTY DEPENDS i03-1.dump)
-  set_property(TEST cmp-i03-1.dump-i03-2.dump APPEND PROPERTY DEPENDS i03-2.dump)
-endif(USE_HDF5)
+# compare dumped hdf5 file content
+add_test(cmp-i03-1.dump-i03-2.dump ${CMAKE_COMMAND} -E compare_files ${CBF__DATA}/i03-1.dump ${CBF__DATA}/i03-2.dump)
+set_property(TEST cmp-i03-1.dump-i03-2.dump APPEND PROPERTY DEPENDS i03-1.dump)
+set_property(TEST cmp-i03-1.dump-i03-2.dump APPEND PROPERTY DEPENDS i03-2.dump)
 
