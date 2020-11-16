@@ -297,7 +297,7 @@ else ()
   project (CBFlib C CXX)
 endif()
 
-# Diagnostics: Force colour on when using Ninja
+# Build-niceties diagnostics: Force colour on when using Ninja
 option (FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." TRUE)
 if (${FORCE_COLORED_OUTPUT})
     if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
@@ -558,10 +558,10 @@ endif(CBF_DONT_USE_LONG_LONG)
 #    and a recent PCRE for use in the future.  Only the PCRE
 #    version is used for cmake builds
 #
-set(CBF_REGEX    "regex-20090805")
-set(CBF_PCRE     "pcre-8.33")
-set(CBF_REGEXURL "http://downloads.sf.net/cbflib/${CBF_REGEX}.tar.gz")
-set(CBF_PCREURL  "http://downloads.sf.net/cbflib/${CBF_PCRE}.tar.gz")
+# set(CBF_REGEX    "regex-20090805")
+# set(CBF_PCRE     "pcre-8.33")
+# set(CBF_REGEXURL "http://downloads.sf.net/cbflib/${CBF_REGEX}.tar.gz")
+# set(CBF_PCREURL  "http://downloads.sf.net/cbflib/${CBF_PCRE}.tar.gz")
 
 
 #
@@ -668,63 +668,63 @@ endforeach(loop_file)
 # Source files
 #
 set(CBF_C_SOURCES
-    ${CBF__SRC}/cbf.c
-    ${CBF__SRC}/cbf_alloc.c
-    ${CBF__SRC}/cbf_ascii.c
-    ${CBF__SRC}/cbf_binary.c
-    ${CBF__SRC}/cbf_byte_offset.c
-    ${CBF__SRC}/cbf_canonical.c
-    ${CBF__SRC}/cbf_codes.c
-    ${CBF__SRC}/cbf_compress.c
-    ${CBF__SRC}/cbf_context.c
-    ${CBF__SRC}/cbf_copy.c
-    ${CBF__SRC}/cbf_file.c
-    ${CBF__SRC}/cbf_getopt.c
-    ${CBF__SRC}/cbf_nibble_offset.c
-    ${CBF__SRC}/cbf_packed.c
-    ${CBF__SRC}/cbf_predictor.c
-    ${CBF__SRC}/cbf_read_binary.c
-    ${CBF__SRC}/cbf_read_mime.c
-    ${CBF__SRC}/cbf_simple.c
-    ${CBF__SRC}/cbf_string.c
-    ${CBF__SRC}/cbf_stx.c
-    ${CBF__SRC}/cbf_tree.c
-    ${CBF__SRC}/cbf_uncompressed.c
-    ${CBF__SRC}/cbf_ulp.c
-    ${CBF__SRC}/cbf_write.c
-    ${CBF__SRC}/cbf_write_binary.c
-    ${CBF__SRC}/cbf_ws.c
-    ${CBF__SRC}/md5c.c
-    ${CBF__SRC}/img.c
-    ${CBF__SRC}/cbf_airy_disk.c
-    ${CBF__SRC}/cbf_minicbf_header.c
-    ${CBF__SRC}/cbff.c
-    ${CBF__SRC}/cbf_lex.c
+    src/cbf.c
+    src/cbf_alloc.c
+    src/cbf_ascii.c
+    src/cbf_binary.c
+    src/cbf_byte_offset.c
+    src/cbf_canonical.c
+    src/cbf_codes.c
+    src/cbf_compress.c
+    src/cbf_context.c
+    src/cbf_copy.c
+    src/cbf_file.c
+    src/cbf_getopt.c
+    src/cbf_nibble_offset.c
+    src/cbf_packed.c
+    src/cbf_predictor.c
+    src/cbf_read_binary.c
+    src/cbf_read_mime.c
+    src/cbf_simple.c
+    src/cbf_string.c
+    src/cbf_stx.c
+    src/cbf_tree.c
+    src/cbf_uncompressed.c
+    src/cbf_ulp.c
+    src/cbf_write.c
+    src/cbf_write_binary.c
+    src/cbf_ws.c
+    src/md5c.c
+    src/img.c
+    src/cbf_airy_disk.c
+    src/cbf_minicbf_header.c
+    src/cbff.c
+    src/cbf_lex.c
     src/cbf_hdf5.c
     src/cbf_hdf5_filter.c
 )
 
 if (USE_FORTRAN)
-  set(
-    CBF_F90_BUILT_SOURCES
+    set(
+        CBF_F90_BUILT_SOURCES
         ${CBF__BLDSRC}/fcb_exit_binary.f90
         ${CBF__BLDSRC}/fcb_next_binary.f90
         ${CBF__BLDSRC}/fcb_open_cifin.f90
         ${CBF__BLDSRC}/fcb_packed.f90
         ${CBF__BLDSRC}/fcb_read_bits.f90
         ${CBF__BLDSRC}/fcb_read_image.f90
-    ${CBF__BLDSRC}/fcb_read_xds_i2.f90
-  )
+        ${CBF__BLDSRC}/fcb_read_xds_i2.f90
+    )
 
-  set(
-    CBF_F90_SOURCES
-    ${CBF__SRC}/fcb_atol_wcnt.f90
-        ${CBF__SRC}/fcb_ci_strncmparr.f90
-        ${CBF__SRC}/fcb_nblen_array.f90
-        ${CBF__SRC}/fcb_read_byte.f90
-        ${CBF__SRC}/fcb_read_line.f90
-    ${CBF__SRC}/fcb_skip_whitespace.f90
-  )
+    set(
+        CBF_F90_SOURCES
+        src/fcb_atol_wcnt.f90
+        src/fcb_ci_strncmparr.f90
+        src/fcb_nblen_array.f90
+        src/fcb_read_byte.f90
+        src/fcb_read_line.f90
+        src/fcb_skip_whitespace.f90
+    )
 endif()
 
 
@@ -754,39 +754,39 @@ ENDIF("${isSystemDir}" STREQUAL "-1")
 # Header files
 #
 set( CBF_HEADERS
-    ${CBF__INCLUDE}/cbf.h
-    ${CBF__INCLUDE}/cbf_alloc.h
-    ${CBF__INCLUDE}/cbf_ascii.h
-    ${CBF__INCLUDE}/cbf_binary.h
-    ${CBF__INCLUDE}/cbf_byte_offset.h
-    ${CBF__INCLUDE}/cbf_canonical.h
-    ${CBF__INCLUDE}/cbf_codes.h
-    ${CBF__INCLUDE}/cbf_compress.h
-    ${CBF__INCLUDE}/cbf_context.h
-    ${CBF__INCLUDE}/cbf_copy.h
-    ${CBF__INCLUDE}/cbf_file.h
-    ${CBF__INCLUDE}/cbf_getopt.h
-    ${CBF__INCLUDE}/cbf_hdf5.h
-    ${CBF__INCLUDE}/cbf_hdf5_filter.h
-    ${CBF__INCLUDE}/cbf_lex.h
-    ${CBF__INCLUDE}/cbf_nibble_offset.h
-    ${CBF__INCLUDE}/cbf_packed.h
-    ${CBF__INCLUDE}/cbf_predictor.h
-    ${CBF__INCLUDE}/cbf_read_binary.h
-    ${CBF__INCLUDE}/cbf_read_mime.h
-    ${CBF__INCLUDE}/cbf_simple.h
-    ${CBF__INCLUDE}/cbf_string.h
-    ${CBF__INCLUDE}/cbf_stx.h
-    ${CBF__INCLUDE}/cbf_tree.h
-    ${CBF__INCLUDE}/cbf_uncompressed.h
-    ${CBF__INCLUDE}/cbf_ulp.h
-    ${CBF__INCLUDE}/cbf_write.h
-    ${CBF__INCLUDE}/cbf_write_binary.h
-    ${CBF__INCLUDE}/cbf_ws.h
-    ${CBF__INCLUDE}/global.h
-    ${CBF__INCLUDE}/cbff.h
-    ${CBF__INCLUDE}/md5.h
-    ${CBF__INCLUDE}/img.h
+    include/cbf.h
+    include/cbf_alloc.h
+    include/cbf_ascii.h
+    include/cbf_binary.h
+    include/cbf_byte_offset.h
+    include/cbf_canonical.h
+    include/cbf_codes.h
+    include/cbf_compress.h
+    include/cbf_context.h
+    include/cbf_copy.h
+    include/cbf_file.h
+    include/cbf_getopt.h
+    include/cbf_hdf5.h
+    include/cbf_hdf5_filter.h
+    include/cbf_lex.h
+    include/cbf_nibble_offset.h
+    include/cbf_packed.h
+    include/cbf_predictor.h
+    include/cbf_read_binary.h
+    include/cbf_read_mime.h
+    include/cbf_simple.h
+    include/cbf_string.h
+    include/cbf_stx.h
+    include/cbf_tree.h
+    include/cbf_uncompressed.h
+    include/cbf_ulp.h
+    include/cbf_write.h
+    include/cbf_write_binary.h
+    include/cbf_ws.h
+    include/global.h
+    include/cbff.h
+    include/md5.h
+    include/img.h
 )
 
 
@@ -795,19 +795,16 @@ if(USE_FORTRAN)
   #
   # m4 FCB library macro files
   #
-  set(
-    CBF_M4_FCB_DEFINES
-    ${CBF__M4}/fcblib_defines.m4
-  )
+  set( CBF_M4_FCB_DEFINES ${CBF__M4}/fcblib_defines.m4 )
 
   set(
     CBF_M4_FCB_FILES
-        ${CBF__M4}/fcb_exit_binary.m4
-        ${CBF__M4}/fcb_next_binary.m4
-        ${CBF__M4}/fcb_open_cifin.m4
-        ${CBF__M4}/fcb_packed.m4
-        ${CBF__M4}/fcb_read_bits.m4
-        ${CBF__M4}/fcb_read_image.m4
+    ${CBF__M4}/fcb_exit_binary.m4
+    ${CBF__M4}/fcb_next_binary.m4
+    ${CBF__M4}/fcb_open_cifin.m4
+    ${CBF__M4}/fcb_packed.m4
+    ${CBF__M4}/fcb_read_bits.m4
+    ${CBF__M4}/fcb_read_image.m4
     ${CBF__M4}/fcb_read_xds_i2.m4
   )
   #
@@ -815,7 +812,7 @@ if(USE_FORTRAN)
   #
   set(
     CBF_M4_F90_EXAMPLES
-              ${CBF__M4}/test_fcb_read_image.m4
+    ${CBF__M4}/test_fcb_read_image.m4
     ${CBF__M4}/test_xds_binary.m4
   )
 
@@ -828,13 +825,13 @@ endif()
 set(
 	CBF_DOCUMENTS
 	${CBF__DOC}/CBFlib.html
-			${CBF__DOC}/CBFlib.txt
-			${CBF__DOC}/CBFlib_NOTICES.html
-			${CBF__DOC}/CBFlib_NOTICES.txt
-            ${CBF__DOC}/ChangeLog
-			${CBF__DOC}/ChangeLog.html
-			${CBF__DOC}/MANIFEST
-			${CBF__DOC}/gpl.txt $(DOC)/lgpl.txt
+    ${CBF__DOC}/CBFlib.txt
+    ${CBF__DOC}/CBFlib_NOTICES.html
+    ${CBF__DOC}/CBFlib_NOTICES.txt
+    ${CBF__DOC}/ChangeLog
+    ${CBF__DOC}/ChangeLog.html
+    ${CBF__DOC}/MANIFEST
+    ${CBF__DOC}/gpl.txt $(DOC)/lgpl.txt
 	CACHE STRING ""
 )
 
@@ -844,14 +841,14 @@ set(
 set(
 	JPEGS
 	${GRAPHICS}/CBFbackground.jpg
-			${GRAPHICS}/CBFbig.jpg
-			${GRAPHICS}/CBFbutton.jpg
-			${GRAPHICS}/cbflibbackground.jpg
-            ${GRAPHICS}/cbflibbig.jpg
-			${GRAPHICS}/cbflibbutton.jpg
-			${GRAPHICS}/cifhome.jpg
-            ${GRAPHICS}/iucrhome.jpg
-			${GRAPHICS}/noticeButton.jpg
+    ${GRAPHICS}/CBFbig.jpg
+    ${GRAPHICS}/CBFbutton.jpg
+    ${GRAPHICS}/cbflibbackground.jpg
+    ${GRAPHICS}/cbflibbig.jpg
+    ${GRAPHICS}/cbflibbutton.jpg
+    ${GRAPHICS}/cifhome.jpg
+    ${GRAPHICS}/iucrhome.jpg
+    ${GRAPHICS}/noticeButton.jpg
 	CACHE STRING ""
 )
 
@@ -859,10 +856,6 @@ set(
 
 include_directories(${CBFlib_SOURCE_DIR}/include)
 message("CBF_REGEXLIB_INCLUDE_DIR ${CBF_REGEXLIB_INCLUDE_DIR}")
-# 	BEFORE SYSTEM
-#
-#                       ${CBF_REGEXLIB_INCLUDE_DIR}
-#                       )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/bin")
 
@@ -1067,7 +1060,7 @@ endif()
 install (DIRECTORY ${CBF__INCLUDE}/ DESTINATION include/cbflib FILES_MATCHING PATTERN "*.h")
 install (DIRECTORY ${CBF__BIN_INCLUDE}/* DESTINATION include/cbflib FILES_MATCHING PATTERN "*.h")
 
-# path to the valgrind executable
+# path to the valgrind executable, for memory tests
 set(VALGRIND_COMMAND "")
 find_program(VALGRIND valgrind)
 if (VALGRIND)
