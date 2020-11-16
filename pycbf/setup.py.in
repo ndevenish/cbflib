@@ -1,5 +1,8 @@
 # !/usr/bin/env python
 
+# This is a template setup.py for usage by CMake for generating an
+# actual setup.py that is run at build-install time
+
 from distutils.core import setup
 
 setup(
