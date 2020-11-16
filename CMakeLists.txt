@@ -272,29 +272,36 @@
 ######################################################################
 
 # Currently limited by - (~ means ignored as not used)
-#              ~3.19 	hdf5 targets included by default
-# 							3.5		cmake_parse_arguments
+#              ~3.19  hdf5 targets included by default
+#               3.5   cmake_parse_arguments
 #               3.9   Per-language HDF5 include in FindHDF5
 #              ~3.12  add_compile_definitions
 #               3.12  TARGET_NAME_IF_EXISTS
 cmake_minimum_required(VERSION 3.12)
 
-set(USE_FORTRAN OFF CACHE BOOL "Build Fortran Bindings")
+message("Env TEST=$ENV{TEST}")
 set(USE_TIFF    ON CACHE  BOOL "Build tiff2cbf")
-set(BUILD_SHARED_LIBS ON CACHE BOOL "Build Shared libraries (instead of STATIC)")
 set(DOWNLOAD_TEST_DATA    ON CACHE  BOOL "Should the test data be downloaded?")
 
+set(USE_FORTRAN OFF CACHE BOOL "Build Fortran Bindings")
+set(BUILD_SHARED_LIBS ON CACHE BOOL "Build Shared libraries (instead of STATIC)")
 set(BUILD_PYCBF OFF CACHE BOOL "Build the PyCBF bindings")
+
+set(USE_ULP OFF CACHE BOOL "Build using cbf_ulp")
+
+# HDF5 Version required. This is interpreted exactly.
+set(HDF5_VERSION_REQUIRED 1.10)
+
 
 set(CBF_F90FLAGS_ENV $ENV{F90FLAGS})
 set(CBF_USE_ULP $ENV{CBF_USE_ULP})
 set(CBF_M4FLAGS_ENV $ENV{M4FLAGS})
 set(CBF_HDF5REGISTER_MANUAL_ENV $ENV{CBF_HDF5REGISTER_MANUAL})
 
+project (CBFlib C CXX)
+
 if (USE_FORTRAN)
-  project (CBFlib C CXX Fortran)
-else ()
-  project (CBFlib C CXX)
+  enable_language(Fortran)
 endif()
 
 # Build-niceties diagnostics: Force colour on when using Ninja
@@ -318,7 +325,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 
-if (CBF_USE_ULP)
+if (USE_ULP)
   add_definitions(-DCBF_USE_ULP)
 endif ()
 
@@ -331,16 +338,6 @@ if (CBF_M4FLAGS_ENV)
 else (CBF_M4FLAGS_ENV)
   set(CBF_M4FLAGS "-Dfcb_bytes_in_rec=4096")
 endif (CBF_M4FLAGS_ENV)
-
-if (USE_FORTRAN)
-  if (CBF_F90FLAGS_ENV)
-    set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${CBF_F90FLAGS_ENV}")
-    set(CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG}   ${CBF_F90FLAGS_ENV}")
-  else (CBF_F90FLAGS_ENV)
-    set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -fno-range-check")
-    set(CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG}   -fno-range-check")
-  endif (CBF_F90FLAGS_ENV)
-endif ()
 
 #
 #  Favor static libraries
@@ -380,20 +377,20 @@ endmacro(CBF_REQUIRE_DIRECTORY)
 #                     Use an absolute path for UNPACKED_DIRECTORY
 #
 macro(CBF_LOAD_TARBALL WORK_DIR UNPACKED_DIRECTORY TARBALL)
-	if (NOT EXISTS ${UNPACKED_DIRECTORY})
-		execute_process(
-		COMMAND ${WGET_EXECUTABLE} ${TARBALL}
-		WORKING_DIRECTORY ${WORK_DIR}
-		)
-		execute_process(
-		COMMAND ${CMAKE_COMMAND} -E tar xzvf ${UNPACKED_DIRECTORY}.tar.gz
-		WORKING_DIRECTORY ${WORK_DIR}
-		)
-		execute_process(
-		COMMAND ${CMAKE_COMMAND} -E remove ${UNPACKED_DIRECTORY}.tar.gz
-		WORKING_DIRECTORY ${WORK_DIR}
-		)
-	endif (NOT EXISTS ${UNPACKED_DIRECTORY})
+    if (NOT EXISTS ${UNPACKED_DIRECTORY})
+        execute_process(
+        COMMAND ${WGET_EXECUTABLE} ${TARBALL}
+        WORKING_DIRECTORY ${WORK_DIR}
+        )
+        execute_process(
+        COMMAND ${CMAKE_COMMAND} -E tar xzvf ${UNPACKED_DIRECTORY}.tar.gz
+        WORKING_DIRECTORY ${WORK_DIR}
+        )
+        execute_process(
+        COMMAND ${CMAKE_COMMAND} -E remove ${UNPACKED_DIRECTORY}.tar.gz
+        WORKING_DIRECTORY ${WORK_DIR}
+        )
+    endif (NOT EXISTS ${UNPACKED_DIRECTORY})
 endmacro(CBF_LOAD_TARBALL)
 
 
@@ -505,11 +502,12 @@ if(USE_TIFF)
   find_package(TIFF REQUIRED)
 endif()
 
-set(HDF5_VERSION_REQUIRED 1.10)
+
+
 if (USE_FORTRAN)
-  find_package(HDF5 ${HDF5_VERSION_REQUIRED} REQUIRED COMPONENTS C Fortran)
+  find_package(HDF5 ${HDF5_VERSION_REQUIRED} EXACT REQUIRED COMPONENTS C Fortran)
 else()
-  find_package(HDF5 ${HDF5_VERSION_REQUIRED} REQUIRED COMPONENTS C)
+  find_package(HDF5 ${HDF5_VERSION_REQUIRED} EXACT REQUIRED COMPONENTS C)
 endif()
 
 # Backport the CMake 3.19 HDF5 target definitions
@@ -585,37 +583,37 @@ find_path(CBF_REGEXLIB_INCLUDE_DIR NAMES pcreposix.h)
 message(STATUS "CBF_REGEXLIB_INCLUDE_DIR for pcreposix.h = '${CBF_REGEXLIB_INCLUDE_DIR}'")
 message(STATUS "CBF_REGEXLIB = '${CBF_REGEXLIB}'")
 if (NOT CBF_REGEXLIB_INCLUDE_DIR OR NOT CBF_REGEXLIB)
-	# PCRE not found, try for REGEX
-	message(STATUS "'pcre' library not found")
-	find_library(CBF_REGEXLIB regex)
-	find_path(CBF_REGEXLIB_INCLUDE_DIR NAMES regex.h)
-	message(STATUS "CBF_REGEXLIB_INCLUDE_DIR for regex.h = '${CBF_REGEXLIB_INCLUDE_DIR}'")
-	message(STATUS "CBF_REGEXLIB = '${CBF_REGEXLIB}'")
-	if (NOT CBF_REGEXLIB_INCLUDE_DIR OR NOT CBF_REGEXLIB)
-		# Neither PCRE not REGEX found, load and build PCRE
-		message(STATUS "'regex' library not found")
-		ExternalProject_add(
-			PCRE
-			URL ${CBF_PCREURL}
-			SOURCE_DIR ${CMAKE_BINARY_DIR}/external_packages/${CBF_PCRE}
-			CMAKE_ARGS
-				-DCMAKE_BUILD_TYPE:STRING=RELEASE DEBUG
-				-DCMAKE_INSTALL_PREFIX:PATH=${CBFlib_BINARY_DIR}/${CBF_PCRE}
-			INSTALL_DIR ${CBFlib_BINARY_DIR}/${CBF_PCRE}
-		)
-		set(CBF_RE "PCRE")
-		set(CBF_REGEXLIB_INCLUDE_DIR ${CMAKE_BINARY_DIR}/${CBF_PCRE}/include)
-		set(CBF_REGEXLIB_LIBRARY_PATH ${CBFlib_BINARY_DIR}/${CBF_PCRE}/lib/libpcre.a)
-		add_definitions(-DCBF_REGEXLIB_PCRE)
-	else ()
-		set(CBF_RE "")
-		set(CBF_REGEXLIB_LIBRARY_PATH "${CBF_REGEXLIB}/libregex.so")
-		add_definitions(-DCBF_REGEXLIB_REGEX)
-	endif ()
+    # PCRE not found, try for REGEX
+    message(STATUS "'pcre' library not found")
+    find_library(CBF_REGEXLIB regex)
+    find_path(CBF_REGEXLIB_INCLUDE_DIR NAMES regex.h)
+    message(STATUS "CBF_REGEXLIB_INCLUDE_DIR for regex.h = '${CBF_REGEXLIB_INCLUDE_DIR}'")
+    message(STATUS "CBF_REGEXLIB = '${CBF_REGEXLIB}'")
+    if (NOT CBF_REGEXLIB_INCLUDE_DIR OR NOT CBF_REGEXLIB)
+        # Neither PCRE not REGEX found, load and build PCRE
+        message(STATUS "'regex' library not found")
+        ExternalProject_add(
+            PCRE
+            URL ${CBF_PCREURL}
+            SOURCE_DIR ${CMAKE_BINARY_DIR}/external_packages/${CBF_PCRE}
+            CMAKE_ARGS
+                -DCMAKE_BUILD_TYPE:STRING=RELEASE DEBUG
+                -DCMAKE_INSTALL_PREFIX:PATH=${CBFlib_BINARY_DIR}/${CBF_PCRE}
+            INSTALL_DIR ${CBFlib_BINARY_DIR}/${CBF_PCRE}
+        )
+        set(CBF_RE "PCRE")
+        set(CBF_REGEXLIB_INCLUDE_DIR ${CMAKE_BINARY_DIR}/${CBF_PCRE}/include)
+        set(CBF_REGEXLIB_LIBRARY_PATH ${CBFlib_BINARY_DIR}/${CBF_PCRE}/lib/libpcre.a)
+        add_definitions(-DCBF_REGEXLIB_PCRE)
+    else ()
+        set(CBF_RE "")
+        set(CBF_REGEXLIB_LIBRARY_PATH "${CBF_REGEXLIB}/libregex.so")
+        add_definitions(-DCBF_REGEXLIB_REGEX)
+    endif ()
 else ()
-	set(CBF_RE "")
-		set(CBF_REGEXLIB_LIBRARY_PATH "${CBF_REGEXLIB}/libpcre.so")
-	add_definitions(-DCBF_REGEXLIB_PCRE)
+    set(CBF_RE "")
+        set(CBF_REGEXLIB_LIBRARY_PATH "${CBF_REGEXLIB}/libpcre.so")
+    add_definitions(-DCBF_REGEXLIB_PCRE)
 endif ()
 
 #
@@ -627,7 +625,7 @@ set(CBF_DATADIRS  "${CBF__DATA}/CBFlib_${CBF_VERSION}_Data_Files_Output_Sigs_Onl
 #
 # URLs from which to retrieve the data directories
 #
-set(CBF_DATAURLBASE	"http://downloads.sf.net/cbflib")
+set(CBF_DATAURLBASE "http://downloads.sf.net/cbflib")
 set(CBF_DATAURLI  "${CBF_DATAURLBASE}/CBFlib_${CBF_VERSION}_Data_Files_Input.tar.gz")
 set(CBF_DATAURLO  "${CBF_DATAURLBASE}/CBFlib_${CBF_VERSION}_Data_Files_Output.tar.gz")
 set(CBF_DATAURLS  "${CBF_DATAURLBASE}/CBFlib_${CBF_VERSION}_Data_Files_Output_Sigs_Only.tar.gz")
@@ -823,8 +821,8 @@ endif()
 # Documentation files
 #
 set(
-	CBF_DOCUMENTS
-	${CBF__DOC}/CBFlib.html
+    CBF_DOCUMENTS
+    ${CBF__DOC}/CBFlib.html
     ${CBF__DOC}/CBFlib.txt
     ${CBF__DOC}/CBFlib_NOTICES.html
     ${CBF__DOC}/CBFlib_NOTICES.txt
@@ -832,15 +830,15 @@ set(
     ${CBF__DOC}/ChangeLog.html
     ${CBF__DOC}/MANIFEST
     ${CBF__DOC}/gpl.txt $(DOC)/lgpl.txt
-	CACHE STRING ""
+    CACHE STRING ""
 )
 
 #
 # HTML Graphics files
 #
 set(
-	JPEGS
-	${GRAPHICS}/CBFbackground.jpg
+    JPEGS
+    ${GRAPHICS}/CBFbackground.jpg
     ${GRAPHICS}/CBFbig.jpg
     ${GRAPHICS}/CBFbutton.jpg
     ${GRAPHICS}/cbflibbackground.jpg
@@ -849,7 +847,7 @@ set(
     ${GRAPHICS}/cifhome.jpg
     ${GRAPHICS}/iucrhome.jpg
     ${GRAPHICS}/noticeButton.jpg
-	CACHE STRING ""
+    CACHE STRING ""
 )
 
 # Set up the necessary includes
@@ -960,11 +958,11 @@ endif()
 # the target with target_link_libraries(...)
 #
 function(add_target target)
-	cmake_parse_arguments(AT "" "" "LINKS" ${ARGN})
-	add_executable(${target} ${AT_UNPARSED_ARGUMENTS})
-	if (AT_LINKS)
-		target_link_libraries(${target} ${AT_LINKS})
-	endif()
+    cmake_parse_arguments(AT "" "" "LINKS" ${ARGN})
+    add_executable(${target} ${AT_UNPARSED_ARGUMENTS})
+    if (AT_LINKS)
+        target_link_libraries(${target} ${AT_LINKS})
+    endif()
 endfunction()
 
 add_target(adscimg2cbf "${CBF__EXAMPLES}/adscimg2cbf.c" "${CBF__EXAMPLES}/adscimg2cbf_sub.c" LINKS cbf_lib m)
@@ -1056,7 +1054,7 @@ find_program(VALGRIND valgrind)
 if (VALGRIND)
   CBF_DEBUG_MESSAGE("valgrind found at ${VALGRIND}")
   message(STATUS "valgrid found at ${VALGRIND}")
-	set(VALGRIND_COMMAND ${VALGRIND} --error-exitcode=3 --leak-check=full)
+    set(VALGRIND_COMMAND ${VALGRIND} --error-exitcode=3 --leak-check=full)
 else ()
   message(STATUS "valgrid NOT found. Testing will be incomplete.")
 endif ()
@@ -1089,11 +1087,11 @@ add_test(img2cif_canonical.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/img2cif -c cano
 
 # $(BIN)/convert_image -F example.mar2300 converted_flat.cbf
 add_test(
-	converted_flat.cbf
-	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/convert_image
-	-F -p ${CBFlib_SOURCE_DIR}/templates/template_mar345_2300x2300.cbf
-	${CBF_DATADIRI}/example.mar2300
-	${CBF__DATA}/converted_flat.cbf
+    converted_flat.cbf
+    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/convert_image
+    -F -p ${CBFlib_SOURCE_DIR}/templates/template_mar345_2300x2300.cbf
+    ${CBF_DATADIRI}/example.mar2300
+    ${CBF__DATA}/converted_flat.cbf
 )
 # -cmp converted_flat_orig.cbf converted_flat.cbf
 add_test(cmp-converted_flat_orig.cbf-converted_flat.cbf ${CMAKE_COMMAND} -E compare_files ${CBF_DATADIRO}/converted_flat_orig.cbf ${CBF__DATA}/converted_flat.cbf)
@@ -1111,12 +1109,12 @@ add_test(mb_LP_1_001.img ${CMAKE_COMMAND} -E copy ${CBF_DATADIRI}/mb_LP_1_001.im
 
 # $(BIN)/convert_image -F -d adscquantum315 mb_LP_1_001.img adscconverted_flat.cbf
 add_test(
-	adscconverted_flat.cbf
-	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/convert_image
-	-F -p ${CBFlib_SOURCE_DIR}/templates/template_adscquantum315_3072x3072.cbf
-	-d adscquantum315
-	${CBF__DATA}/mb_LP_1_001.img
-	${CBF__DATA}/adscconverted_flat.cbf
+    adscconverted_flat.cbf
+    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/convert_image
+    -F -p ${CBFlib_SOURCE_DIR}/templates/template_adscquantum315_3072x3072.cbf
+    -d adscquantum315
+    ${CBF__DATA}/mb_LP_1_001.img
+    ${CBF__DATA}/adscconverted_flat.cbf
 )
 set_property(TEST adscconverted_flat.cbf APPEND PROPERTY DEPENDS mb_LP_1_001.img)
 # -cmp adscconverted_flat_orig.cbf adscconverted_flat.cbf
@@ -1125,12 +1123,12 @@ set_property(TEST cmp-adscconverted_flat_orig.cbf-adscconverted_flat.cbf APPEND 
 
 # $(BIN)/convert_image -d adscquantum315 mb_LP_1_001.img adscconverted.cbf
 add_test(
-	adscconverted.cbf
-	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/convert_image
-	-p ${CBFlib_SOURCE_DIR}/templates/template_adscquantum315_3072x3072.cbf
-	-d adscquantum315
-	${CBF__DATA}/mb_LP_1_001.img
-	${CBF__DATA}/adscconverted.cbf
+    adscconverted.cbf
+    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/convert_image
+    -p ${CBFlib_SOURCE_DIR}/templates/template_adscquantum315_3072x3072.cbf
+    -d adscquantum315
+    ${CBF__DATA}/mb_LP_1_001.img
+    ${CBF__DATA}/adscconverted.cbf
 )
 set_property(TEST adscconverted.cbf APPEND PROPERTY DEPENDS mb_LP_1_001.img)
 # -cmp adscconverted_orig.cbf adscconverted.cbf
@@ -1157,38 +1155,38 @@ set_property(TEST cmp-mb_LP_1_001.img-nmb_LP_1_001.img APPEND PROPERTY DEPENDS n
 
 # $(BIN)/convert_minicbf -d pilatus6m -v 1 insulin_pilatus6m.cbf insulin_pilatus6mconverted.cbf
 add_test(
-	insulin_pilatus6mconverted.cbf
-	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/convert_minicbf
-	-p ${CBFlib_SOURCE_DIR}/templates/template_pilatus6m_2463x2527.cbf
-	-d pilatus6m -v 1
-	${CBF_DATADIRI}/insulin_pilatus6m.cbf
-	${CBF__DATA}/insulin_pilatus6mconverted.cbf
+    insulin_pilatus6mconverted.cbf
+    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/convert_minicbf
+    -p ${CBFlib_SOURCE_DIR}/templates/template_pilatus6m_2463x2527.cbf
+    -d pilatus6m -v 1
+    ${CBF_DATADIRI}/insulin_pilatus6m.cbf
+    ${CBF__DATA}/insulin_pilatus6mconverted.cbf
 )
 
 # -cmp insulin_pilatus6mconverted_rev_orig.cbf insulin_pilatus6mconverted.cbf
 add_test(
-	cmp-insulin_pilatus6mconverted_rev_orig.cbf-insulin_pilatus6mconverted.cbf
-	${CMAKE_COMMAND} -E compare_files
-	${CBF_DATADIRO}/insulin_pilatus6mconverted_rev_orig.cbf
-	${CBF__DATA}/insulin_pilatus6mconverted.cbf
+    cmp-insulin_pilatus6mconverted_rev_orig.cbf-insulin_pilatus6mconverted.cbf
+    ${CMAKE_COMMAND} -E compare_files
+    ${CBF_DATADIRO}/insulin_pilatus6mconverted_rev_orig.cbf
+    ${CBF__DATA}/insulin_pilatus6mconverted.cbf
 )
 set_property(TEST cmp-insulin_pilatus6mconverted_rev_orig.cbf-insulin_pilatus6mconverted.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted.cbf)
 
 # $(BIN)/convert_minicbf -d pilatus6m insulin_pilatus6m.cbf insulin_pilatus6mconverted_v2.cbf
 add_test(
-	insulin_pilatus6mconverted_v2.cbf
-	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/convert_minicbf
-	-p ${CBFlib_SOURCE_DIR}/templates/template_pilatus6m_2463x2527.cbf
-	-d pilatus6m
-	${CBF_DATADIRI}/insulin_pilatus6m.cbf
-	${CBF__DATA}/insulin_pilatus6mconverted_v2.cbf
+    insulin_pilatus6mconverted_v2.cbf
+    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/convert_minicbf
+    -p ${CBFlib_SOURCE_DIR}/templates/template_pilatus6m_2463x2527.cbf
+    -d pilatus6m
+    ${CBF_DATADIRI}/insulin_pilatus6m.cbf
+    ${CBF__DATA}/insulin_pilatus6mconverted_v2.cbf
 )
 # -cmp insulin_pilatus6mconverted_v2_orig.cbf insulin_pilatus6mconverted_v2.cbf
 add_test(
-	cmp-insulin_pilatus6mconverted_v2_orig.cbf-insulin_pilatus6mconverted_v2.cbf
-	${CMAKE_COMMAND} -E compare_files
-	${CBF_DATADIRO}/insulin_pilatus6mconverted_v2_orig.cbf
-	${CBF__DATA}/insulin_pilatus6mconverted_v2.cbf
+    cmp-insulin_pilatus6mconverted_v2_orig.cbf-insulin_pilatus6mconverted_v2.cbf
+    ${CMAKE_COMMAND} -E compare_files
+    ${CBF_DATADIRO}/insulin_pilatus6mconverted_v2_orig.cbf
+    ${CBF__DATA}/insulin_pilatus6mconverted_v2.cbf
 )
 set_property(TEST cmp-insulin_pilatus6mconverted_v2_orig.cbf-insulin_pilatus6mconverted_v2.cbf APPEND PROPERTY DEPENDS insulin_pilatus6mconverted_v2.cbf)
 
