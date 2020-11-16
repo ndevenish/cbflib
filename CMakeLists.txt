@@ -281,7 +281,7 @@ cmake_minimum_required(VERSION 3.12)
 
 set(USE_FORTRAN OFF CACHE BOOL "Build Fortran Bindings")
 set(USE_TIFF    ON CACHE  BOOL "Build tiff2cbf")
-
+set(BUILD_SHARED_LIBS ON CACHE BOOL "Build Shared libraries (instead of STATIC)")
 set(DOWNLOAD_TEST_DATA    ON CACHE  BOOL "Should the test data be downloaded?")
 
 set(BUILD_PYCBF OFF CACHE BOOL "Build the PyCBF bindings")
@@ -860,41 +860,37 @@ message("CBF_REGEXLIB_INCLUDE_DIR ${CBF_REGEXLIB_INCLUDE_DIR}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/bin")
 
 #
-#  Build the static and shared CBF libraries
+#  Build the CBF libraries
 #
 
-add_library(cbf_static STATIC ${CBF_C_SOURCES})
-target_link_libraries(cbf_static PUBLIC hdf5::hdf5)
-set_target_properties(cbf_static PROPERTIES OUTPUT_NAME     cbf
-                                            LINKER_LANGUAGE C
-                                            SOVERSION       "${CBF_APIVERSION}")
-
-
-
-
-add_library(cbf_shared SHARED $<TARGET_OBJECTS:cbf_static>)
-target_link_libraries(cbf_shared PUBLIC hdf5::hdf5)
-set_target_properties(cbf_shared PROPERTIES OUTPUT_NAME     cbf
-                                            LINKER_LANGUAGE C
-                                            SOVERSION       "${CBF_APIVERSION}")
+add_library(cbf_lib ${CBF_C_SOURCES})
+target_link_libraries(cbf_lib PUBLIC hdf5::hdf5)
+set_target_properties(
+    cbf_lib
+    PROPERTIES
+    OUTPUT_NAME     cbf
+    LINKER_LANGUAGE C
+    SOVERSION       "${CBF_APIVERSION}"
+    EXPORT_NAME     cbf
+)
 
 #
-# Build the static and shared IMG libraries
+# Build the IMG libraries
 #
 
-add_library(img_static STATIC ${CBF__SRC}/img.c)
-set_target_properties(img_static PROPERTIES OUTPUT_NAME "img"
-                                            LINKER_LANGUAGE C)
-
-add_library(img_shared SHARED ${CBF__SRC}/img.c)
-target_link_libraries(img_shared PUBLIC hdf5::hdf5)
-set_target_properties(img_shared PROPERTIES OUTPUT_NAME "img"
-                                            LINKER_LANGUAGE C)
+add_library(img_lib ${CBF__SRC}/img.c)
+set_target_properties(
+    img_lib
+    PROPERTIES
+    OUTPUT_NAME     "img"
+    LINKER_LANGUAGE C
+    EXPORT_NAME     "img"
+)
 
 if(BUILD_PYCBF)
     find_package(Python COMPONENTS Interpreter Development REQUIRED )
     Python_add_library (_pycbf MODULE ${PYCBF}/pycbf_wrap.c)
-    target_link_libraries(_pycbf PUBLIC cbf_shared)
+    target_link_libraries(_pycbf PUBLIC cbf_lib)
     # We want to let setup.py install this, so build with install-time RPATH
     set_target_properties(_pycbf PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE
                                             LIBRARY_OUTPUT_DIRECTORY pycbf_setup/pycbf)
@@ -941,19 +937,10 @@ if(USE_FORTRAN)
   #
   # Build the fcb libraries
   #
-#   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
-  add_library(fcb_static STATIC ${CBF_F90_BUILT_SOURCES};${CBF_F90_SOURCES})
-  set_target_properties(fcb_static PROPERTIES OUTPUT_NAME "fcb")
-  set_target_properties(fcb_static PROPERTIES LINKER_LANGUAGE C)
-  set(FCB_STATIC_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libfcb.a)
-
-
-#   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/lib")
-  add_library(fcb_shared SHARED  ${CBF_F90_BUILT_SOURCES};${CBF_F90_SOURCES})
-  set_target_properties(fcb_shared PROPERTIES OUTPUT_NAME "fcb")
-  set_target_properties(fcb_shared PROPERTIES LINKER_LANGUAGE C)
-  target_link_libraries(fcb_shared hdf5::hdf5_fortran)
-  set(FCB_SHARED_LIBRARY_PATH ${CBFlib_BINARY_DIR}/lib/libfcb.so)
+  add_library(fcb_lib  ${CBF_F90_BUILT_SOURCES};${CBF_F90_SOURCES})
+  set_target_properties(fcb_lib PROPERTIES OUTPUT_NAME "fcb")
+  set_target_properties(fcb_lib PROPERTIES LINKER_LANGUAGE C)
+  target_link_libraries(fcb_lib hdf5::hdf5_fortran)
 
 endif()
 
@@ -980,31 +967,31 @@ function(add_target target)
 	endif()
 endfunction()
 
-add_target(adscimg2cbf "${CBF__EXAMPLES}/adscimg2cbf.c" "${CBF__EXAMPLES}/adscimg2cbf_sub.c" LINKS cbf_shared m)
-add_target(cbf2adscimg "${CBF__EXAMPLES}/cbf2adscimg.c" "${CBF__EXAMPLES}/cbf2adscimg_sub.c" LINKS cbf_shared m)
-add_target(convert_image "${CBF__EXAMPLES}/convert_image.c" LINKS cbf_shared img_static m)
-add_target(convert_minicbf "${CBF__EXAMPLES}/convert_minicbf.c" LINKS cbf_shared m)
-add_target(makecbf "${CBF__EXAMPLES}/makecbf.c" LINKS cbf_shared img_static m)
-add_target(cbf_tail "${CBF__EXAMPLES}/cbf_tail.c" LINKS cbf_shared)
-add_target(changtestcompression "${CBF__EXAMPLES}/changtestcompression.c" LINKS cbf_shared)
-add_target(img2cif "${CBF__EXAMPLES}/img2cif.c" LINKS cbf_shared img_static m)
-add_target(cbf_template_t "${CBF__DECTRIS_EXAMPLES}/cbf_template_t.c" LINKS cbf_shared)
-add_target(testcell "${CBF__EXAMPLES}/testcell.C" LINKS cbf_shared)
-add_target(sauter_test "${CBF__EXAMPLES}/sauter_test.C" LINKS cbf_shared)
-add_target(sequence_match "${CBF__EXAMPLES}/sequence_match.c" LINKS cbf_shared)
-add_target(testulp "${CBF__EXAMPLES}/testulp.c" LINKS cbf_shared)
-add_target(testtree "${CBF__EXAMPLES}/testtree.c" LINKS cbf_shared)
-add_target(testalloc "${CBF__EXAMPLES}/testalloc.c" LINKS cbf_shared)
-add_target(testflat "${CBF__EXAMPLES}/testflat.c" LINKS cbf_shared)
-add_target(testflatpacked "${CBF__EXAMPLES}/testflatpacked.c" LINKS cbf_shared)
-add_target(testreals "${CBF__EXAMPLES}/testreals.c" LINKS cbf_shared)
-add_target(cbf2nexus "${CBF__EXAMPLES}/cbf2nexus.c" LINKS cbf_shared m)
-add_target(nexus2cbf "${CBF__EXAMPLES}/nexus2cbf.c" LINKS cbf_shared m)
-add_target(minicbf2nexus "${CBF__EXAMPLES}/minicbf2nexus.c" LINKS cbf_shared hdf5::hdf5 m)
-add_target(cif2cbf "${CBF__EXAMPLES}/cif2cbf.c" LINKS cbf_shared img_static hdf5::hdf5 m)
-add_target(testhdf5 "${CBF__EXAMPLES}/testhdf5.c" LINKS cbf_shared hdf5::hdf5 m)
+add_target(adscimg2cbf "${CBF__EXAMPLES}/adscimg2cbf.c" "${CBF__EXAMPLES}/adscimg2cbf_sub.c" LINKS cbf_lib m)
+add_target(cbf2adscimg "${CBF__EXAMPLES}/cbf2adscimg.c" "${CBF__EXAMPLES}/cbf2adscimg_sub.c" LINKS cbf_lib m)
+add_target(convert_image "${CBF__EXAMPLES}/convert_image.c" LINKS cbf_lib img_lib m)
+add_target(convert_minicbf "${CBF__EXAMPLES}/convert_minicbf.c" LINKS cbf_lib m)
+add_target(makecbf "${CBF__EXAMPLES}/makecbf.c" LINKS cbf_lib img_lib m)
+add_target(cbf_tail "${CBF__EXAMPLES}/cbf_tail.c" LINKS cbf_lib)
+add_target(changtestcompression "${CBF__EXAMPLES}/changtestcompression.c" LINKS cbf_lib)
+add_target(img2cif "${CBF__EXAMPLES}/img2cif.c" LINKS cbf_lib img_lib m)
+add_target(cbf_template_t "${CBF__DECTRIS_EXAMPLES}/cbf_template_t.c" LINKS cbf_lib)
+add_target(testcell "${CBF__EXAMPLES}/testcell.C" LINKS cbf_lib)
+add_target(sauter_test "${CBF__EXAMPLES}/sauter_test.C" LINKS cbf_lib)
+add_target(sequence_match "${CBF__EXAMPLES}/sequence_match.c" LINKS cbf_lib)
+add_target(testulp "${CBF__EXAMPLES}/testulp.c" LINKS cbf_lib)
+add_target(testtree "${CBF__EXAMPLES}/testtree.c" LINKS cbf_lib)
+add_target(testalloc "${CBF__EXAMPLES}/testalloc.c" LINKS cbf_lib)
+add_target(testflat "${CBF__EXAMPLES}/testflat.c" LINKS cbf_lib)
+add_target(testflatpacked "${CBF__EXAMPLES}/testflatpacked.c" LINKS cbf_lib)
+add_target(testreals "${CBF__EXAMPLES}/testreals.c" LINKS cbf_lib)
+add_target(cbf2nexus "${CBF__EXAMPLES}/cbf2nexus.c" LINKS cbf_lib m)
+add_target(nexus2cbf "${CBF__EXAMPLES}/nexus2cbf.c" LINKS cbf_lib m)
+add_target(minicbf2nexus "${CBF__EXAMPLES}/minicbf2nexus.c" LINKS cbf_lib hdf5::hdf5 m)
+add_target(cif2cbf "${CBF__EXAMPLES}/cif2cbf.c" LINKS cbf_lib img_lib hdf5::hdf5 m)
+add_target(testhdf5 "${CBF__EXAMPLES}/testhdf5.c" LINKS cbf_lib hdf5::hdf5 m)
 if(USE_TIFF)
-  add_target(tiff2cbf "${CBF__EXAMPLES}/tiff2cbf.c" LINKS cbf_shared TIFF::TIFF)
+  add_target(tiff2cbf "${CBF__EXAMPLES}/tiff2cbf.c" LINKS cbf_lib TIFF::TIFF)
 endif()
 
 if(USE_FORTRAN)
@@ -1022,8 +1009,8 @@ if(USE_FORTRAN)
       DEPENDS ${CBF_M4_FCB_DEFINES} "${CBF__M4}/test_xds_binary.m4"
       COMMENT "Generating ${test_xds_binary.f90}")
 
-  add_target(test_fcb_read_image "${CBF__BLDEXMP}/test_fcb_read_image.f90" LINKS fcb_static)
-  add_target(test_xds_binary "${CBF__BLDEXMP}/test_xds_binary.f90" LINKS fcb_static)
+  add_target(test_fcb_read_image "${CBF__BLDEXMP}/test_fcb_read_image.f90" LINKS fcb_lib)
+  add_target(test_xds_binary "${CBF__BLDEXMP}/test_xds_binary.f90" LINKS fcb_lib)
 endif()
 
 
@@ -1041,24 +1028,27 @@ install(TARGETS
     convert_minicbf
     cbf_template_t
     sequence_match
-    img_static
-    img_shared
-    cbf_static
-    cbf_shared
     cif2cbf
     minicbf2nexus
     cbf2nexus
     nexus2cbf
+    img_lib
+    cbf_lib
 )
+
+install(TARGETS cbf_lib img_lib EXPORT cbflib-exports
+        INCLUDES DESTINATION include/cbflib)
+
+install (DIRECTORY ${CBF__INCLUDE}/ DESTINATION include/cbflib FILES_MATCHING PATTERN "*.h")
+install (DIRECTORY ${CBF__BIN_INCLUDE}/* DESTINATION include/cbflib FILES_MATCHING PATTERN "*.h")
+
+
 if(USE_TIFF)
     install(TARGETS tiff2cbf)
 endif()
 if(USE_FORTRAN)
-    install(TARGETS fcb_static fcb_shared)
+    install(TARGETS fcb_lib)
 endif()
-
-install (DIRECTORY ${CBF__INCLUDE}/ DESTINATION include/cbflib FILES_MATCHING PATTERN "*.h")
-install (DIRECTORY ${CBF__BIN_INCLUDE}/* DESTINATION include/cbflib FILES_MATCHING PATTERN "*.h")
 
 # path to the valgrind executable, for memory tests
 set(VALGRIND_COMMAND "")
