@@ -298,15 +298,15 @@ cmake_minimum_required(VERSION 3.12)
 # first configured, these can be edited by ccmake/cmake gui/in the cache
 #
 macro(set_from_cached_environment target )
-  cmake_parse_arguments(_SETENV "ADVANCED" "FROM;DEFAULT;DOC" "" ${ARGN})
-  if(NOT DEFINED "${target}")
-    if ("$ENV{${_SETENV_FROM}}")
-      set("${target}" $ENV{${_SETENV_FROM}} CACHE STRING ${_SETENV_DOC})
-    else()
-      set("${target}" ${_SETENV_DEFAULT} CACHE STRING ${_SETENV_DOC})
+    cmake_parse_arguments(_SETENV "ADVANCED" "FROM;DEFAULT;DOC" "" ${ARGN})
+    if(NOT DEFINED "${target}")
+        if (NOT "$ENV{${_SETENV_FROM}}" STREQUAL "")
+            set("${target}" $ENV{${_SETENV_FROM}} CACHE STRING "${_SETENV_DOC}")
+        else()
+            set("${target}" ${_SETENV_DEFAULT} CACHE STRING "${_SETENV_DOC}")
+        endif()
+        mark_as_advanced("${target}")
     endif()
-    mark_as_advanced("${target}")
-  endif()
 endmacro()
 
 # ::
@@ -315,20 +315,22 @@ endmacro()
 # Download a .tar.gz file from <url> and extract it into <destination-dir>.
 # The download will not happen if the <destination-dir> already exists.
 #
-function(CBF_LOAD_TARBALL URL UNPACKED_DIRECTORY)
-    if (NOT EXISTS ${UNPACKED_DIRECTORY})
-        message(STATUS "Downloading ${URL}\n            to ${UNPACKED_DIRECTORY}.tar.gz" )
-        file(DOWNLOAD "${URL}" "${UNPACKED_DIRECTORY}.tar.gz" SHOW_PROGRESS STATUS _status)
+function(CBF_LOAD_TARBALL URL TARGET_DIRECTORY)
+    if (NOT EXISTS ${TARGET_DIRECTORY})
+        message(STATUS "Downloading ${URL}\n            to ${TARGET_DIRECTORY}.tar.gz" )
+        file(DOWNLOAD "${URL}" "${TARGET_DIRECTORY}.tar.gz" SHOW_PROGRESS STATUS _status)
         # Check this succeeded
         list(GET STATUS 0 _errorcode)
         list(GET STATUS 1 _errormessage)
+        # Get the destination directory to extract from
+        get_filename_component(WORK_DIR ${TARGET_DIRECTORY} DIRECTORY)
         if (NOT _errorcode)
             execute_process(
-                COMMAND ${CMAKE_COMMAND} -E tar xzvf ${UNPACKED_DIRECTORY}.tar.gz
+                COMMAND ${CMAKE_COMMAND} -E tar xzvf ${TARGET_DIRECTORY}.tar.gz
+                WORKING_DIRECTORY ${WORK_DIR}
             )
             execute_process(
-            COMMAND ${CMAKE_COMMAND} -E remove ${UNPACKED_DIRECTORY}.tar.gz
-            # WORKING_DIRECTORY ${WORK_DIR}
+            COMMAND ${CMAKE_COMMAND} -E remove ${TARGET_DIRECTORY}.tar.gz
             )
         else()
             message(WARNING "Could not download ${URL}: ${_errormessage}.")
@@ -387,6 +389,24 @@ function(read_cbf_version version_var cbf_version_var cbf_api_version_var)
         "${CBF_APIVERS_CUR}.${CBF_APIVERS_REV}.${CBF_APIVERS_AGE}"
         PARENT_SCOPE
     )
+endfunction()
+
+# ::
+#   add_target( <name>
+#               source1 [source2 ...]
+#               [LINKS <link_library> [<link_library> ...]]
+#             )
+#
+# Convenience function for adding a target executable with it's
+# dependencies in a single command. If specified, LINKS will be added to
+# the target with target_link_libraries(...)
+#
+function(add_target target)
+    cmake_parse_arguments(AT "" "" "LINKS" ${ARGN})
+    add_executable(${target} ${AT_UNPARSED_ARGUMENTS})
+    if (AT_LINKS)
+        target_link_libraries(${target} ${AT_LINKS})
+    endif()
 endfunction()
 
 ######################################################################
@@ -458,9 +478,6 @@ if (USE_ULP)
   add_definitions(-DCBF_USE_ULP)
 endif ()
 
-# M4 can be overridden by user flags but has a default definition
-set_from_cached_environment(M4_FLAGS FROM M4FLAGS DEFAULT "-Dfcb_bytes_in_rec=4096")
-
 # Fortran compilation needs -fno-range-checks
 add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-fno-range-check>)
 
@@ -516,22 +533,20 @@ set(CBF__LIB       "${CBFlib_BINARY_DIR}/lib" )
 set(CBF__BIN_INCLUDE "${CBFlib_BINARY_DIR}/include" )
 set(CBF__SHARE     "${CBFlib_BINARY_DIR}/share" )
 set(CBF__EXT_PKG   "${CBFlib_BINARY_DIR}/external_packages" )
-set(CBF__DATA $ENV{CBF_DATA_FILES})
-if(NOT CBF__DATA)
-    set(CBF__DATA      "${CBFlib_BINARY_DIR}/data_files" )
-endif()
+set_from_cached_environment(CBF__DATA FROM CBF_DATA_FILES DEFAULT "${CBFlib_BINARY_DIR}/data_files")
+
 message(STATUS "Using ${CBF__DATA} for test data files")
 set(HDF5_PLUGIN_PATH ${CBF__LIB})
 
 
-CBF_REQUIRE_DIRECTORY(${CBF__BLDSRC})
-CBF_REQUIRE_DIRECTORY(${CBF__BLDEXMP})
-CBF_REQUIRE_DIRECTORY(${CBF__BIN})
-CBF_REQUIRE_DIRECTORY(${CBF__LIB})
-CBF_REQUIRE_DIRECTORY(${CBF__BIN_INCLUDE})
-CBF_REQUIRE_DIRECTORY(${CBF__SHARE})
-CBF_REQUIRE_DIRECTORY(${CBF__EXT_PKG})
-CBF_REQUIRE_DIRECTORY(${CBF__DATA})
+# CBF_REQUIRE_DIRECTORY(${CBF__BLDSRC})
+# CBF_REQUIRE_DIRECTORY(${CBF__BLDEXMP})
+# CBF_REQUIRE_DIRECTORY(${CBF__BIN})
+# CBF_REQUIRE_DIRECTORY(${CBF__LIB})
+# CBF_REQUIRE_DIRECTORY(${CBF__BIN_INCLUDE})
+# CBF_REQUIRE_DIRECTORY(${CBF__SHARE})
+# CBF_REQUIRE_DIRECTORY(${CBF__EXT_PKG})
+# CBF_REQUIRE_DIRECTORY(${CBF__DATA})
 
 
 set(JCBF      "${CBFlib_SOURCE_DIR}/jcbf" CACHE STRING "")
@@ -968,7 +983,7 @@ if(USE_FORTRAN)
   #
   # Build the f90 library sources
   #
-  find_program(M4 m4)
+  find_program(M4 m4 REQUIRED)
   foreach(f90src IN LISTS CBF_F90_BUILT_SOURCES)
     get_filename_component(filename "${f90src}" NAME_WE )
     set(f90bldsrc "${CBF__BLDSRC}/${filename}.f90")
@@ -997,24 +1012,6 @@ endif()
 #
 #  C and C++ examples
 #
-
-# ::
-#   add_target( <name>
-#               source1 [source2 ...]
-#               [LINKS <link_library> [<link_library> ...]]
-#             )
-#
-# Convenience function for adding a target executable with it's
-# dependencies in a single command. If specified, LINKS will be added to
-# the target with target_link_libraries(...)
-#
-function(add_target target)
-    cmake_parse_arguments(AT "" "" "LINKS" ${ARGN})
-    add_executable(${target} ${AT_UNPARSED_ARGUMENTS})
-    if (AT_LINKS)
-        target_link_libraries(${target} ${AT_LINKS})
-    endif()
-endfunction()
 
 add_target(adscimg2cbf "${CBF__EXAMPLES}/adscimg2cbf.c" "${CBF__EXAMPLES}/adscimg2cbf_sub.c" LINKS cbf_lib m)
 add_target(cbf2adscimg "${CBF__EXAMPLES}/cbf2adscimg.c" "${CBF__EXAMPLES}/cbf2adscimg_sub.c" LINKS cbf_lib m)
