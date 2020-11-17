@@ -287,7 +287,9 @@ cmake_minimum_required(VERSION 3.12)
 ######################################################################
 
 # ::
-#   set_from_cached_environment( <var-out> FROM <env-var> DEFAULT <default-value> )
+#   set_from_cached_environment( <var-out> FROM <env-var>
+                                           DEFAULT <default-value>
+                                           [ADVANCED])
 #
 # Load (and cache) a variable from the environment, if not otherwise set
 # at configuration time by e.g. -D<var-out>=something.  If the
@@ -298,6 +300,8 @@ cmake_minimum_required(VERSION 3.12)
 # variables, like CFLAGS or FFLAGS (which are handled internally). Once
 # first configured, these can be edited by reconfiguration/ccmake/gui.
 #
+# If ADVANCED is passed, the cache variable will be marked as such.
+#
 macro(set_from_cached_environment target)
     cmake_parse_arguments(_SETENV "ADVANCED" "FROM;DEFAULT;DOC" "" ${ARGN})
     if(NOT DEFINED "${target}")
@@ -306,7 +310,9 @@ macro(set_from_cached_environment target)
         else()
             set("${target}" ${_SETENV_DEFAULT} CACHE STRING "${_SETENV_DOC}")
         endif()
-        mark_as_advanced("${target}")
+        if(_SETENV_ADVANCED)
+            mark_as_advanced("${target}")
+        endif()
     endif()
 endmacro()
 
@@ -428,6 +434,8 @@ option(USE_ULP              "Build using cbf_ulp"       OFF)
 option(BUILD_SHARED_LIBS    "Build Shared libraries (instead of Static)" ON)
 option(BUILD_PYCBF          "Build the PyCBF bindings" OFF)
 
+option(DONT_USE_LONG_LONG   "If set, disable usage of long long" OFF)
+
 # HDF5 Version required. This is interpreted exactly.
 set(HDF5_VERSION_REQUIRED 1.10)
 
@@ -438,7 +446,8 @@ set_from_cached_environment(
     M4_FLAGS
     FROM M4FLAGS
     DEFAULT "-Dfcb_bytes_in_rec=4096"
-    DOC "Flags to pass to M4")
+    DOC "Flags to pass to M4"
+    ADVANCED)
 
 # set(CBF_HDF5REGISTER_MANUAL_ENV $ENV{CBF_HDF5REGISTER_MANUAL})
 
@@ -478,12 +487,19 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
         "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
+# Set definitions based on options. Do this globally instead of per
+# target because we know we want that.
 
 if(USE_ULP)
-    add_definitions(-DCBF_USE_ULP)
+    add_compile_definitions(CBF_USE_ULP)
 endif()
 
-# Fortran compilation needs -fno-range-checks
+if(DONT_USE_LONG_LONG)
+    add_compile_definitions(CBF_DONT_USE_LONG_LONG)
+endif()
+
+# Fortran compilation requires -fno-range-checks. Note: This uses
+# CMake "generator expression" syntax to only add for fortran targets.
 add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-fno-range-check>)
 
 #
@@ -520,6 +536,7 @@ set(CBF__LIB       "${CBFlib_BINARY_DIR}/lib")
 set(CBF__BIN_INCLUDE "${CBFlib_BINARY_DIR}/include")
 set(CBF__SHARE     "${CBFlib_BINARY_DIR}/share")
 set(CBF__EXT_PKG   "${CBFlib_BINARY_DIR}/external_packages")
+# Location of data files could be specifically set for e.g. common locations
 set_from_cached_environment(CBF__DATA FROM CBF_DATA_FILES DEFAULT "${CBFlib_BINARY_DIR}/data_files")
 
 message(STATUS "Using ${CBF__DATA} for test data files")
@@ -544,14 +561,14 @@ CBF_REQUIRE_DIRECTORY(${CBF__EXT_PKG})
 CBF_REQUIRE_DIRECTORY(${CBF__DATA})
 
 
-set(JCBF      "${CBFlib_SOURCE_DIR}/jcbf" CACHE STRING "")
-set(JAVADIR   "${CBFlib_SOURCE_DIR}/java" CACHE STRING "")
-set(BIN       "${CBFlib_BINARY_DIR}/bin" CACHE STRING "")
+# set(JCBF      "${CBFlib_SOURCE_DIR}/jcbf" CACHE STRING "")
+# set(JAVADIR   "${CBFlib_SOURCE_DIR}/java" CACHE STRING "")
+# set(BIN       "${CBFlib_BINARY_DIR}/bin" CACHE STRING "")
 set(PYCBF     "${CBFlib_SOURCE_DIR}/pycbf" CACHE STRING "")
 set(EXAMPLES  "${CBFlib_SOURCE_DIR}/examples" CACHE STRING "")
 set(DECTRIS_EXAMPLES "${EXAMPLES}/dectris_cbf_template_test" CACHE STRING "")
-set(MINICBF_TEST "${CBFlib_SOURCE_DIR}/minicbf_test" CACHE STRING "")
-set(GRAPHICS  "${CBFlib_SOURCE_DIR}/html_graphics" CACHE STRING "")
+# set(MINICBF_TEST "${CBFlib_SOURCE_DIR}/minicbf_test" CACHE STRING "")
+# set(GRAPHICS  "${CBFlib_SOURCE_DIR}/html_graphics" CACHE STRING "")
 
 
 if(USE_TIFF)
@@ -596,12 +613,6 @@ if(NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
             INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
         unset(_hdf5_definitions)
     endif()
-endif()
-
-if(CBF_DONT_USE_LONG_LONG)
-    set(CBF_NOLLFLAG "-DCBF_DONT_USE_LONG_LONG")
-else()
-    set(CBF_NOLLFLAG "")
 endif()
 
 #
