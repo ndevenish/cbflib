@@ -279,7 +279,6 @@
 #               3.12  TARGET_NAME_IF_EXISTS
 cmake_minimum_required(VERSION 3.12)
 
-message("Env TEST=$ENV{TEST}")
 set(USE_TIFF    ON CACHE  BOOL "Build tiff2cbf")
 set(DOWNLOAD_TEST_DATA    ON CACHE  BOOL "Should the test data be downloaded?")
 
@@ -292,13 +291,33 @@ set(USE_ULP OFF CACHE BOOL "Build using cbf_ulp")
 # HDF5 Version required. This is interpreted exactly.
 set(HDF5_VERSION_REQUIRED 1.10)
 
-
-set(CBF_F90FLAGS_ENV $ENV{F90FLAGS})
+# set(CBF_F90FLAGS_ENV $ENV{F90FLAGS})
 set(CBF_USE_ULP $ENV{CBF_USE_ULP})
-set(CBF_M4FLAGS_ENV $ENV{M4FLAGS})
-set(CBF_HDF5REGISTER_MANUAL_ENV $ENV{CBF_HDF5REGISTER_MANUAL})
+# set(CBF_HDF5REGISTER_MANUAL_ENV $ENV{CBF_HDF5REGISTER_MANUAL})
 
-project (CBFlib C CXX)
+
+# Read the version out of the source files before configuring the project
+file (READ include/cbf.h CBFlib_cbf_h_contents)
+string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_MAJOR[ \t]+([0-9]*).*$"
+    "\\1" CBF_VERS_MAJOR ${CBFlib_cbf_h_contents})
+string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_MINOR[ \t]+([0-9]*).*$"
+    "\\1" CBF_VERS_MINOR ${CBFlib_cbf_h_contents})
+string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_RELEASE[ \t]+([0-9.]*).*$"
+    "\\1" CBF_VERS_RELEASE ${CBFlib_cbf_h_contents})
+string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_SUBRELEASE[ \t]+\"([0-9A-Za-z.]*)\".*$"
+    "\\1" CBF_VERS_SUBRELEASE ${CBFlib_cbf_h_contents})
+
+# Get the "Full Name" version, including subrelease notation. This is
+# used for e.g. grabbing the test data tarballs.
+if(CBF_VERS_SUBRELEASE)
+  set (CBF_VERSION "${CBF_VERS_MAJOR}.${CBF_VERS_MINOR}.${CBF_VERS_RELEASE}-${CBF_VERS_SUBRELEASE}")
+else()
+  set (CBF_VERSION "${CBF_VERS_MAJOR}.${CBF_VERS_MINOR}.${CBF_VERS_RELEASE}")
+endif()
+set(PROJECT_VERSION "${CBF_VERS_MAJOR}.${CBF_VERS_MINOR}.${CBF_VERS_RELEASE}")
+
+project (CBFlib VERSION ${PROJECT_VERSION} LANGUAGES C CXX )
+message(STATUS "Building CBFLib ${PROJECT_VERSION}")
 
 if (USE_FORTRAN)
   enable_language(Fortran)
@@ -333,11 +352,35 @@ endif ()
 #  User setable parameters
 #
 
-if (CBF_M4FLAGS_ENV)
-  set(CBF_M4FLAGS ${CBF_M4FLAGS_ENV})
-else (CBF_M4FLAGS_ENV)
-  set(CBF_M4FLAGS "-Dfcb_bytes_in_rec=4096")
-endif (CBF_M4FLAGS_ENV)
+
+# ::
+#   set_from_cached_environment( <var-out> FROM <env-var> DEFAULT <default-value> )
+#
+# Load (and cache) a variable from the environment. If the environment
+# variable is empty, then the default value will be used. This will only
+# be read from the environment on first configuration.
+#
+# This behaves in a similar way to other "standard" environment
+# variables, like CFLAGS or FFLAGS (which are handled internally). Once
+# first configured, these can be edited by ccmake/cmake gui/in the cache
+#
+macro(set_from_cached_environment target )
+  cmake_parse_arguments(_SETENV "" "FROM;DEFAULT" "" ${ARGN})
+  if(NOT DEFINED "${target}")
+    if ("$ENV{${_SETENV_FROM}}")
+      set("${target}" $ENV{${_SETENV_FROM}} CACHE STRING "")
+    else()
+      set("${target}" ${_SETENV_DEFAULT} CACHE STRING "")
+    endif()
+    mark_as_advanced("${target}")
+  endif()
+endmacro()
+
+# M4 can be overridden by user flags but has a default definition
+set_from_cached_environment(M4_FLAGS FROM M4FLAGS DEFAULT "-Dfcb_bytes_in_rec=4096")
+
+# Fortran compilation needs -fno-range-checks
+add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-fno-range-check>)
 
 #
 #  Favor static libraries
@@ -439,26 +482,11 @@ CBF_REQUIRE_DIRECTORY(${CBF__DATA})
 # Version string and API version string -- obtained from cbf.h
 
 # Extract the version components
-
-file (READ ${CBFlib_SOURCE_DIR}/include/cbf.h CBFlib_cbf_h_contents)
-string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_MAJOR[ \t]+([0-9]*).*$"
-    "\\1" CBF_VERS_MAJOR ${CBFlib_cbf_h_contents})
-CBF_DEBUG_MESSAGE( "MAJOR VERSION: ${CBF_VERS_MAJOR}")
-string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_MINOR[ \t]+([0-9]*).*$"
-    "\\1" CBF_VERS_MINOR ${CBFlib_cbf_h_contents})
-CBF_DEBUG_MESSAGE( "MINOR VERSION: ${CBF_VERS_MINOR}")
-string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_RELEASE[ \t]+([0-9.]*).*$"
-    "\\1" CBF_VERS_RELEASE ${CBFlib_cbf_h_contents})
-CBF_DEBUG_MESSAGE( "RELEASE: ${CBF_VERS_RELEASE}")
-string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_SUBRELEASE[ \t]+\"([0-9A-Za-z.]*)\".*$"
-    "\\1" CBF_VERS_SUBRELEASE ${CBFlib_cbf_h_contents})
-CBF_DEBUG_MESSAGE( "SUBRELEASE: ${CBF_VERS_SUBRELEASE}")
-
 # This should be set by the project call, do here manually for now
-set(PROJECT_VERSION "${CBF_VERS_MAJOR}.${CBF_VERS_MINOR}.${CBF_VERS_RELEASE}")
-set(PROJECT_VERSION_MAJOR "${CBF_VERS_MAJOR}")
-set(PROJECT_VERSION_MINOR "${CBF_VERS_MINOR}")
-set(PROJECT_VERSION_PATCH "${CBF_VERS_RELEASE}")
+# set(PROJECT_VERSION "${CBF_VERS_MAJOR}.${CBF_VERS_MINOR}.${CBF_VERS_RELEASE}")
+# set(PROJECT_VERSION_MAJOR "${CBF_VERS_MAJOR}")
+# set(PROJECT_VERSION_MINOR "${CBF_VERS_MINOR}")
+# set(PROJECT_VERSION_PATCH "${CBF_VERS_RELEASE}")
 
 # Extract the API version components
 
