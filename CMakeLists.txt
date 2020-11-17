@@ -289,13 +289,14 @@ cmake_minimum_required(VERSION 3.12)
 # ::
 #   set_from_cached_environment( <var-out> FROM <env-var> DEFAULT <default-value> )
 #
-# Load (and cache) a variable from the environment. If the environment
-# variable is empty, then the default value will be used. This will only
-# be read from the environment on first configuration.
+# Load (and cache) a variable from the environment, if not otherwise set
+# at configuration time by e.g. -D<var-out>=something.  If the
+# environment variable is empty, then the default value will be used.
+# This will only be read from the environment on first configuration.
 #
 # This behaves in a similar way to other "standard" environment
 # variables, like CFLAGS or FFLAGS (which are handled internally). Once
-# first configured, these can be edited by ccmake/cmake gui/in the cache
+# first configured, these can be edited by reconfiguration/ccmake/gui.
 #
 macro(set_from_cached_environment target )
     cmake_parse_arguments(_SETENV "ADVANCED" "FROM;DEFAULT;DOC" "" ${ARGN})
@@ -413,6 +414,9 @@ endfunction()
 #
 # Main configuration vars
 #
+# If you don't want the defaults, set these either on configuration
+# via -DUSE_XXX=on, or via ccmake or the CMake Gui.
+#
 ######################################################################
 
 option(DOWNLOAD_TEST_DATA   "Should the test data be downloaded?" ON)
@@ -501,9 +505,9 @@ add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-fno-range-check>)
 set(CBF__SRC       "${CBFlib_SOURCE_DIR}/src" )
 set(CBF__INCLUDE   "${CBFlib_SOURCE_DIR}/include" )
 set(CBF__M4        "${CBFlib_SOURCE_DIR}/m4" )
-set(CBF__DOC       "${CBFlib_SOURCE_DIR}/doc" )
+# set(CBF__DOC       "${CBFlib_SOURCE_DIR}/doc" )
 set(CBF__EXAMPLES  "${CBFlib_SOURCE_DIR}/examples" )
-set(CBF__EXTERNAL_PACKAGES "${CBFlib_SOURCE_DIR}/external_packages" )
+# set(CBF__EXTERNAL_PACKAGES "${CBFlib_SOURCE_DIR}/external_packages" )
 set(CBF__DECTRIS_EXAMPLES  "${CBF__EXAMPLES}/dectris_cbf_template_test" )
 
 #
@@ -521,15 +525,24 @@ set_from_cached_environment(CBF__DATA FROM CBF_DATA_FILES DEFAULT "${CBFlib_BINA
 message(STATUS "Using ${CBF__DATA} for test data files")
 set(HDF5_PLUGIN_PATH ${CBF__LIB})
 
+#
+# CBF_REQUIRE_DIRECTORY -- require directory dir
+#
+macro(CBF_REQUIRE_DIRECTORY dir)
+  if (NOT EXISTS "${dir}")
+    file(MAKE_DIRECTORY "${dir}")
+    CBF_DEBUG_MESSAGE("Created directory ${dir}")
+  endif (NOT EXISTS "${dir}")
+endmacro(CBF_REQUIRE_DIRECTORY)
 
-# CBF_REQUIRE_DIRECTORY(${CBF__BLDSRC})
-# CBF_REQUIRE_DIRECTORY(${CBF__BLDEXMP})
-# CBF_REQUIRE_DIRECTORY(${CBF__BIN})
-# CBF_REQUIRE_DIRECTORY(${CBF__LIB})
-# CBF_REQUIRE_DIRECTORY(${CBF__BIN_INCLUDE})
-# CBF_REQUIRE_DIRECTORY(${CBF__SHARE})
-# CBF_REQUIRE_DIRECTORY(${CBF__EXT_PKG})
-# CBF_REQUIRE_DIRECTORY(${CBF__DATA})
+CBF_REQUIRE_DIRECTORY(${CBF__BLDSRC})
+CBF_REQUIRE_DIRECTORY(${CBF__BLDEXMP})
+CBF_REQUIRE_DIRECTORY(${CBF__BIN})
+CBF_REQUIRE_DIRECTORY(${CBF__LIB})
+CBF_REQUIRE_DIRECTORY(${CBF__BIN_INCLUDE})
+CBF_REQUIRE_DIRECTORY(${CBF__SHARE})
+CBF_REQUIRE_DIRECTORY(${CBF__EXT_PKG})
+CBF_REQUIRE_DIRECTORY(${CBF__DATA})
 
 
 set(JCBF      "${CBFlib_SOURCE_DIR}/jcbf" CACHE STRING "")
