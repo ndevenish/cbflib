@@ -466,6 +466,8 @@ if(USE_FORTRAN)
     enable_language(Fortran)
 endif()
 
+include(CTest)
+
 # Build-niceties diagnostics: Force colour on when using Ninja
 option(FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." TRUE)
 if(${FORCE_COLORED_OUTPUT})
@@ -715,7 +717,7 @@ set(CBF_DATAURLS  "${CBF_DATAURLBASE}/CBFlib_${CBF_VERSION}_Data_Files_Output_Si
 #
 # Load and unpack the Data Files
 #
-if(DOWNLOAD_TEST_DATA)
+if(DOWNLOAD_TEST_DATA AND BUILD_TESTING)
     CBF_LOAD_TARBALL(${CBF_DATAURLI} ${CBF_DATADIRI})
     CBF_LOAD_TARBALL(${CBF_DATAURLO} ${CBF_DATADIRO})
     CBF_LOAD_TARBALL(${CBF_DATAURLS} ${CBF_DATADIRS})
@@ -1038,25 +1040,30 @@ add_target(cbf_tail "${CBF__EXAMPLES}/cbf_tail.c" LINKS cbf_lib)
 add_target(changtestcompression "${CBF__EXAMPLES}/changtestcompression.c" LINKS cbf_lib)
 add_target(img2cif "${CBF__EXAMPLES}/img2cif.c" LINKS cbf_lib img_lib m)
 add_target(cbf_template_t "${CBF__DECTRIS_EXAMPLES}/cbf_template_t.c" LINKS cbf_lib)
-add_target(testcell "${CBF__EXAMPLES}/testcell.C" LINKS cbf_lib)
-add_target(sauter_test "${CBF__EXAMPLES}/sauter_test.C" LINKS cbf_lib)
 add_target(sequence_match "${CBF__EXAMPLES}/sequence_match.c" LINKS cbf_lib)
-add_target(testulp "${CBF__EXAMPLES}/testulp.c" LINKS cbf_lib)
-add_target(testtree "${CBF__EXAMPLES}/testtree.c" LINKS cbf_lib)
-add_target(testalloc "${CBF__EXAMPLES}/testalloc.c" LINKS cbf_lib)
-add_target(testflat "${CBF__EXAMPLES}/testflat.c" LINKS cbf_lib)
-add_target(testflatpacked "${CBF__EXAMPLES}/testflatpacked.c" LINKS cbf_lib)
-add_target(testreals "${CBF__EXAMPLES}/testreals.c" LINKS cbf_lib)
 add_target(cbf2nexus "${CBF__EXAMPLES}/cbf2nexus.c" LINKS cbf_lib m)
 add_target(nexus2cbf "${CBF__EXAMPLES}/nexus2cbf.c" LINKS cbf_lib m)
 add_target(minicbf2nexus "${CBF__EXAMPLES}/minicbf2nexus.c" LINKS cbf_lib hdf5::hdf5 m)
 add_target(cif2cbf "${CBF__EXAMPLES}/cif2cbf.c" LINKS cbf_lib img_lib hdf5::hdf5 m)
-add_target(testhdf5 "${CBF__EXAMPLES}/testhdf5.c" LINKS cbf_lib hdf5::hdf5 m)
+
 if(USE_TIFF)
     add_target(tiff2cbf "${CBF__EXAMPLES}/tiff2cbf.c" LINKS cbf_lib TIFF::TIFF)
 endif()
 
-if(USE_FORTRAN)
+if(BUILD_TESTING)
+    add_target(testhdf5 "${CBF__EXAMPLES}/testhdf5.c" LINKS cbf_lib hdf5::hdf5 m)
+    add_target(testcell "${CBF__EXAMPLES}/testcell.C" LINKS cbf_lib)
+    add_target(sauter_test "${CBF__EXAMPLES}/sauter_test.C" LINKS cbf_lib)
+    add_target(testulp "${CBF__EXAMPLES}/testulp.c" LINKS cbf_lib)
+    add_target(testtree "${CBF__EXAMPLES}/testtree.c" LINKS cbf_lib)
+    add_target(testalloc "${CBF__EXAMPLES}/testalloc.c" LINKS cbf_lib)
+    add_target(testflat "${CBF__EXAMPLES}/testflat.c" LINKS cbf_lib)
+    add_target(testflatpacked "${CBF__EXAMPLES}/testflatpacked.c" LINKS cbf_lib)
+    add_target(testreals "${CBF__EXAMPLES}/testreals.c" LINKS cbf_lib)
+endif()
+
+
+if(USE_FORTRAN AND BUILD_TESTING)
     #
     #  F90 examples
     #
@@ -1100,7 +1107,8 @@ install(TARGETS
     cbf_lib
 )
 
-install(TARGETS cbf_lib img_lib EXPORT cbflib-exports
+install(TARGETS cbf_lib img_lib
+        EXPORT cbflib-exports
         INCLUDES DESTINATION include/cbflib)
 
 install(DIRECTORY ${CBF__INCLUDE}/ DESTINATION include/cbflib FILES_MATCHING PATTERN "*.h")
@@ -1110,9 +1118,16 @@ install(DIRECTORY ${CBF__BIN_INCLUDE}/* DESTINATION include/cbflib FILES_MATCHIN
 if(USE_TIFF)
     install(TARGETS tiff2cbf)
 endif()
+
 if(USE_FORTRAN)
     install(TARGETS fcb_lib)
 endif()
+
+###############################################################################
+#
+# Testing
+#
+###############################################################################
 
 # Path to the valgrind executable, for memory tests
 find_program(VALGRIND valgrind)
@@ -1122,12 +1137,6 @@ if(VALGRIND)
 else()
     message(STATUS "valgrid NOT found. Testing will be incomplete.")
 endif()
-
-###############################################################################
-#
-# Testing
-#
-###############################################################################
 
 enable_testing()
 
