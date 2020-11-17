@@ -450,7 +450,7 @@ message(STATUS "CBFLib Version is ${CBF_VERSION} (${CBF_APIVERSION} API)")
 
 project (CBFlib VERSION ${PROJECT_VERSION} LANGUAGES C CXX )
 if (USE_FORTRAN)
-  enable_language(Fortran)
+    enable_language(Fortran)
 endif()
 
 # Build-niceties diagnostics: Force colour on when using Ninja
@@ -465,17 +465,18 @@ endif ()
 
 # make sure that the default configuration is Release
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  set (CMAKE_BUILD_TYPE Release CACHE STRING
-      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel ..."
-      FORCE )
-  # Set the possible values of build type for cmake-gui
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
-    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+    set(CMAKE_BUILD_TYPE Release CACHE STRING
+        "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel ..."
+        FORCE
+    )
+    # Set the possible values of build type for cmake-gui
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+        "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
 
 if (USE_ULP)
-  add_definitions(-DCBF_USE_ULP)
+    add_definitions(-DCBF_USE_ULP)
 endif ()
 
 # Fortran compilation needs -fno-range-checks
@@ -489,24 +490,6 @@ add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-fno-range-check>)
 # ELSE(WIN32)
 #     SET(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
 # ENDIF(WIN32)
-
-
-#
-# Macros
-#
-
-# #
-# # CBF_REQUIRE_DIRECTORY -- require directory dir
-# #
-# macro(CBF_REQUIRE_DIRECTORY dir)
-#   if (NOT EXISTS "${dir}")
-#     file(MAKE_DIRECTORY "${dir}")
-#     CBF_DEBUG_MESSAGE("Created directory ${dir}")
-#   endif (NOT EXISTS "${dir}")
-# endmacro(CBF_REQUIRE_DIRECTORY)
-
-
-
 
 #
 # Directories
@@ -560,53 +543,53 @@ set(GRAPHICS  "${CBFlib_SOURCE_DIR}/html_graphics" CACHE STRING "")
 
 
 if(USE_TIFF)
-  find_package(TIFF REQUIRED)
+    find_package(TIFF REQUIRED)
 endif()
 
 
 
 if (USE_FORTRAN)
-  find_package(HDF5 ${HDF5_VERSION_REQUIRED} EXACT REQUIRED COMPONENTS C Fortran)
+    find_package(HDF5 ${HDF5_VERSION_REQUIRED} EXACT REQUIRED COMPONENTS C Fortran)
 else()
-  find_package(HDF5 ${HDF5_VERSION_REQUIRED} EXACT REQUIRED COMPONENTS C)
+    find_package(HDF5 ${HDF5_VERSION_REQUIRED} EXACT REQUIRED COMPONENTS C)
 endif()
 
 # Backport the CMake 3.19 HDF5 target definitions
 if (NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
-  if (NOT TARGET HDF5::HDF5)
-    add_library(HDF5::HDF5 INTERFACE IMPORTED)
-    string(REPLACE "-D" "" _hdf5_definitions "${HDF5_DEFINITIONS}")
-    set_target_properties(HDF5::HDF5 PROPERTIES
-      INTERFACE_LINK_LIBRARIES "${HDF5_LIBRARIES}"
-      INTERFACE_INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIRS}"
-      INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
-    unset(_hdf5_definitions)
-  endif ()
+    if (NOT TARGET HDF5::HDF5)
+        add_library(HDF5::HDF5 INTERFACE IMPORTED)
+        string(REPLACE "-D" "" _hdf5_definitions "${HDF5_DEFINITIONS}")
+        set_target_properties(HDF5::HDF5 PROPERTIES
+            INTERFACE_LINK_LIBRARIES "${HDF5_LIBRARIES}"
+            INTERFACE_INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIRS}"
+            INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
+        unset(_hdf5_definitions)
+    endif ()
 
-  if (HDF5_C_LIBRARIES AND NOT TARGET "hdf5::hdf5")
-    add_library("hdf5::hdf5" INTERFACE IMPORTED)
-    string(REPLACE "-D" "" _hdf5_definitions "${HDF5_C_DEFINITIONS}")
-    set_target_properties("hdf5::hdf5" PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES "${HDF5_C_INCLUDE_DIRS}"
-      INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}"
-      INTERFACE_LINK_LIBRARIES "HDF5::HDF5")
-    unset(_hdf5_definitions)
-  endif()
+    if (HDF5_C_LIBRARIES AND NOT TARGET "hdf5::hdf5")
+        add_library("hdf5::hdf5" INTERFACE IMPORTED)
+        string(REPLACE "-D" "" _hdf5_definitions "${HDF5_C_DEFINITIONS}")
+        set_target_properties("hdf5::hdf5" PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES "${HDF5_C_INCLUDE_DIRS}"
+            INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}"
+            INTERFACE_LINK_LIBRARIES "HDF5::HDF5")
+        unset(_hdf5_definitions)
+    endif()
 
-  if (HDF5_Fortran_LIBRARIES AND NOT TARGET "hdf5::hdf5_fortran")
-    add_library("hdf5::hdf5_fortran" INTERFACE IMPORTED)
-    string(REPLACE "-D" "" _hdf5_definitions "${HDF5_Fortran_DEFINITIONS}")
-    set_target_properties("hdf5::hdf5_fortran" PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES "${HDF5_Fortran_INCLUDE_DIRS}"
-      INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
-    unset(_hdf5_definitions)
-  endif()
+    if (HDF5_Fortran_LIBRARIES AND NOT TARGET "hdf5::hdf5_fortran")
+        add_library("hdf5::hdf5_fortran" INTERFACE IMPORTED)
+        string(REPLACE "-D" "" _hdf5_definitions "${HDF5_Fortran_DEFINITIONS}")
+        set_target_properties("hdf5::hdf5_fortran" PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES "${HDF5_Fortran_INCLUDE_DIRS}"
+            INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
+        unset(_hdf5_definitions)
+    endif()
 endif()
 
 if(CBF_DONT_USE_LONG_LONG)
-  set(CBF_NOLLFLAG "-DCBF_DONT_USE_LONG_LONG")
+    set(CBF_NOLLFLAG "-DCBF_DONT_USE_LONG_LONG")
 else(CBF_DONT_USE_LONG_LONG)
-  set(CBF_NOLLFLAG "")
+    set(CBF_NOLLFLAG "")
 endif(CBF_DONT_USE_LONG_LONG)
 
 #
@@ -698,9 +681,9 @@ set(CBF_DATAURLS  "${CBF_DATAURLBASE}/CBFlib_${CBF_VERSION}_Data_Files_Output_Si
 # Load and unpack the Data Files
 #
 if (DOWNLOAD_TEST_DATA)
-  CBF_LOAD_TARBALL(${CBF_DATAURLI} ${CBF_DATADIRI})
-  CBF_LOAD_TARBALL(${CBF_DATAURLO} ${CBF_DATADIRO})
-  CBF_LOAD_TARBALL(${CBF_DATAURLS} ${CBF_DATADIRS})
+    CBF_LOAD_TARBALL(${CBF_DATAURLI} ${CBF_DATADIRI})
+    CBF_LOAD_TARBALL(${CBF_DATAURLO} ${CBF_DATADIRO})
+    CBF_LOAD_TARBALL(${CBF_DATAURLS} ${CBF_DATADIRS})
 endif()
 
 #
@@ -709,22 +692,22 @@ endif()
 file(GLOB CBF_DATADIRI_FILES "${CBF_DATADIRI}/*")
 file(GLOB CBF_DATADIRO_FILES "${CBF_DATADIRO}/*")
 foreach(loop_file ${CBF_DATADIRI_FILES} )
-  if (NOT "${loop_file}" MATCHES "[*.]md5")
-    file(MD5 "${loop_file}" loop_file_md5)
-    file(STRINGS "${loop_file}.md5" loop_file_md5_orig LIMIT_COUNT 1)
-    if (NOT ("${loop_file_md5}" STREQUAL "${loop_file_md5_orig}"))
-      message(WARNINH "loop_file: ${loop_file}:|${loop_file_md5}|${loop_file_md5_orig}|")
-    endif (NOT ("${loop_file_md5}" STREQUAL "${loop_file_md5_orig}"))
-  endif (NOT "${loop_file}" MATCHES "[*.]md5")
+    if (NOT "${loop_file}" MATCHES "[*.]md5")
+        file(MD5 "${loop_file}" loop_file_md5)
+        file(STRINGS "${loop_file}.md5" loop_file_md5_orig LIMIT_COUNT 1)
+        if (NOT ("${loop_file_md5}" STREQUAL "${loop_file_md5_orig}"))
+            message(WARNINH "loop_file: ${loop_file}:|${loop_file_md5}|${loop_file_md5_orig}|")
+        endif (NOT ("${loop_file_md5}" STREQUAL "${loop_file_md5_orig}"))
+    endif (NOT "${loop_file}" MATCHES "[*.]md5")
 endforeach(loop_file)
 foreach(loop_file ${CBF_DATADIRO_FILES} )
-  if (NOT "${loop_file}" MATCHES "[*.]md5")
-    file(MD5 "${loop_file}" loop_file_md5)
-    file(STRINGS "${loop_file}.md5" loop_file_md5_orig LIMIT_COUNT 1)
-    if (NOT ("${loop_file_md5}" STREQUAL "${loop_file_md5_orig}"))
-      message(WARNING "loop_file: ${loop_file}:|${loop_file_md5}|${loop_file_md5_orig}|")
-    endif (NOT ("${loop_file_md5}" STREQUAL "${loop_file_md5_orig}"))
-  endif (NOT "${loop_file}" MATCHES "[*.]md5")
+    if (NOT "${loop_file}" MATCHES "[*.]md5")
+        file(MD5 "${loop_file}" loop_file_md5)
+        file(STRINGS "${loop_file}.md5" loop_file_md5_orig LIMIT_COUNT 1)
+        if (NOT ("${loop_file_md5}" STREQUAL "${loop_file_md5_orig}"))
+            message(WARNING "loop_file: ${loop_file}:|${loop_file_md5}|${loop_file_md5_orig}|")
+        endif (NOT ("${loop_file_md5}" STREQUAL "${loop_file_md5_orig}"))
+    endif (NOT "${loop_file}" MATCHES "[*.]md5")
 endforeach(loop_file)
 
 
@@ -855,71 +838,69 @@ set( CBF_HEADERS
 
 
 if(USE_FORTRAN)
+    #
+    # m4 FCB library macro files
+    #
+    set(CBF_M4_FCB_DEFINES ${CBF__M4}/fcblib_defines.m4)
 
-  #
-  # m4 FCB library macro files
-  #
-  set( CBF_M4_FCB_DEFINES ${CBF__M4}/fcblib_defines.m4 )
-
-  set(
-    CBF_M4_FCB_FILES
-    ${CBF__M4}/fcb_exit_binary.m4
-    ${CBF__M4}/fcb_next_binary.m4
-    ${CBF__M4}/fcb_open_cifin.m4
-    ${CBF__M4}/fcb_packed.m4
-    ${CBF__M4}/fcb_read_bits.m4
-    ${CBF__M4}/fcb_read_image.m4
-    ${CBF__M4}/fcb_read_xds_i2.m4
-  )
-  #
-  # m4 F90 examples macro files
-  #
-  set(
-    CBF_M4_F90_EXAMPLES
-    ${CBF__M4}/test_fcb_read_image.m4
-    ${CBF__M4}/test_xds_binary.m4
-  )
+    set(
+        CBF_M4_FCB_FILES
+        ${CBF__M4}/fcb_exit_binary.m4
+        ${CBF__M4}/fcb_next_binary.m4
+        ${CBF__M4}/fcb_open_cifin.m4
+        ${CBF__M4}/fcb_packed.m4
+        ${CBF__M4}/fcb_read_bits.m4
+        ${CBF__M4}/fcb_read_image.m4
+        ${CBF__M4}/fcb_read_xds_i2.m4
+    )
+    #
+    # m4 F90 examples macro files
+    #
+    set(
+        CBF_M4_F90_EXAMPLES
+        ${CBF__M4}/test_fcb_read_image.m4
+        ${CBF__M4}/test_xds_binary.m4
+    )
 
 endif()
 
 
-#
-# Documentation files
-#
-set(
-    CBF_DOCUMENTS
-    ${CBF__DOC}/CBFlib.html
-    ${CBF__DOC}/CBFlib.txt
-    ${CBF__DOC}/CBFlib_NOTICES.html
-    ${CBF__DOC}/CBFlib_NOTICES.txt
-    ${CBF__DOC}/ChangeLog
-    ${CBF__DOC}/ChangeLog.html
-    ${CBF__DOC}/MANIFEST
-    ${CBF__DOC}/gpl.txt $(DOC)/lgpl.txt
-    CACHE STRING ""
-)
+# #
+# # Documentation files
+# #
+# set(
+#     CBF_DOCUMENTS
+#     ${CBF__DOC}/CBFlib.html
+#     ${CBF__DOC}/CBFlib.txt
+#     ${CBF__DOC}/CBFlib_NOTICES.html
+#     ${CBF__DOC}/CBFlib_NOTICES.txt
+#     ${CBF__DOC}/ChangeLog
+#     ${CBF__DOC}/ChangeLog.html
+#     ${CBF__DOC}/MANIFEST
+#     ${CBF__DOC}/gpl.txt $(DOC)/lgpl.txt
+#     CACHE STRING ""
+# )
 
 #
 # HTML Graphics files
 #
-set(
-    JPEGS
-    ${GRAPHICS}/CBFbackground.jpg
-    ${GRAPHICS}/CBFbig.jpg
-    ${GRAPHICS}/CBFbutton.jpg
-    ${GRAPHICS}/cbflibbackground.jpg
-    ${GRAPHICS}/cbflibbig.jpg
-    ${GRAPHICS}/cbflibbutton.jpg
-    ${GRAPHICS}/cifhome.jpg
-    ${GRAPHICS}/iucrhome.jpg
-    ${GRAPHICS}/noticeButton.jpg
-    CACHE STRING ""
-)
+# set(
+#     JPEGS
+#     ${GRAPHICS}/CBFbackground.jpg
+#     ${GRAPHICS}/CBFbig.jpg
+#     ${GRAPHICS}/CBFbutton.jpg
+#     ${GRAPHICS}/cbflibbackground.jpg
+#     ${GRAPHICS}/cbflibbig.jpg
+#     ${GRAPHICS}/cbflibbutton.jpg
+#     ${GRAPHICS}/cifhome.jpg
+#     ${GRAPHICS}/iucrhome.jpg
+#     ${GRAPHICS}/noticeButton.jpg
+#     CACHE STRING ""
+# )
 
 # Set up the necessary includes
 
 include_directories(${CBFlib_SOURCE_DIR}/include)
-# message("CBF_REGEXLIB_INCLUDE_DIR ${CBF_REGEXLIB_INCLUDE_DIR}")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/bin")
 
@@ -980,31 +961,31 @@ if(BUILD_PYCBF)
 endif()
 
 if(USE_FORTRAN)
-  #
-  # Build the f90 library sources
-  #
-  find_program(M4 m4 REQUIRED)
-  foreach(f90src IN LISTS CBF_F90_BUILT_SOURCES)
-    get_filename_component(filename "${f90src}" NAME_WE )
-    set(f90bldsrc "${CBF__BLDSRC}/${filename}.f90")
-    set(f90srcm4 "${CBF__M4}/${filename}.m4")
-    add_custom_command(
-      OUTPUT "${f90bldsrc}"
-      WORKING_DIRECTORY "${CBF__M4}"
-      COMMAND ${M4} -P "${CBF_M4FLAGS}" "${f90srcm4}" > "${f90bldsrc}"
-      DEPENDS ${CBF_M4_FCB_DEFINES} ${f90srcm4}
-      COMMENT "Generating ${f90bldsrc}"
-    )
-  endforeach(f90src)
+    #
+    # Build the f90 library sources
+    #
+    find_program(M4 m4 REQUIRED)
+    foreach(f90src IN LISTS CBF_F90_BUILT_SOURCES)
+        get_filename_component(filename "${f90src}" NAME_WE )
+        set(f90bldsrc "${CBF__BLDSRC}/${filename}.f90")
+        set(f90srcm4 "${CBF__M4}/${filename}.m4")
+        add_custom_command(
+            OUTPUT "${f90bldsrc}"
+            WORKING_DIRECTORY "${CBF__M4}"
+            COMMAND ${M4} -P "${CBF_M4FLAGS}" "${f90srcm4}" > "${f90bldsrc}"
+            DEPENDS ${CBF_M4_FCB_DEFINES} ${f90srcm4}
+            COMMENT "Generating ${f90bldsrc}"
+        )
+    endforeach(f90src)
 
 
-  #
-  # Build the fcb libraries
-  #
-  add_library(fcb_lib  ${CBF_F90_BUILT_SOURCES};${CBF_F90_SOURCES})
-  set_target_properties(fcb_lib PROPERTIES OUTPUT_NAME "fcb")
-  set_target_properties(fcb_lib PROPERTIES LINKER_LANGUAGE C)
-  target_link_libraries(fcb_lib hdf5::hdf5_fortran)
+    #
+    # Build the fcb libraries
+    #
+    add_library(fcb_lib  ${CBF_F90_BUILT_SOURCES};${CBF_F90_SOURCES})
+    set_target_properties(fcb_lib PROPERTIES OUTPUT_NAME "fcb")
+    set_target_properties(fcb_lib PROPERTIES LINKER_LANGUAGE C)
+    target_link_libraries(fcb_lib hdf5::hdf5_fortran)
 
 endif()
 
@@ -1037,26 +1018,28 @@ add_target(minicbf2nexus "${CBF__EXAMPLES}/minicbf2nexus.c" LINKS cbf_lib hdf5::
 add_target(cif2cbf "${CBF__EXAMPLES}/cif2cbf.c" LINKS cbf_lib img_lib hdf5::hdf5 m)
 add_target(testhdf5 "${CBF__EXAMPLES}/testhdf5.c" LINKS cbf_lib hdf5::hdf5 m)
 if(USE_TIFF)
-  add_target(tiff2cbf "${CBF__EXAMPLES}/tiff2cbf.c" LINKS cbf_lib TIFF::TIFF)
+    add_target(tiff2cbf "${CBF__EXAMPLES}/tiff2cbf.c" LINKS cbf_lib TIFF::TIFF)
 endif()
 
 if(USE_FORTRAN)
-  #
-  #  F90 examples
-  #
-  add_custom_command(OUTPUT "${CBF__BLDEXMP}/test_fcb_read_image.f90"
-      WORKING_DIRECTORY "${CBF__M4}"
-      COMMAND ${M4} -P "${CBF_M4FLAGS}" "${CBF__M4}/test_fcb_read_image.m4" > "${CBF__BLDEXMP}/test_fcb_read_image.f90"
-      DEPENDS ${CBF_M4_FCB_DEFINES} "${CBF__M4}/test_fcb_read_image.m4"
-      COMMENT "Generating ${test_fcb_read_image.f90}")
-  add_custom_command(OUTPUT "${CBF__BLDEXMP}/test_xds_binary.f90"
-      WORKING_DIRECTORY "${CBF__M4}"
-      COMMAND ${M4} -P "${CBF_M4FLAGS}" "${CBF__M4}/test_xds_binary.m4" > "${CBF__BLDEXMP}/test_xds_binary.f90"
-      DEPENDS ${CBF_M4_FCB_DEFINES} "${CBF__M4}/test_xds_binary.m4"
-      COMMENT "Generating ${test_xds_binary.f90}")
+    #
+    #  F90 examples
+    #
+    add_custom_command(OUTPUT "${CBF__BLDEXMP}/test_fcb_read_image.f90"
+        WORKING_DIRECTORY "${CBF__M4}"
+        COMMAND ${M4} -P "${CBF_M4FLAGS}" "${CBF__M4}/test_fcb_read_image.m4" > "${CBF__BLDEXMP}/test_fcb_read_image.f90"
+        DEPENDS ${CBF_M4_FCB_DEFINES} "${CBF__M4}/test_fcb_read_image.m4"
+        COMMENT "Generating ${test_fcb_read_image.f90}"
+    )
+    add_custom_command(OUTPUT "${CBF__BLDEXMP}/test_xds_binary.f90"
+        WORKING_DIRECTORY "${CBF__M4}"
+        COMMAND ${M4} -P "${CBF_M4FLAGS}" "${CBF__M4}/test_xds_binary.m4" > "${CBF__BLDEXMP}/test_xds_binary.f90"
+        DEPENDS ${CBF_M4_FCB_DEFINES} "${CBF__M4}/test_xds_binary.m4"
+        COMMENT "Generating ${test_xds_binary.f90}"
+    )
 
-  add_target(test_fcb_read_image "${CBF__BLDEXMP}/test_fcb_read_image.f90" LINKS fcb_lib)
-  add_target(test_xds_binary "${CBF__BLDEXMP}/test_xds_binary.f90" LINKS fcb_lib)
+    add_target(test_fcb_read_image "${CBF__BLDEXMP}/test_fcb_read_image.f90" LINKS fcb_lib)
+    add_target(test_xds_binary "${CBF__BLDEXMP}/test_xds_binary.f90" LINKS fcb_lib)
 endif()
 
 
@@ -1459,27 +1442,27 @@ set_property(TEST cmp-insulin_pilatus6mconverted_orig.cbf.h5.cbf-insulin_pilatus
 
 # conversion tests for tiff2cbf
 if(USE_TIFF)
-  # $(BIN)/tiff2cbf XRD1621.tif XRD1621.cbf
-  add_test(XRD1621.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tiff2cbf ${CBF_DATADIRI}/XRD1621.tif ${CBF__DATA}/XRD1621.cbf)
-  # $(DIFF) XRD1621_orig.cbf XRD1621.cbf
-  add_test(
-    cmp-XRD1621_orig.cbf-XRD1621.cbf
-    ${CMAKE_COMMAND} -E compare_files
-    ${CBF_DATADIRO}/XRD1621_orig.cbf
-    ${CBF__DATA}/XRD1621.cbf
-  )
-  set_property(TEST cmp-XRD1621_orig.cbf-XRD1621.cbf APPEND PROPERTY DEPENDS XRD1621.cbf)
-  # $(BIN)/cif2cbf -I 4 -C 100. -L 0. -e n -c b -i XRD1621.cbf -o XRD1621_I4encbC100.cbf
-  # $(DIFF) XRD1621_I4encbC100_orig.cbf XRD1621_I4encbC100.cbf
+    # $(BIN)/tiff2cbf XRD1621.tif XRD1621.cbf
+    add_test(XRD1621.cbf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tiff2cbf ${CBF_DATADIRI}/XRD1621.tif ${CBF__DATA}/XRD1621.cbf)
+    # $(DIFF) XRD1621_orig.cbf XRD1621.cbf
+    add_test(
+        cmp-XRD1621_orig.cbf-XRD1621.cbf
+        ${CMAKE_COMMAND} -E compare_files
+        ${CBF_DATADIRO}/XRD1621_orig.cbf
+        ${CBF__DATA}/XRD1621.cbf
+    )
+    set_property(TEST cmp-XRD1621_orig.cbf-XRD1621.cbf APPEND PROPERTY DEPENDS XRD1621.cbf)
+    # $(BIN)/cif2cbf -I 4 -C 100. -L 0. -e n -c b -i XRD1621.cbf -o XRD1621_I4encbC100.cbf
+    # $(DIFF) XRD1621_I4encbC100_orig.cbf XRD1621_I4encbC100.cbf
 endif()
 
 # unit tests
 add_test(testhdf5 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testhdf5)
 
 if(VALGRIND)
-  add_test(testalloc ${VALGRIND_COMMAND} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testalloc)
-  add_test(testtree ${VALGRIND_COMMAND} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testtree)
-  add_test(testulp ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testulp)
+    add_test(testalloc ${VALGRIND_COMMAND} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testalloc)
+    add_test(testtree ${VALGRIND_COMMAND} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testtree)
+    add_test(testulp ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testulp)
 endif()
 
 add_test(testflatin.cbf ${CMAKE_COMMAND} -E copy ${CBF_DATADIRI}/testflatin.cbf ${CBF__DATA}/testflatin.cbf)
