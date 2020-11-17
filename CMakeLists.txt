@@ -655,49 +655,47 @@ endif ()
 if(NOT TARGET regex)
     find_library(CBF_REGEXLIB pcre)
     find_path(CBF_REGEXLIB_INCLUDE_DIR NAMES pcreposix.h)
-    # message(STATUS "CBF_REGEXLIB_INCLUDE_DIR for pcreposix.h = '${CBF_REGEXLIB_INCLUDE_DIR}'")
-    # message(STATUS "CBF_REGEXLIB = '${CBF_REGEXLIB}'")
-
     if(CBF_REGEXLIB AND CBF_REGEXLIB_INCLUDE_DIR)
-        message(STATUS "Found PCRE: ${CBF_REGEXLIB} and ${CBF_REGEXLIB_INCLUDE_DIR}")
+        message(STATUS "Found pcre: ${CBF_REGEXLIB} with ${CBF_REGEXLIB_INCLUDE_DIR}")
         add_library("regex" INTERFACE IMPORTED)
         set_target_properties("regex" PROPERTIES
             INTERFACE_INCLUDE_DIRECTORIES "${CBF_REGEXLIB_INCLUDE_DIR}"
             INTERFACE_LINK_LIBRARIES "${CBF_REGEXLIB}")
-            # INTERFACE_COMPILE_DEFINITIONS "-DCBF_REGEXLIB_PCRE"
         target_compile_definitions(regex INTERFACE CBF_REGEXLIB_PCRE)
-    # else ()
-    #     set(CBF_RE "")
-    #         set(CBF_REGEXLIB_LIBRARY_PATH "${CBF_REGEXLIB}/libpcre.so")
-    #     add_definitions(-DCBF_REGEXLIB_PCRE)
     else()
         # PCRE not found, try for REGEX
-        message(STATUS "'pcre' library not found")
+        message(STATUS "pcre library not found, looking for libregex")
         find_library(CBF_REGEXLIB regex)
         find_path(CBF_REGEXLIB_INCLUDE_DIR NAMES regex.h)
-        message(STATUS "CBF_REGEXLIB_INCLUDE_DIR for regex.h = '${CBF_REGEXLIB_INCLUDE_DIR}'")
-        message(STATUS "CBF_REGEXLIB = '${CBF_REGEXLIB}'")
-        if(NOT CBF_REGEXLIB_INCLUDE_DIR OR NOT CBF_REGEXLIB)
-            # Neither PCRE not REGEX found, load and build PCRE
-            message(STATUS "'regex' library not found")
-            ExternalProject_add(
-                PCRE
-                URL ${CBF_PCREURL}
-                SOURCE_DIR ${CMAKE_BINARY_DIR}/external_packages/${CBF_PCRE}
-                CMAKE_ARGS
-                    -DCMAKE_BUILD_TYPE:STRING=RELEASE DEBUG
-                    -DCMAKE_INSTALL_PREFIX:PATH=${CBFlib_BINARY_DIR}/${CBF_PCRE}
-                INSTALL_DIR ${CBFlib_BINARY_DIR}/${CBF_PCRE}
-            )
-            set(CBF_RE "PCRE")
-            set(CBF_REGEXLIB_INCLUDE_DIR ${CMAKE_BINARY_DIR}/${CBF_PCRE}/include)
-            set(CBF_REGEXLIB_LIBRARY_PATH ${CBFlib_BINARY_DIR}/${CBF_PCRE}/lib/libpcre.a)
-            add_definitions(-DCBF_REGEXLIB_PCRE)
+        if(CBF_REGEXLIB AND CBF_REGEXLIB_INCLUDE_DIR)
+            message(STATUS "Found regex: ${CBF_REGEXLIB} with ${CBF_REGEXLIB_INCLUDE_DIR}")
+            set_target_properties("regex" PROPERTIES
+                INTERFACE_INCLUDE_DIRECTORIES "${CBF_REGEXLIB_INCLUDE_DIR}"
+                INTERFACE_LINK_LIBRARIES "${CBF_REGEXLIB}")
+            target_compile_definitions(regex INTERFACE DCBF_REGEXLIB_REGEX)
         else()
-            set(CBF_RE "")
-            set(CBF_REGEXLIB_LIBRARY_PATH "${CBF_REGEXLIB}/libregex.so")
-            add_definitions(-DCBF_REGEXLIB_REGEX)
+            message(SEND_ERROR "Neither pcre nor regex libraries found")
         endif()
+            # Neither PCRE not REGEX found
+        # endif()
+        # # message(STATUS "CBF_REGEXLIB_INCLUDE_DIR for regex.h = '${CBF_REGEXLIB_INCLUDE_DIR}'")
+        # # message(STATUS "CBF_REGEXLIB = '${CBF_REGEXLIB}'")
+        # if(NOT CBF_REGEXLIB_INCLUDE_DIR OR NOT CBF_REGEXLIB)
+        #     message(STATUS "'regex' library not found")
+        #     ExternalProject_add(
+        #         PCRE
+        #         URL ${CBF_PCREURL}
+        #         SOURCE_DIR ${CMAKE_BINARY_DIR}/external_packages/${CBF_PCRE}
+        #         CMAKE_ARGS
+        #             -DCMAKE_BUILD_TYPE:STRING=RELEASE DEBUG
+        #             -DCMAKE_INSTALL_PREFIX:PATH=${CBFlib_BINARY_DIR}/${CBF_PCRE}
+        #         INSTALL_DIR ${CBFlib_BINARY_DIR}/${CBF_PCRE}
+        #     )
+        #     set(CBF_RE "PCRE")
+        #     set(CBF_REGEXLIB_INCLUDE_DIR ${CMAKE_BINARY_DIR}/${CBF_PCRE}/include)
+        #     set(CBF_REGEXLIB_LIBRARY_PATH ${CBFlib_BINARY_DIR}/${CBF_PCRE}/lib/libpcre.a)
+        #     add_definitions(-DCBF_REGEXLIB_PCRE)
+
     endif()
 endif()
 
