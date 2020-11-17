@@ -573,6 +573,17 @@ set(DECTRIS_EXAMPLES "${EXAMPLES}/dectris_cbf_template_test" CACHE STRING "")
 
 if(USE_TIFF)
     find_package(TIFF REQUIRED)
+
+    include(CheckCSourceCompiles)
+    set(CMAKE_REQUIRED_LIBRARIES ${TIFF_LIBRARIES})
+    check_c_source_compiles(
+        "#include \"stdio.h\"\nint TIFFSNPrintDirectory(); int main(void) { printf(\"%p\", &TIFFSNPrintDirectory); }"
+        TIFF_HAS_SNPRINT
+    )
+
+    if(NOT TIFF_HAS_SNPRINT)
+        message(SEND_ERROR "Found libtiff, but tiff2cbf depends on a custom fork with symbol TIFFSNPrintDirectory, which is missing.")
+    endif()
 endif()
 
 
