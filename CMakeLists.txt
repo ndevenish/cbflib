@@ -341,7 +341,7 @@ function(CBF_LOAD_TARBALL URL TARGET_DIRECTORY)
             )
         else()
             message(WARNING "Could not download ${URL}: ${_errormessage}.")
-            message(WARNING "Continuing build, but tests may not run. Configure -DDOWNLOAD_TEST_DATA=no to prevent attempt.")
+            message(WARNING "Continuing build, but tests may not run. Configure -DBUILD_TESTING=no to prevent attempt.")
         endif()
     endif()
 endfunction()
@@ -424,8 +424,6 @@ endfunction()
 # via -DUSE_XXX=on, or via ccmake or the CMake Gui.
 #
 ######################################################################
-
-option(DOWNLOAD_TEST_DATA   "Should the test data be downloaded?" ON)
 
 option(USE_FORTRAN          "Build Fortran Bindings"    OFF)
 option(USE_TIFF             "Build tiff2cbf"            ON)
@@ -717,7 +715,7 @@ set(CBF_DATAURLS  "${CBF_DATAURLBASE}/CBFlib_${CBF_VERSION}_Data_Files_Output_Si
 #
 # Load and unpack the Data Files
 #
-if(DOWNLOAD_TEST_DATA AND BUILD_TESTING)
+if(BUILD_TESTING)
     CBF_LOAD_TARBALL(${CBF_DATAURLI} ${CBF_DATADIRI})
     CBF_LOAD_TARBALL(${CBF_DATAURLO} ${CBF_DATADIRO})
     CBF_LOAD_TARBALL(${CBF_DATAURLS} ${CBF_DATADIRS})
