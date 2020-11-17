@@ -298,6 +298,9 @@ set(CBF_USE_ULP $ENV{CBF_USE_ULP})
 set(CBF_M4FLAGS_ENV $ENV{M4FLAGS})
 set(CBF_HDF5REGISTER_MANUAL_ENV $ENV{CBF_HDF5REGISTER_MANUAL})
 
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED TRUE)
+
 project (CBFlib C CXX)
 
 if (USE_FORTRAN)
@@ -578,44 +581,54 @@ CBF_DEBUG_MESSAGE( "WGET found at ${WGET_EXECUTABLE}")
 # - an (optional) dependency to build
 #
 # Try for PCRE first
-find_library(CBF_REGEXLIB pcre)
-find_path(CBF_REGEXLIB_INCLUDE_DIR NAMES pcreposix.h)
-message(STATUS "CBF_REGEXLIB_INCLUDE_DIR for pcreposix.h = '${CBF_REGEXLIB_INCLUDE_DIR}'")
-message(STATUS "CBF_REGEXLIB = '${CBF_REGEXLIB}'")
-if (NOT CBF_REGEXLIB_INCLUDE_DIR OR NOT CBF_REGEXLIB)
-    # PCRE not found, try for REGEX
-    message(STATUS "'pcre' library not found")
-    find_library(CBF_REGEXLIB regex)
-    find_path(CBF_REGEXLIB_INCLUDE_DIR NAMES regex.h)
-    message(STATUS "CBF_REGEXLIB_INCLUDE_DIR for regex.h = '${CBF_REGEXLIB_INCLUDE_DIR}'")
-    message(STATUS "CBF_REGEXLIB = '${CBF_REGEXLIB}'")
-    if (NOT CBF_REGEXLIB_INCLUDE_DIR OR NOT CBF_REGEXLIB)
-        # Neither PCRE not REGEX found, load and build PCRE
-        message(STATUS "'regex' library not found")
-        ExternalProject_add(
-            PCRE
-            URL ${CBF_PCREURL}
-            SOURCE_DIR ${CMAKE_BINARY_DIR}/external_packages/${CBF_PCRE}
-            CMAKE_ARGS
-                -DCMAKE_BUILD_TYPE:STRING=RELEASE DEBUG
-                -DCMAKE_INSTALL_PREFIX:PATH=${CBFlib_BINARY_DIR}/${CBF_PCRE}
-            INSTALL_DIR ${CBFlib_BINARY_DIR}/${CBF_PCRE}
-        )
-        set(CBF_RE "PCRE")
-        set(CBF_REGEXLIB_INCLUDE_DIR ${CMAKE_BINARY_DIR}/${CBF_PCRE}/include)
-        set(CBF_REGEXLIB_LIBRARY_PATH ${CBFlib_BINARY_DIR}/${CBF_PCRE}/lib/libpcre.a)
-        add_definitions(-DCBF_REGEXLIB_PCRE)
-    else ()
-        set(CBF_RE "")
-        set(CBF_REGEXLIB_LIBRARY_PATH "${CBF_REGEXLIB}/libregex.so")
-        add_definitions(-DCBF_REGEXLIB_REGEX)
-    endif ()
-else ()
-    set(CBF_RE "")
-        set(CBF_REGEXLIB_LIBRARY_PATH "${CBF_REGEXLIB}/libpcre.so")
-    add_definitions(-DCBF_REGEXLIB_PCRE)
-endif ()
+if (NOT TARGET regex)
+    find_library(CBF_REGEXLIB pcre)
+    find_path(CBF_REGEXLIB_INCLUDE_DIR NAMES pcreposix.h)
+    # message(STATUS "CBF_REGEXLIB_INCLUDE_DIR for pcreposix.h = '${CBF_REGEXLIB_INCLUDE_DIR}'")
+    # message(STATUS "CBF_REGEXLIB = '${CBF_REGEXLIB}'")
 
+    if(CBF_REGEXLIB AND CBF_REGEXLIB_INCLUDE_DIR)
+        message(STATUS "Found PCRE: ${CBF_REGEXLIB} and ${CBF_REGEXLIB_INCLUDE_DIR}")
+        add_library("regex" INTERFACE IMPORTED)
+        set_target_properties("regex" PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES "${CBF_REGEXLIB_INCLUDE_DIR}"
+            INTERFACE_LINK_LIBRARIES "${CBF_REGEXLIB}")
+            # INTERFACE_COMPILE_DEFINITIONS "-DCBF_REGEXLIB_PCRE"
+        target_compile_definitions(regex INTERFACE CBF_REGEXLIB_PCRE)
+    # else ()
+    #     set(CBF_RE "")
+    #         set(CBF_REGEXLIB_LIBRARY_PATH "${CBF_REGEXLIB}/libpcre.so")
+    #     add_definitions(-DCBF_REGEXLIB_PCRE)
+    else()
+        # PCRE not found, try for REGEX
+        message(STATUS "'pcre' library not found")
+        find_library(CBF_REGEXLIB regex)
+        find_path(CBF_REGEXLIB_INCLUDE_DIR NAMES regex.h)
+        message(STATUS "CBF_REGEXLIB_INCLUDE_DIR for regex.h = '${CBF_REGEXLIB_INCLUDE_DIR}'")
+        message(STATUS "CBF_REGEXLIB = '${CBF_REGEXLIB}'")
+        if (NOT CBF_REGEXLIB_INCLUDE_DIR OR NOT CBF_REGEXLIB)
+            # Neither PCRE not REGEX found, load and build PCRE
+            message(STATUS "'regex' library not found")
+            ExternalProject_add(
+                PCRE
+                URL ${CBF_PCREURL}
+                SOURCE_DIR ${CMAKE_BINARY_DIR}/external_packages/${CBF_PCRE}
+                CMAKE_ARGS
+                    -DCMAKE_BUILD_TYPE:STRING=RELEASE DEBUG
+                    -DCMAKE_INSTALL_PREFIX:PATH=${CBFlib_BINARY_DIR}/${CBF_PCRE}
+                INSTALL_DIR ${CBFlib_BINARY_DIR}/${CBF_PCRE}
+            )
+            set(CBF_RE "PCRE")
+            set(CBF_REGEXLIB_INCLUDE_DIR ${CMAKE_BINARY_DIR}/${CBF_PCRE}/include)
+            set(CBF_REGEXLIB_LIBRARY_PATH ${CBFlib_BINARY_DIR}/${CBF_PCRE}/lib/libpcre.a)
+            add_definitions(-DCBF_REGEXLIB_PCRE)
+        else ()
+            set(CBF_RE "")
+            set(CBF_REGEXLIB_LIBRARY_PATH "${CBF_REGEXLIB}/libregex.so")
+            add_definitions(-DCBF_REGEXLIB_REGEX)
+        endif ()
+    endif ()
+endif()
 #
 # Data Directories
 #
@@ -853,7 +866,7 @@ set(
 # Set up the necessary includes
 
 include_directories(${CBFlib_SOURCE_DIR}/include)
-message("CBF_REGEXLIB_INCLUDE_DIR ${CBF_REGEXLIB_INCLUDE_DIR}")
+# message("CBF_REGEXLIB_INCLUDE_DIR ${CBF_REGEXLIB_INCLUDE_DIR}")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/bin")
 
@@ -862,7 +875,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CBFlib_BINARY_DIR}/bin")
 #
 
 add_library(cbf_lib ${CBF_C_SOURCES})
-target_link_libraries(cbf_lib PUBLIC hdf5::hdf5)
+target_link_libraries(cbf_lib PUBLIC hdf5::hdf5 regex)
 set_target_properties(
     cbf_lib
     PROPERTIES
