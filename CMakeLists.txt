@@ -288,8 +288,8 @@ cmake_minimum_required(VERSION 3.12)
 
 # ::
 #   set_from_cached_environment( <var-out> FROM <env-var>
-                                           DEFAULT <default-value>
-                                           [ADVANCED])
+#                                          DEFAULT <default-value>
+#                                          [ADVANCED])
 #
 # Load (and cache) a variable from the environment, if not otherwise set
 # at configuration time by e.g. -D<var-out>=something.  If the
@@ -614,6 +614,20 @@ if(NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
         unset(_hdf5_definitions)
     endif()
 endif()
+
+# Use this to turn on LZ4/Bitshuffle....
+# It looks like this is manually registering the plugins - shouldn't this
+# be picked up by HDF5 automatically?
+#target_compile_definitions(hdf5::hdf5 INTERFACE CBF_H5Z_USE_LZ4 CBF_H5Z_USE_BSHUF)
+
+# Handle cif2cbf HDF5 "register"" logic...
+option(CBF_HDF5REGISTER_MANUAL "Should cif2cbf tests use --register=manual (=plugin if off)" OFF)
+set(CBF_HDF5REGISTER_ARG "--register")
+if (CBF_HDF5REGISTER_MANUAL_ENV)
+  set(CBF_HDF5REGISTER_VAL "manual")
+else ()
+  set(CBF_HDF5REGISTER_VAL "plugin")
+endif ()
 
 #
 # URLs from which to retrieve needed external package snapshots
