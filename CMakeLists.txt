@@ -276,49 +276,159 @@
 #               3.5   cmake_parse_arguments
 #               3.9   Per-language HDF5 include in FindHDF5
 #              ~3.12  add_compile_definitions
-#               3.12  TARGET_NAME_IF_EXISTS
+#              ~3.12  TARGET_NAME_IF_EXISTS
 cmake_minimum_required(VERSION 3.12)
 
-set(USE_TIFF    ON CACHE  BOOL "Build tiff2cbf")
-set(DOWNLOAD_TEST_DATA    ON CACHE  BOOL "Should the test data be downloaded?")
+######################################################################
+#
+#   Convenience macros and functions
+#
+#
+######################################################################
 
-set(USE_FORTRAN OFF CACHE BOOL "Build Fortran Bindings")
-set(BUILD_SHARED_LIBS ON CACHE BOOL "Build Shared libraries (instead of STATIC)")
-set(BUILD_PYCBF OFF CACHE BOOL "Build the PyCBF bindings")
+# ::
+#   set_from_cached_environment( <var-out> FROM <env-var> DEFAULT <default-value> )
+#
+# Load (and cache) a variable from the environment. If the environment
+# variable is empty, then the default value will be used. This will only
+# be read from the environment on first configuration.
+#
+# This behaves in a similar way to other "standard" environment
+# variables, like CFLAGS or FFLAGS (which are handled internally). Once
+# first configured, these can be edited by ccmake/cmake gui/in the cache
+#
+macro(set_from_cached_environment target )
+  cmake_parse_arguments(_SETENV "ADVANCED" "FROM;DEFAULT;DOC" "" ${ARGN})
+  if(NOT DEFINED "${target}")
+    if ("$ENV{${_SETENV_FROM}}")
+      set("${target}" $ENV{${_SETENV_FROM}} CACHE STRING ${_SETENV_DOC})
+    else()
+      set("${target}" ${_SETENV_DEFAULT} CACHE STRING ${_SETENV_DOC})
+    endif()
+    mark_as_advanced("${target}")
+  endif()
+endmacro()
 
-set(USE_ULP OFF CACHE BOOL "Build using cbf_ulp")
+# ::
+#   CBF_LOAD_TARBALL(<url> <destination-dir>)
+#
+# Download a .tar.gz file from <url> and extract it into <destination-dir>.
+# The download will not happen if the <destination-dir> already exists.
+#
+function(CBF_LOAD_TARBALL URL UNPACKED_DIRECTORY)
+    if (NOT EXISTS ${UNPACKED_DIRECTORY})
+        message(STATUS "Downloading ${URL}\n            to ${UNPACKED_DIRECTORY}.tar.gz" )
+        file(DOWNLOAD "${URL}" "${UNPACKED_DIRECTORY}.tar.gz" SHOW_PROGRESS STATUS _status)
+        # Check this succeeded
+        list(GET STATUS 0 _errorcode)
+        list(GET STATUS 1 _errormessage)
+        if (NOT _errorcode)
+            execute_process(
+                COMMAND ${CMAKE_COMMAND} -E tar xzvf ${UNPACKED_DIRECTORY}.tar.gz
+            )
+            execute_process(
+            COMMAND ${CMAKE_COMMAND} -E remove ${UNPACKED_DIRECTORY}.tar.gz
+            # WORKING_DIRECTORY ${WORK_DIR}
+            )
+        else()
+            message(WARNING "Could not download ${URL}: ${_errormessage}.")
+            message(WARNING "Continuing build, but tests may not run. Configure -DDOWNLOAD_TEST_DATA=no to prevent attempt.")
+        endif()
+    endif()
+endfunction()
+
+# ::
+#   read_cbf_version(<version-var> <cbf-version-var> <cbf-api-var>)
+#
+# Read the cbf.h project file to extract:
+#   version-var:        Version string without subrelease, suitable for
+#                       passing to project()
+#   cbf-version-var:    Version string including optional subrelease, if
+#                       it is present.
+#   cbf-api-var:        API version string
+#
+function(read_cbf_version version_var cbf_version_var cbf_api_version_var)
+    # Read the version out of the source files before configuring the project
+    file (READ include/cbf.h CBFlib_cbf_h_contents)
+    string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_MAJOR[ \t]+([0-9]*).*$"
+        "\\1" CBF_VERS_MAJOR ${CBFlib_cbf_h_contents})
+    string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_MINOR[ \t]+([0-9]*).*$"
+        "\\1" CBF_VERS_MINOR ${CBFlib_cbf_h_contents})
+    string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_RELEASE[ \t]+([0-9.]*).*$"
+        "\\1" CBF_VERS_RELEASE ${CBFlib_cbf_h_contents})
+    string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_SUBRELEASE[ \t]+\"([0-9A-Za-z.]*)\".*$"
+        "\\1" CBF_VERS_SUBRELEASE ${CBFlib_cbf_h_contents})
+
+        string (REGEX REPLACE ".*#define[ \t]+CBF_APIVERS_CUR[ \t]+([0-9]*).*$"
+        "\\1" CBF_APIVERS_CUR ${CBFlib_cbf_h_contents})
+    string (REGEX REPLACE ".*#define[ \t]+CBF_APIVERS_REV[ \t]+([0-9]*).*$"
+        "\\1" CBF_APIVERS_REV ${CBFlib_cbf_h_contents})
+    string (REGEX REPLACE ".*#define[ \t]+CBF_APIVERS_AGE[ \t]+([0-9]*).*$"
+        "\\1" CBF_APIVERS_AGE ${CBFlib_cbf_h_contents})
+
+    # Get the "Full Name" version, including subrelease notation. This is
+    # used for e.g. grabbing the test data tarballs.
+    if(CBF_VERS_SUBRELEASE)
+        set ("${cbf_version_var}"
+            "${CBF_VERS_MAJOR}.${CBF_VERS_MINOR}.${CBF_VERS_RELEASE}-${CBF_VERS_SUBRELEASE}"
+            PARENT_SCOPE
+        )
+    else()
+        set("${cbf_version_var}"
+            "${CBF_VERS_MAJOR}.${CBF_VERS_MINOR}.${CBF_VERS_RELEASE}"
+            PARENT_SCOPE
+        )
+    endif()
+    set("${version_var}"
+        "${CBF_VERS_MAJOR}.${CBF_VERS_MINOR}.${CBF_VERS_RELEASE}"
+        PARENT_SCOPE
+    )
+    set("${cbf_api_version_var}"
+        "${CBF_APIVERS_CUR}.${CBF_APIVERS_REV}.${CBF_APIVERS_AGE}"
+        PARENT_SCOPE
+    )
+endfunction()
+
+######################################################################
+#
+# Main configuration vars
+#
+######################################################################
+
+option(DOWNLOAD_TEST_DATA   "Should the test data be downloaded?" ON)
+
+option(USE_FORTRAN          "Build Fortran Bindings"    OFF)
+option(USE_TIFF             "Build tiff2cbf"            ON )
+option(USE_ULP              "Build using cbf_ulp"       OFF)
+
+option(BUILD_SHARED_LIBS    "Build Shared libraries (instead of Static)" ON)
+option(BUILD_PYCBF          "Build the PyCBF bindings" OFF)
 
 # HDF5 Version required. This is interpreted exactly.
 set(HDF5_VERSION_REQUIRED 1.10)
 
-# set(CBF_F90FLAGS_ENV $ENV{F90FLAGS})
-set(CBF_USE_ULP $ENV{CBF_USE_ULP})
+# Values loaded from environment variables
+
+# M4 can be overridden by user flags but has a default definition
+set_from_cached_environment(
+    M4_FLAGS
+    FROM M4FLAGS
+    DEFAULT "-Dfcb_bytes_in_rec=4096"
+    DOC "Flags to pass to M4")
+
 # set(CBF_HDF5REGISTER_MANUAL_ENV $ENV{CBF_HDF5REGISTER_MANUAL})
 
+######################################################################
+#
+# Build logic
+#
+######################################################################
 
-# Read the version out of the source files before configuring the project
-file (READ include/cbf.h CBFlib_cbf_h_contents)
-string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_MAJOR[ \t]+([0-9]*).*$"
-    "\\1" CBF_VERS_MAJOR ${CBFlib_cbf_h_contents})
-string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_MINOR[ \t]+([0-9]*).*$"
-    "\\1" CBF_VERS_MINOR ${CBFlib_cbf_h_contents})
-string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_RELEASE[ \t]+([0-9.]*).*$"
-    "\\1" CBF_VERS_RELEASE ${CBFlib_cbf_h_contents})
-string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_SUBRELEASE[ \t]+\"([0-9A-Za-z.]*)\".*$"
-    "\\1" CBF_VERS_SUBRELEASE ${CBFlib_cbf_h_contents})
 
-# Get the "Full Name" version, including subrelease notation. This is
-# used for e.g. grabbing the test data tarballs.
-if(CBF_VERS_SUBRELEASE)
-  set (CBF_VERSION "${CBF_VERS_MAJOR}.${CBF_VERS_MINOR}.${CBF_VERS_RELEASE}-${CBF_VERS_SUBRELEASE}")
-else()
-  set (CBF_VERSION "${CBF_VERS_MAJOR}.${CBF_VERS_MINOR}.${CBF_VERS_RELEASE}")
-endif()
-set(PROJECT_VERSION "${CBF_VERS_MAJOR}.${CBF_VERS_MINOR}.${CBF_VERS_RELEASE}")
+read_cbf_version(PROJECT_VERSION CBF_VERSION CBF_APIVERSION)
+message(STATUS "CBFLib Version is ${CBF_VERSION} (${CBF_APIVERSION} API)")
 
 project (CBFlib VERSION ${PROJECT_VERSION} LANGUAGES C CXX )
-message(STATUS "Building CBFLib ${PROJECT_VERSION}")
-
 if (USE_FORTRAN)
   enable_language(Fortran)
 endif()
@@ -348,34 +458,6 @@ if (USE_ULP)
   add_definitions(-DCBF_USE_ULP)
 endif ()
 
-#
-#  User setable parameters
-#
-
-
-# ::
-#   set_from_cached_environment( <var-out> FROM <env-var> DEFAULT <default-value> )
-#
-# Load (and cache) a variable from the environment. If the environment
-# variable is empty, then the default value will be used. This will only
-# be read from the environment on first configuration.
-#
-# This behaves in a similar way to other "standard" environment
-# variables, like CFLAGS or FFLAGS (which are handled internally). Once
-# first configured, these can be edited by ccmake/cmake gui/in the cache
-#
-macro(set_from_cached_environment target )
-  cmake_parse_arguments(_SETENV "" "FROM;DEFAULT" "" ${ARGN})
-  if(NOT DEFINED "${target}")
-    if ("$ENV{${_SETENV_FROM}}")
-      set("${target}" $ENV{${_SETENV_FROM}} CACHE STRING "")
-    else()
-      set("${target}" ${_SETENV_DEFAULT} CACHE STRING "")
-    endif()
-    mark_as_advanced("${target}")
-  endif()
-endmacro()
-
 # M4 can be overridden by user flags but has a default definition
 set_from_cached_environment(M4_FLAGS FROM M4FLAGS DEFAULT "-Dfcb_bytes_in_rec=4096")
 
@@ -396,45 +478,17 @@ add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-fno-range-check>)
 # Macros
 #
 
-#
-#  CBF_DEBUG_MESSAGE if CBF_CMAKE_DEBUG issue str
-#
-macro(CBF_DEBUG_MESSAGE str)
-  if(CBF_CMAKE_DEBUG)
-    message(STATUS ${str})
-  endif(CBF_CMAKE_DEBUG)
-endmacro (CBF_DEBUG_MESSAGE)
+# #
+# # CBF_REQUIRE_DIRECTORY -- require directory dir
+# #
+# macro(CBF_REQUIRE_DIRECTORY dir)
+#   if (NOT EXISTS "${dir}")
+#     file(MAKE_DIRECTORY "${dir}")
+#     CBF_DEBUG_MESSAGE("Created directory ${dir}")
+#   endif (NOT EXISTS "${dir}")
+# endmacro(CBF_REQUIRE_DIRECTORY)
 
-#
-# CBF_REQUIRE_DIRECTORY -- require directory dir
-#
-macro(CBF_REQUIRE_DIRECTORY dir)
-  if (NOT EXISTS "${dir}")
-    file(MAKE_DIRECTORY "${dir}")
-    CBF_DEBUG_MESSAGE("Created directory ${dir}")
-  endif (NOT EXISTS "${dir}")
-endmacro(CBF_REQUIRE_DIRECTORY)
 
-#
-# CBF_LOAD_TARBALL -- load TARBALL into WORK_DIR as UNPACKED_DIRECTORY
-#                     Use an absolute path for UNPACKED_DIRECTORY
-#
-macro(CBF_LOAD_TARBALL WORK_DIR UNPACKED_DIRECTORY TARBALL)
-    if (NOT EXISTS ${UNPACKED_DIRECTORY})
-        execute_process(
-        COMMAND ${WGET_EXECUTABLE} ${TARBALL}
-        WORKING_DIRECTORY ${WORK_DIR}
-        )
-        execute_process(
-        COMMAND ${CMAKE_COMMAND} -E tar xzvf ${UNPACKED_DIRECTORY}.tar.gz
-        WORKING_DIRECTORY ${WORK_DIR}
-        )
-        execute_process(
-        COMMAND ${CMAKE_COMMAND} -E remove ${UNPACKED_DIRECTORY}.tar.gz
-        WORKING_DIRECTORY ${WORK_DIR}
-        )
-    endif (NOT EXISTS ${UNPACKED_DIRECTORY})
-endmacro(CBF_LOAD_TARBALL)
 
 
 #
@@ -478,42 +532,6 @@ CBF_REQUIRE_DIRECTORY(${CBF__BIN_INCLUDE})
 CBF_REQUIRE_DIRECTORY(${CBF__SHARE})
 CBF_REQUIRE_DIRECTORY(${CBF__EXT_PKG})
 CBF_REQUIRE_DIRECTORY(${CBF__DATA})
-
-# Version string and API version string -- obtained from cbf.h
-
-# Extract the version components
-# This should be set by the project call, do here manually for now
-# set(PROJECT_VERSION "${CBF_VERS_MAJOR}.${CBF_VERS_MINOR}.${CBF_VERS_RELEASE}")
-# set(PROJECT_VERSION_MAJOR "${CBF_VERS_MAJOR}")
-# set(PROJECT_VERSION_MINOR "${CBF_VERS_MINOR}")
-# set(PROJECT_VERSION_PATCH "${CBF_VERS_RELEASE}")
-
-# Extract the API version components
-
-string (REGEX REPLACE ".*#define[ \t]+CBF_APIVERS_CUR[ \t]+([0-9]*).*$"
-    "\\1" CBF_APIVERS_CUR ${CBFlib_cbf_h_contents})
-CBF_DEBUG_MESSAGE( "API VERSION: ${CBF_APIVERS_CUR}")
-string (REGEX REPLACE ".*#define[ \t]+CBF_APIVERS_REV[ \t]+([0-9]*).*$"
-    "\\1" CBF_APIVERS_REV ${CBFlib_cbf_h_contents})
-CBF_DEBUG_MESSAGE( "API REVISION: ${CBF_APIVERS_REV}")
-string (REGEX REPLACE ".*#define[ \t]+CBF_APIVERS_AGE[ \t]+([0-9]*).*$"
-    "\\1" CBF_APIVERS_AGE ${CBFlib_cbf_h_contents})
-CBF_DEBUG_MESSAGE( "API AGE: ${CBF_APIVERS_AGE}")
-
-
-if(CBF_VERS_SUBRELEASE)
-  set (CBF_VERSION "${CBF_VERS_MAJOR}.${CBF_VERS_MINOR}.${CBF_VERS_RELEASE}-${CBF_VERS_SUBRELEASE}")
-else(CBF_VERS_SUBRELEASE)
-  set (CBF_VERSION "${CBF_VERS_MAJOR}.${CBF_VERS_MINOR}.${CBF_VERS_RELEASE}")
-endif(CBF_VERS_SUBRELEASE)
-if(CBF_CMAKE_DEBUG)
-  message (STATUS "VERSION:  ${CBF_VERSION}")
-endif(CBF_CMAKE_DEBUG)
-
-set (CBF_APIVERSION "${CBF_APIVERS_CUR}.${CBF_APIVERS_REV}.${CBF_APIVERS_AGE}")
-CBF_DEBUG_MESSAGE( "APIVERSION:  ${CBF_APIVERSION}")
-
-
 
 
 set(JCBF      "${CBFlib_SOURCE_DIR}/jcbf" CACHE STRING "")
@@ -591,13 +609,6 @@ endif(CBF_DONT_USE_LONG_LONG)
 
 
 #
-# Get wget
-#
-find_program(WGET_EXECUTABLE wget)
-CBF_DEBUG_MESSAGE( "WGET found at ${WGET_EXECUTABLE}")
-
-
-#
 # CBF_REGEX or CBF_PCRE
 #
 # Need to get:
@@ -654,6 +665,7 @@ if (NOT TARGET regex)
         endif ()
     endif ()
 endif()
+
 #
 # Data Directories
 #
@@ -663,7 +675,7 @@ set(CBF_DATADIRS  "${CBF__DATA}/CBFlib_${CBF_VERSION}_Data_Files_Output_Sigs_Onl
 #
 # URLs from which to retrieve the data directories
 #
-set(CBF_DATAURLBASE "http://downloads.sf.net/cbflib")
+set(CBF_DATAURLBASE "https://downloads.sf.net/cbflib")
 set(CBF_DATAURLI  "${CBF_DATAURLBASE}/CBFlib_${CBF_VERSION}_Data_Files_Input.tar.gz")
 set(CBF_DATAURLO  "${CBF_DATAURLBASE}/CBFlib_${CBF_VERSION}_Data_Files_Output.tar.gz")
 set(CBF_DATAURLS  "${CBF_DATAURLBASE}/CBFlib_${CBF_VERSION}_Data_Files_Output_Sigs_Only.tar.gz")
@@ -671,10 +683,11 @@ set(CBF_DATAURLS  "${CBF_DATAURLBASE}/CBFlib_${CBF_VERSION}_Data_Files_Output_Si
 # Load and unpack the Data Files
 #
 if (DOWNLOAD_TEST_DATA)
-  CBF_LOAD_TARBALL(${CBF__DATA} ${CBF_DATADIRI} ${CBF_DATAURLI})
-  CBF_LOAD_TARBALL(${CBF__DATA} ${CBF_DATADIRO} ${CBF_DATAURLO})
-  CBF_LOAD_TARBALL(${CBF__DATA} ${CBF_DATADIRS} ${CBF_DATAURLS})
+  CBF_LOAD_TARBALL(${CBF_DATAURLI} ${CBF_DATADIRI})
+  CBF_LOAD_TARBALL(${CBF_DATAURLO} ${CBF_DATADIRO})
+  CBF_LOAD_TARBALL(${CBF_DATAURLS} ${CBF_DATADIRS})
 endif()
+
 #
 # Verify the checksums
 #
@@ -1086,15 +1099,13 @@ if(USE_FORTRAN)
     install(TARGETS fcb_lib)
 endif()
 
-# path to the valgrind executable, for memory tests
-set(VALGRIND_COMMAND "")
+# Path to the valgrind executable, for memory tests
 find_program(VALGRIND valgrind)
 if (VALGRIND)
-  CBF_DEBUG_MESSAGE("valgrind found at ${VALGRIND}")
-  message(STATUS "valgrid found at ${VALGRIND}")
+    message(STATUS "valgrid found at ${VALGRIND}")
     set(VALGRIND_COMMAND ${VALGRIND} --error-exitcode=3 --leak-check=full)
 else ()
-  message(STATUS "valgrid NOT found. Testing will be incomplete.")
+    message(STATUS "valgrid NOT found. Testing will be incomplete.")
 endif ()
 
 ###############################################################################
