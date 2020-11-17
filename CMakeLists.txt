@@ -298,10 +298,10 @@ cmake_minimum_required(VERSION 3.12)
 # variables, like CFLAGS or FFLAGS (which are handled internally). Once
 # first configured, these can be edited by reconfiguration/ccmake/gui.
 #
-macro(set_from_cached_environment target )
+macro(set_from_cached_environment target)
     cmake_parse_arguments(_SETENV "ADVANCED" "FROM;DEFAULT;DOC" "" ${ARGN})
     if(NOT DEFINED "${target}")
-        if (NOT "$ENV{${_SETENV_FROM}}" STREQUAL "")
+        if(NOT "$ENV{${_SETENV_FROM}}" STREQUAL "")
             set("${target}" $ENV{${_SETENV_FROM}} CACHE STRING "${_SETENV_DOC}")
         else()
             set("${target}" ${_SETENV_DEFAULT} CACHE STRING "${_SETENV_DOC}")
@@ -317,15 +317,15 @@ endmacro()
 # The download will not happen if the <destination-dir> already exists.
 #
 function(CBF_LOAD_TARBALL URL TARGET_DIRECTORY)
-    if (NOT EXISTS ${TARGET_DIRECTORY})
-        message(STATUS "Downloading ${URL}\n            to ${TARGET_DIRECTORY}.tar.gz" )
+    if(NOT EXISTS ${TARGET_DIRECTORY})
+        message(STATUS "Downloading ${URL}\n            to ${TARGET_DIRECTORY}.tar.gz")
         file(DOWNLOAD "${URL}" "${TARGET_DIRECTORY}.tar.gz" SHOW_PROGRESS STATUS _status)
         # Check this succeeded
         list(GET STATUS 0 _errorcode)
         list(GET STATUS 1 _errormessage)
         # Get the destination directory to extract from
         get_filename_component(WORK_DIR ${TARGET_DIRECTORY} DIRECTORY)
-        if (NOT _errorcode)
+        if(NOT _errorcode)
             execute_process(
                 COMMAND ${CMAKE_COMMAND} -E tar xzvf ${TARGET_DIRECTORY}.tar.gz
                 WORKING_DIRECTORY ${WORK_DIR}
@@ -352,27 +352,27 @@ endfunction()
 #
 function(read_cbf_version version_var cbf_version_var cbf_api_version_var)
     # Read the version out of the source files before configuring the project
-    file (READ include/cbf.h CBFlib_cbf_h_contents)
-    string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_MAJOR[ \t]+([0-9]*).*$"
+    file(READ include/cbf.h CBFlib_cbf_h_contents)
+    string(REGEX REPLACE ".*#define[ \t]+CBF_VERS_MAJOR[ \t]+([0-9]*).*$"
         "\\1" CBF_VERS_MAJOR ${CBFlib_cbf_h_contents})
-    string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_MINOR[ \t]+([0-9]*).*$"
+    string(REGEX REPLACE ".*#define[ \t]+CBF_VERS_MINOR[ \t]+([0-9]*).*$"
         "\\1" CBF_VERS_MINOR ${CBFlib_cbf_h_contents})
-    string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_RELEASE[ \t]+([0-9.]*).*$"
+    string(REGEX REPLACE ".*#define[ \t]+CBF_VERS_RELEASE[ \t]+([0-9.]*).*$"
         "\\1" CBF_VERS_RELEASE ${CBFlib_cbf_h_contents})
-    string (REGEX REPLACE ".*#define[ \t]+CBF_VERS_SUBRELEASE[ \t]+\"([0-9A-Za-z.]*)\".*$"
+    string(REGEX REPLACE ".*#define[ \t]+CBF_VERS_SUBRELEASE[ \t]+\"([0-9A-Za-z.]*)\".*$"
         "\\1" CBF_VERS_SUBRELEASE ${CBFlib_cbf_h_contents})
 
-        string (REGEX REPLACE ".*#define[ \t]+CBF_APIVERS_CUR[ \t]+([0-9]*).*$"
+    string(REGEX REPLACE ".*#define[ \t]+CBF_APIVERS_CUR[ \t]+([0-9]*).*$"
         "\\1" CBF_APIVERS_CUR ${CBFlib_cbf_h_contents})
-    string (REGEX REPLACE ".*#define[ \t]+CBF_APIVERS_REV[ \t]+([0-9]*).*$"
+    string(REGEX REPLACE ".*#define[ \t]+CBF_APIVERS_REV[ \t]+([0-9]*).*$"
         "\\1" CBF_APIVERS_REV ${CBFlib_cbf_h_contents})
-    string (REGEX REPLACE ".*#define[ \t]+CBF_APIVERS_AGE[ \t]+([0-9]*).*$"
+    string(REGEX REPLACE ".*#define[ \t]+CBF_APIVERS_AGE[ \t]+([0-9]*).*$"
         "\\1" CBF_APIVERS_AGE ${CBFlib_cbf_h_contents})
 
     # Get the "Full Name" version, including subrelease notation. This is
     # used for e.g. grabbing the test data tarballs.
     if(CBF_VERS_SUBRELEASE)
-        set ("${cbf_version_var}"
+        set("${cbf_version_var}"
             "${CBF_VERS_MAJOR}.${CBF_VERS_MINOR}.${CBF_VERS_RELEASE}-${CBF_VERS_SUBRELEASE}"
             PARENT_SCOPE
         )
@@ -405,7 +405,7 @@ endfunction()
 function(add_target target)
     cmake_parse_arguments(AT "" "" "LINKS" ${ARGN})
     add_executable(${target} ${AT_UNPARSED_ARGUMENTS})
-    if (AT_LINKS)
+    if(AT_LINKS)
         target_link_libraries(${target} ${AT_LINKS})
     endif()
 endfunction()
@@ -422,7 +422,7 @@ endfunction()
 option(DOWNLOAD_TEST_DATA   "Should the test data be downloaded?" ON)
 
 option(USE_FORTRAN          "Build Fortran Bindings"    OFF)
-option(USE_TIFF             "Build tiff2cbf"            ON )
+option(USE_TIFF             "Build tiff2cbf"            ON)
 option(USE_ULP              "Build using cbf_ulp"       OFF)
 
 option(BUILD_SHARED_LIBS    "Build Shared libraries (instead of Static)" ON)
@@ -452,20 +452,20 @@ set_from_cached_environment(
 read_cbf_version(PROJECT_VERSION CBF_VERSION CBF_APIVERSION)
 message(STATUS "CBFLib Version is ${CBF_VERSION} (${CBF_APIVERSION} API)")
 
-project (CBFlib VERSION ${PROJECT_VERSION} LANGUAGES C CXX )
-if (USE_FORTRAN)
+project(CBFlib VERSION ${PROJECT_VERSION} LANGUAGES C CXX)
+if(USE_FORTRAN)
     enable_language(Fortran)
 endif()
 
 # Build-niceties diagnostics: Force colour on when using Ninja
-option (FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." TRUE)
-if (${FORCE_COLORED_OUTPUT})
-    if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
-       add_compile_options ($<$<COMPILE_LANGUAGE:C>:-fdiagnostics-color=always>)
-    elseif ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
-       add_compile_options ($<$<COMPILE_LANGUAGE:C>:-fcolor-diagnostics>)
-    endif ()
-endif ()
+option(FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." TRUE)
+if(${FORCE_COLORED_OUTPUT})
+    if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
+        add_compile_options($<$<COMPILE_LANGUAGE:C>:-fdiagnostics-color=always>)
+    elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+        add_compile_options($<$<COMPILE_LANGUAGE:C>:-fcolor-diagnostics>)
+    endif()
+endif()
 
 # make sure that the default configuration is Release
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -479,9 +479,9 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 
-if (USE_ULP)
+if(USE_ULP)
     add_definitions(-DCBF_USE_ULP)
-endif ()
+endif()
 
 # Fortran compilation needs -fno-range-checks
 add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-fno-range-check>)
@@ -489,11 +489,11 @@ add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-fno-range-check>)
 #
 #  Favor static libraries
 #
-# IF(WIN32)
-#     SET(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
-# ELSE(WIN32)
-#     SET(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
-# ENDIF(WIN32)
+# if(WIN32)
+#     set(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+# else(WIN32)
+#     set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+# endif(WIN32)
 
 #
 # Directories
@@ -502,24 +502,24 @@ add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-fno-range-check>)
 #
 # Directories on the kit side
 #
-set(CBF__SRC       "${CBFlib_SOURCE_DIR}/src" )
-set(CBF__INCLUDE   "${CBFlib_SOURCE_DIR}/include" )
-set(CBF__M4        "${CBFlib_SOURCE_DIR}/m4" )
-# set(CBF__DOC       "${CBFlib_SOURCE_DIR}/doc" )
-set(CBF__EXAMPLES  "${CBFlib_SOURCE_DIR}/examples" )
-# set(CBF__EXTERNAL_PACKAGES "${CBFlib_SOURCE_DIR}/external_packages" )
-set(CBF__DECTRIS_EXAMPLES  "${CBF__EXAMPLES}/dectris_cbf_template_test" )
+set(CBF__SRC       "${CBFlib_SOURCE_DIR}/src")
+set(CBF__INCLUDE   "${CBFlib_SOURCE_DIR}/include")
+set(CBF__M4        "${CBFlib_SOURCE_DIR}/m4")
+# set(CBF__DOC       "${CBFlib_SOURCE_DIR}/doc")
+set(CBF__EXAMPLES  "${CBFlib_SOURCE_DIR}/examples")
+# set(CBF__EXTERNAL_PACKAGES "${CBFlib_SOURCE_DIR}/external_packages")
+set(CBF__DECTRIS_EXAMPLES  "${CBF__EXAMPLES}/dectris_cbf_template_test")
 
 #
 # Directories on the build side
 #
-set(CBF__BLDSRC    "${CBFlib_BINARY_DIR}/src" )
-set(CBF__BLDEXMP   "${CBFlib_BINARY_DIR}/src" )
-set(CBF__BIN       "${CBFlib_BINARY_DIR}/bin" )
-set(CBF__LIB       "${CBFlib_BINARY_DIR}/lib" )
-set(CBF__BIN_INCLUDE "${CBFlib_BINARY_DIR}/include" )
-set(CBF__SHARE     "${CBFlib_BINARY_DIR}/share" )
-set(CBF__EXT_PKG   "${CBFlib_BINARY_DIR}/external_packages" )
+set(CBF__BLDSRC    "${CBFlib_BINARY_DIR}/src")
+set(CBF__BLDEXMP   "${CBFlib_BINARY_DIR}/src")
+set(CBF__BIN       "${CBFlib_BINARY_DIR}/bin")
+set(CBF__LIB       "${CBFlib_BINARY_DIR}/lib")
+set(CBF__BIN_INCLUDE "${CBFlib_BINARY_DIR}/include")
+set(CBF__SHARE     "${CBFlib_BINARY_DIR}/share")
+set(CBF__EXT_PKG   "${CBFlib_BINARY_DIR}/external_packages")
 set_from_cached_environment(CBF__DATA FROM CBF_DATA_FILES DEFAULT "${CBFlib_BINARY_DIR}/data_files")
 
 message(STATUS "Using ${CBF__DATA} for test data files")
@@ -529,11 +529,10 @@ set(HDF5_PLUGIN_PATH ${CBF__LIB})
 # CBF_REQUIRE_DIRECTORY -- require directory dir
 #
 macro(CBF_REQUIRE_DIRECTORY dir)
-  if (NOT EXISTS "${dir}")
+  if(NOT EXISTS "${dir}")
     file(MAKE_DIRECTORY "${dir}")
-    CBF_DEBUG_MESSAGE("Created directory ${dir}")
-  endif (NOT EXISTS "${dir}")
-endmacro(CBF_REQUIRE_DIRECTORY)
+  endif()
+endmacro()
 
 CBF_REQUIRE_DIRECTORY(${CBF__BLDSRC})
 CBF_REQUIRE_DIRECTORY(${CBF__BLDEXMP})
@@ -549,7 +548,7 @@ set(JCBF      "${CBFlib_SOURCE_DIR}/jcbf" CACHE STRING "")
 set(JAVADIR   "${CBFlib_SOURCE_DIR}/java" CACHE STRING "")
 set(BIN       "${CBFlib_BINARY_DIR}/bin" CACHE STRING "")
 set(PYCBF     "${CBFlib_SOURCE_DIR}/pycbf" CACHE STRING "")
-set(EXAMPLES  "${CBFlib_SOURCE_DIR}/examples" CACHE STRING "" )
+set(EXAMPLES  "${CBFlib_SOURCE_DIR}/examples" CACHE STRING "")
 set(DECTRIS_EXAMPLES "${EXAMPLES}/dectris_cbf_template_test" CACHE STRING "")
 set(MINICBF_TEST "${CBFlib_SOURCE_DIR}/minicbf_test" CACHE STRING "")
 set(GRAPHICS  "${CBFlib_SOURCE_DIR}/html_graphics" CACHE STRING "")
@@ -561,15 +560,15 @@ endif()
 
 
 
-if (USE_FORTRAN)
+if(USE_FORTRAN)
     find_package(HDF5 ${HDF5_VERSION_REQUIRED} EXACT REQUIRED COMPONENTS C Fortran)
 else()
     find_package(HDF5 ${HDF5_VERSION_REQUIRED} EXACT REQUIRED COMPONENTS C)
 endif()
 
 # Backport the CMake 3.19 HDF5 target definitions
-if (NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
-    if (NOT TARGET HDF5::HDF5)
+if(NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
+    if(NOT TARGET HDF5::HDF5)
         add_library(HDF5::HDF5 INTERFACE IMPORTED)
         string(REPLACE "-D" "" _hdf5_definitions "${HDF5_DEFINITIONS}")
         set_target_properties(HDF5::HDF5 PROPERTIES
@@ -577,9 +576,9 @@ if (NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
             INTERFACE_INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIRS}"
             INTERFACE_COMPILE_DEFINITIONS "${_hdf5_definitions}")
         unset(_hdf5_definitions)
-    endif ()
+    endif()
 
-    if (HDF5_C_LIBRARIES AND NOT TARGET "hdf5::hdf5")
+    if(HDF5_C_LIBRARIES AND NOT TARGET "hdf5::hdf5")
         add_library("hdf5::hdf5" INTERFACE IMPORTED)
         string(REPLACE "-D" "" _hdf5_definitions "${HDF5_C_DEFINITIONS}")
         set_target_properties("hdf5::hdf5" PROPERTIES
@@ -589,7 +588,7 @@ if (NOT TARGET HDF5::HDF5 AND HDF5_FOUND)
         unset(_hdf5_definitions)
     endif()
 
-    if (HDF5_Fortran_LIBRARIES AND NOT TARGET "hdf5::hdf5_fortran")
+    if(HDF5_Fortran_LIBRARIES AND NOT TARGET "hdf5::hdf5_fortran")
         add_library("hdf5::hdf5_fortran" INTERFACE IMPORTED)
         string(REPLACE "-D" "" _hdf5_definitions "${HDF5_Fortran_DEFINITIONS}")
         set_target_properties("hdf5::hdf5_fortran" PROPERTIES
@@ -601,9 +600,9 @@ endif()
 
 if(CBF_DONT_USE_LONG_LONG)
     set(CBF_NOLLFLAG "-DCBF_DONT_USE_LONG_LONG")
-else(CBF_DONT_USE_LONG_LONG)
+else()
     set(CBF_NOLLFLAG "")
-endif(CBF_DONT_USE_LONG_LONG)
+endif()
 
 #
 # URLs from which to retrieve needed external package snapshots
@@ -628,7 +627,7 @@ endif(CBF_DONT_USE_LONG_LONG)
 # - an (optional) dependency to build
 #
 # Try for PCRE first
-if (NOT TARGET regex)
+if(NOT TARGET regex)
     find_library(CBF_REGEXLIB pcre)
     find_path(CBF_REGEXLIB_INCLUDE_DIR NAMES pcreposix.h)
     # message(STATUS "CBF_REGEXLIB_INCLUDE_DIR for pcreposix.h = '${CBF_REGEXLIB_INCLUDE_DIR}'")
@@ -653,7 +652,7 @@ if (NOT TARGET regex)
         find_path(CBF_REGEXLIB_INCLUDE_DIR NAMES regex.h)
         message(STATUS "CBF_REGEXLIB_INCLUDE_DIR for regex.h = '${CBF_REGEXLIB_INCLUDE_DIR}'")
         message(STATUS "CBF_REGEXLIB = '${CBF_REGEXLIB}'")
-        if (NOT CBF_REGEXLIB_INCLUDE_DIR OR NOT CBF_REGEXLIB)
+        if(NOT CBF_REGEXLIB_INCLUDE_DIR OR NOT CBF_REGEXLIB)
             # Neither PCRE not REGEX found, load and build PCRE
             message(STATUS "'regex' library not found")
             ExternalProject_add(
@@ -669,19 +668,19 @@ if (NOT TARGET regex)
             set(CBF_REGEXLIB_INCLUDE_DIR ${CMAKE_BINARY_DIR}/${CBF_PCRE}/include)
             set(CBF_REGEXLIB_LIBRARY_PATH ${CBFlib_BINARY_DIR}/${CBF_PCRE}/lib/libpcre.a)
             add_definitions(-DCBF_REGEXLIB_PCRE)
-        else ()
+        else()
             set(CBF_RE "")
             set(CBF_REGEXLIB_LIBRARY_PATH "${CBF_REGEXLIB}/libregex.so")
             add_definitions(-DCBF_REGEXLIB_REGEX)
-        endif ()
-    endif ()
+        endif()
+    endif()
 endif()
 
 #
 # Data Directories
 #
-set(CBF_DATADIRI  "${CBF__DATA}/CBFlib_${CBF_VERSION}_Data_Files_Input" )
-set(CBF_DATADIRO  "${CBF__DATA}/CBFlib_${CBF_VERSION}_Data_Files_Output" )
+set(CBF_DATADIRI  "${CBF__DATA}/CBFlib_${CBF_VERSION}_Data_Files_Input")
+set(CBF_DATADIRO  "${CBF__DATA}/CBFlib_${CBF_VERSION}_Data_Files_Output")
 set(CBF_DATADIRS  "${CBF__DATA}/CBFlib_${CBF_VERSION}_Data_Files_Output_Sigs_Only")
 #
 # URLs from which to retrieve the data directories
@@ -693,7 +692,7 @@ set(CBF_DATAURLS  "${CBF_DATAURLBASE}/CBFlib_${CBF_VERSION}_Data_Files_Output_Si
 #
 # Load and unpack the Data Files
 #
-if (DOWNLOAD_TEST_DATA)
+if(DOWNLOAD_TEST_DATA)
     CBF_LOAD_TARBALL(${CBF_DATAURLI} ${CBF_DATADIRI})
     CBF_LOAD_TARBALL(${CBF_DATAURLO} ${CBF_DATADIRO})
     CBF_LOAD_TARBALL(${CBF_DATAURLS} ${CBF_DATADIRS})
@@ -704,24 +703,24 @@ endif()
 #
 file(GLOB CBF_DATADIRI_FILES "${CBF_DATADIRI}/*")
 file(GLOB CBF_DATADIRO_FILES "${CBF_DATADIRO}/*")
-foreach(loop_file ${CBF_DATADIRI_FILES} )
-    if (NOT "${loop_file}" MATCHES "[*.]md5")
+foreach(loop_file ${CBF_DATADIRI_FILES})
+    if(NOT "${loop_file}" MATCHES "[*.]md5")
         file(MD5 "${loop_file}" loop_file_md5)
         file(STRINGS "${loop_file}.md5" loop_file_md5_orig LIMIT_COUNT 1)
-        if (NOT ("${loop_file_md5}" STREQUAL "${loop_file_md5_orig}"))
+        if(NOT ("${loop_file_md5}" STREQUAL "${loop_file_md5_orig}"))
             message(WARNINH "loop_file: ${loop_file}:|${loop_file_md5}|${loop_file_md5_orig}|")
-        endif (NOT ("${loop_file_md5}" STREQUAL "${loop_file_md5_orig}"))
-    endif (NOT "${loop_file}" MATCHES "[*.]md5")
-endforeach(loop_file)
-foreach(loop_file ${CBF_DATADIRO_FILES} )
-    if (NOT "${loop_file}" MATCHES "[*.]md5")
+        endif()
+    endif()
+endforeach()
+foreach(loop_file ${CBF_DATADIRO_FILES})
+    if(NOT "${loop_file}" MATCHES "[*.]md5")
         file(MD5 "${loop_file}" loop_file_md5)
         file(STRINGS "${loop_file}.md5" loop_file_md5_orig LIMIT_COUNT 1)
-        if (NOT ("${loop_file_md5}" STREQUAL "${loop_file_md5_orig}"))
+        if(NOT ("${loop_file_md5}" STREQUAL "${loop_file_md5_orig}"))
             message(WARNING "loop_file: ${loop_file}:|${loop_file_md5}|${loop_file_md5_orig}|")
-        endif (NOT ("${loop_file_md5}" STREQUAL "${loop_file_md5_orig}"))
-    endif (NOT "${loop_file}" MATCHES "[*.]md5")
-endforeach(loop_file)
+        endif()
+    endif()
+endforeach()
 
 
 #
@@ -764,7 +763,7 @@ set(CBF_C_SOURCES
     src/cbf_hdf5_filter.c
 )
 
-if (USE_FORTRAN)
+if(USE_FORTRAN)
     set(
         CBF_F90_BUILT_SOURCES
         ${CBF__BLDSRC}/fcb_exit_binary.f90
@@ -790,30 +789,30 @@ endif()
 
 # RPATH Handling - from https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling
 # # use, i.e. don't skip the full RPATH for the build tree
-# SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
+# set(CMAKE_SKIP_BUILD_RPATH  FALSE)
 
 # # when building, don't use the install RPATH already
 # # (but later on when installing)
-# SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+# set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
 # Make sure we write out the target location to the installed RPATH
-# SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+# set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
 # add the automatically determined parts of the RPATH
 # which point to directories outside the build tree to the install RPATH
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # the RPATH to be used when installing, but only if it's not a system directory
-LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
-IF("${isSystemDir}" STREQUAL "-1")
-   SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib" )
-ENDIF("${isSystemDir}" STREQUAL "-1")
+list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+if("${isSystemDir}" STREQUAL "-1")
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+endif()
 
 
 #
 # Header files
 #
-set( CBF_HEADERS
+set(CBF_HEADERS
     include/cbf.h
     include/cbf_alloc.h
     include/cbf_ascii.h
@@ -946,20 +945,20 @@ set_target_properties(
 )
 
 if(BUILD_PYCBF)
-    find_package(Python COMPONENTS Interpreter Development REQUIRED )
-    Python_add_library (_pycbf MODULE ${PYCBF}/pycbf_wrap.c)
+    find_package(Python COMPONENTS Interpreter Development REQUIRED)
+    Python_add_library(_pycbf MODULE ${PYCBF}/pycbf_wrap.c)
     target_link_libraries(_pycbf PUBLIC cbf_lib)
     # We want to let setup.py install this, so build with install-time RPATH
     set_target_properties(_pycbf PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE
                                             LIBRARY_OUTPUT_DIRECTORY pycbf_setup/pycbf)
-    configure_file(${PYCBF}/setup.py.in pycbf_setup/setup.py )
+    configure_file(${PYCBF}/setup.py.in pycbf_setup/setup.py)
     # Don't want to explicitly rearrange the package layout, so copy the required
     # python files into a new folder substructure under the build directory
     add_custom_command( OUTPUT pycbf_setup/pycbf/__init__.py
                         DEPENDS ${PYCBF}/pycbf.py
                         COMMAND ${CMAKE_COMMAND} -E copy
                                 ${PYCBF}/pycbf.py
-                                ${CMAKE_BINARY_DIR}/pycbf_setup/pycbf/__init__.py)
+                                ${CMAKE_BINARY_DIR}/pycbf_setup/pycbf/__init__.py )
 
     add_custom_target(pycbf ALL DEPENDS
         # ${CMAKE_BINARY_DIR}/pycbf_setup/pycbf/pycbf.py
@@ -967,7 +966,7 @@ if(BUILD_PYCBF)
     )
     install(CODE "
     execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${CMAKE_BINARY_DIR}/pycbf_setup
-                    RESULT_VARIABLE _error )
+                    RESULT_VARIABLE _error)
     if(_error)
         message(FATAL_ERROR \"Failed to install python package\")
     endif()")
@@ -979,7 +978,7 @@ if(USE_FORTRAN)
     #
     find_program(M4 m4 REQUIRED)
     foreach(f90src IN LISTS CBF_F90_BUILT_SOURCES)
-        get_filename_component(filename "${f90src}" NAME_WE )
+        get_filename_component(filename "${f90src}" NAME_WE)
         set(f90bldsrc "${CBF__BLDSRC}/${filename}.f90")
         set(f90srcm4 "${CBF__M4}/${filename}.m4")
         add_custom_command(
@@ -989,7 +988,7 @@ if(USE_FORTRAN)
             DEPENDS ${CBF_M4_FCB_DEFINES} ${f90srcm4}
             COMMENT "Generating ${f90bldsrc}"
         )
-    endforeach(f90src)
+    endforeach()
 
 
     #
@@ -1081,8 +1080,8 @@ install(TARGETS
 install(TARGETS cbf_lib img_lib EXPORT cbflib-exports
         INCLUDES DESTINATION include/cbflib)
 
-install (DIRECTORY ${CBF__INCLUDE}/ DESTINATION include/cbflib FILES_MATCHING PATTERN "*.h")
-install (DIRECTORY ${CBF__BIN_INCLUDE}/* DESTINATION include/cbflib FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY ${CBF__INCLUDE}/ DESTINATION include/cbflib FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY ${CBF__BIN_INCLUDE}/* DESTINATION include/cbflib FILES_MATCHING PATTERN "*.h")
 
 
 if(USE_TIFF)
@@ -1094,12 +1093,12 @@ endif()
 
 # Path to the valgrind executable, for memory tests
 find_program(VALGRIND valgrind)
-if (VALGRIND)
+if(VALGRIND)
     message(STATUS "valgrid found at ${VALGRIND}")
     set(VALGRIND_COMMAND ${VALGRIND} --error-exitcode=3 --leak-check=full)
-else ()
+else()
     message(STATUS "valgrid NOT found. Testing will be incomplete.")
-endif ()
+endif()
 
 ###############################################################################
 #
