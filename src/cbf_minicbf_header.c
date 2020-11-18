@@ -258,6 +258,17 @@ extern "C" {
     
 #include "cbf_minicbf_header.h"
 #include <time.h>
+
+// Some compilers (e.g. cl.exe) don't support variable length arrays.
+// This is detected at configure-time and passed through to the build here.
+// If nothing is defined, then it will fall through to using VLA's directly
+#if _MSC_VER
+    #include <malloc.h>
+    #define ALLOC_VLA(atype, name, size)    atype *name = (atype*)_alloca(sizeof(atype)*(size))
+#else
+    // Compiler supports VLAs
+    #define ALLOC_VLA(atype, name, size)    atype name[size];
+#endif
     
 /* cbf_set_minicbf_header -- format a minicbf header conforming both
  to DECTRIS "PILATUS CBF Header Specification" version 1.4 and to the
@@ -476,7 +487,8 @@ extern "C" {
         while (cbf_find_nextrow (cbf, array_id) == 0) {
             
             int i, index;
-            const char * direction[rank];
+            //const char * direction[rank];
+            ALLOC_VLA(const char*, direction, rank);
             
             cbf_failnez (cbf_find_column      (cbf, "index"))
             cbf_failnez (cbf_get_integervalue (cbf, &index))
@@ -891,7 +903,7 @@ extern "C" {
         
         {
             
-            double psizes[rank];
+            ALLOC_VLA(double, psizes, rank);
             
             if (!cbf_get_array_section_pixel_sizes(cbf,array_id,rank,psizes)) {
                 

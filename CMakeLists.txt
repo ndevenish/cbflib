@@ -587,6 +587,7 @@ if(USE_TIFF)
         "#include \"stdio.h\"\nint TIFFSNPrintDirectory(); int main(void) { printf(\"%p\", &TIFFSNPrintDirectory); }"
         TIFF_HAS_SNPRINT
     )
+    set(CMAKE_REQUIRED_LIBRARIES "")
 
     if(NOT TIFF_HAS_SNPRINT)
         message(SEND_ERROR "Found libtiff, but tiff2cbf depends on a custom fork with symbol TIFFSNPrintDirectory, which is missing.")
@@ -950,6 +951,20 @@ endif()
 #     ${GRAPHICS}/noticeButton.jpg
 #     CACHE STRING ""
 # )
+
+# If windows, work around lack of unistd.h
+include(CheckIncludeFile)
+CHECK_INCLUDE_FILE(unistd.h HAS_UNISTD_H)
+if (WIN32 AND NOT HAS_UNISTD_H)
+    message(STATUS "Generating replacement unistd.h")
+    file(WRITE ${CBF__BIN_INCLUDE}/unistd.h "
+#ifndef UNISTD_REPLACE_H
+#define UNISTD_REPLACE_H
+#include <sys/stat.h>
+#endif
+")
+    include_directories(${CBF__BIN_INCLUDE})
+endif()
 
 # Set up the necessary includes
 
