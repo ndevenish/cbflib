@@ -459,9 +459,16 @@ set_from_cached_environment(
 read_cbf_version(PROJECT_VERSION CBF_VERSION CBF_APIVERSION)
 message(STATUS "CBFLib Version is ${CBF_VERSION} (${CBF_APIVERSION} API)")
 
-project(CBFlib VERSION ${PROJECT_VERSION} LANGUAGES C CXX)
+project(CBFlib VERSION ${PROJECT_VERSION} LANGUAGES C)
+
+# Check for other languages
 if(USE_FORTRAN)
     enable_language(Fortran)
+endif()
+
+if(BUILD_TESTING)
+    # A couple of the tests are written in C++
+    enable_language(CXX)
 endif()
 
 include(CTest)
