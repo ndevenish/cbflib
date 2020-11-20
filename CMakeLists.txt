@@ -1017,7 +1017,10 @@ if(USE_FORTRAN)
     #
     # Build the f90 library sources
     #
-    find_program(M4 m4 REQUIRED)
+    if(NOT M4)
+        find_program(M4 m4 REQUIRED)
+        message(STATUS "Found m4: ${M4}")
+    endif()
     foreach(f90src IN LISTS CBF_F90_BUILT_SOURCES)
         get_filename_component(filename "${f90src}" NAME_WE)
         set(f90bldsrc "${CBF__BLDSRC}/${filename}.f90")
