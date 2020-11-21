@@ -480,7 +480,7 @@ cbfhandle_specials = {
 "cbf_get_integerarray":["""
 // Ensure we free the local temporary
 
-%cstring_output_allocate_size(char ** s, int *slen, free(*$1))
+%bytestring_output_allocate_size(char ** s, int *slen, free(*$1))
        get_integerarray_as_string;
 
 // Get the length correct
@@ -514,7 +514,7 @@ cbfhandle_specials = {
 "cbf_get_image":["""
 // Ensure we free the local temporary
 
-%cstring_output_allocate_size(char ** s, int *slen, free(*$1))
+%bytestring_output_allocate_size(char ** s, int *slen, free(*$1))
        get_image_as_string;
 
 // Get the length correct
@@ -542,7 +542,7 @@ cbfhandle_specials = {
 "cbf_get_image_fs":["""
 // Ensure we free the local temporary
 
-%cstring_output_allocate_size(char ** s, int *slen, free(*$1))
+%bytestring_output_allocate_size(char ** s, int *slen, free(*$1))
        get_image_fs_as_string;
 
 // Get the length correct
@@ -570,7 +570,7 @@ cbfhandle_specials = {
 "cbf_get_image_sf":["""
 // Ensure we free the local temporary
 
-%cstring_output_allocate_size(char ** s, int *slen, free(*$1))
+%bytestring_output_allocate_size(char ** s, int *slen, free(*$1))
        get_image_fs_as_string;
 
 // Get the length correct
@@ -598,7 +598,7 @@ cbfhandle_specials = {
 "cbf_get_real_image":["""
 // Ensure we free the local temporary
 
-%cstring_output_allocate_size(char ** s, int *slen, free(*$1))
+%bytestring_output_allocate_size(char ** s, int *slen, free(*$1))
        get_real_image_as_string;
 
 // Get the length correct
@@ -626,7 +626,7 @@ cbfhandle_specials = {
 "cbf_get_real_image_fs":["""
 // Ensure we free the local temporary
 
-%cstring_output_allocate_size(char ** s, int *slen, free(*$1))
+%bytestring_output_allocate_size(char ** s, int *slen, free(*$1))
        get_real_image_fs_as_string;
 
 // Get the length correct
@@ -654,7 +654,7 @@ cbfhandle_specials = {
 "cbf_get_real_image_sf":["""
 // Ensure we free the local temporary
 
-%cstring_output_allocate_size(char ** s, int *slen, free(*$1))
+%bytestring_output_allocate_size(char ** s, int *slen, free(*$1))
        get_real_image_sf_as_string;
 
 // Get the length correct
@@ -682,7 +682,7 @@ cbfhandle_specials = {
 "cbf_get_3d_image":["""
 // Ensure we free the local temporary
 
-%cstring_output_allocate_size(char ** s, int *slen, free(*$1))
+%bytestring_output_allocate_size(char ** s, int *slen, free(*$1))
        get_3d_image_as_string;
 
 // Get the length correct
@@ -710,7 +710,7 @@ cbfhandle_specials = {
 "cbf_get_3d_image_fs":["""
 // Ensure we free the local temporary
 
-%cstring_output_allocate_size(char ** s, int *slen, free(*$1))
+%bytestring_output_allocate_size(char ** s, int *slen, free(*$1))
        get_3d_image_fs_as_string;
 
 // Get the length correct
@@ -738,7 +738,7 @@ cbfhandle_specials = {
 "cbf_get_3d_image_sf":["""
 // Ensure we free the local temporary
 
-%cstring_output_allocate_size(char ** s, int *slen, free(*$1))
+%bytestring_output_allocate_size(char ** s, int *slen, free(*$1))
        get_3d_image_sf_as_string;
 
 // Get the length correct
@@ -766,7 +766,7 @@ cbfhandle_specials = {
 "cbf_get_real_3d_image":["""
 // Ensure we free the local temporary
 
-%cstring_output_allocate_size(char ** s, int *slen, free(*$1))
+%bytestring_output_allocate_size(char ** s, int *slen, free(*$1))
        get_real_3d_image_as_string;
 
 // Get the length correct
@@ -794,7 +794,7 @@ cbfhandle_specials = {
 "cbf_get_real_3d_image_fs":["""
 // Ensure we free the local temporary
 
-%cstring_output_allocate_size(char ** s, int *slen, free(*$1))
+%bytestring_output_allocate_size(char ** s, int *slen, free(*$1))
        get_real_3d_image_fs_as_string;
 
 // Get the length correct
@@ -821,7 +821,7 @@ cbfhandle_specials = {
 "cbf_get_real_3d_image_sf":["""
 // Ensure we free the local temporary
 
-%cstring_output_allocate_size(char ** s, int *slen, free(*$1))
+%bytestring_output_allocate_size(char ** s, int *slen, free(*$1))
        get_real_3d_image_sf_as_string;
 
 // Get the length correct
@@ -849,7 +849,7 @@ cbfhandle_specials = {
 "cbf_get_realarray":["""
 // Ensure we free the local temporary
 
-%cstring_output_allocate_size(char ** s, int *slen, free(*$1))
+%bytestring_output_allocate_size(char ** s, int *slen, free(*$1))
        get_realarray_as_string;
 
 // Get the length correct
@@ -2448,6 +2448,23 @@ typedef enum
 }
 CBF_NODETYPE;
 
+// Tell SWIG to return a string-output-argument as a bytestring
+%define %bytestring_output_allocate_size(TYPEMAP, SIZE, RELEASE)
+   %typemap(in,noblock=1,numinputs=0) (TYPEMAP, SIZE) ($*1_ltype temp = 0, $*2_ltype tempn) {
+      $1 = &temp; $2 = &tempn;
+   }
+   %typemap(freearg,match="in") (TYPEMAP, SIZE) "";
+   %typemap(argout,noblock=1)(TYPEMAP, SIZE) {
+      if (*$1) {
+%#if PY_VERSION_HEX >= 0x03000000
+         %append_output(PyBytes_FromStringAndSize(*$1,*$2));
+%#else
+         %append_output(SWIG_FromCharPtrAndSize(*$1,*$2));
+%#endif
+         RELEASE;
+      }
+   }
+%enddef
 
 // Tell SWIG what the object is, so we can build the class
 
