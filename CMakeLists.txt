@@ -425,6 +425,9 @@ endfunction()
 #
 ######################################################################
 
+# Use "Location" based search for python, instead of max-version
+cmake_policy(SET CMP0094 NEW)
+
 option(USE_FORTRAN          "Build Fortran Bindings"    OFF)
 option(USE_TIFF             "Build tiff2cbf"            ON)
 option(USE_ULP              "Build using cbf_ulp"       OFF)
