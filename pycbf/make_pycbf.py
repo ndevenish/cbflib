@@ -883,7 +883,7 @@ cbfhandle_specials = {
     /* CBFlib must NOT modify the data string which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_integerarray;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_integerarray;
 
     void set_integerarray(unsigned int compression, int binary_id,
              char *data, int len, int elsize, int elsigned, int elements){
@@ -910,7 +910,7 @@ cbfhandle_specials = {
        which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_integerarray_wdims;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_integerarray_wdims;
 %apply (char *STRING, int LENGTH) { (char *bo, int bolen) } set_integerarray_wdims;
 
     void set_integerarray_wdims(unsigned int compression, int binary_id,
@@ -943,7 +943,7 @@ cbfhandle_specials = {
        which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_integerarray_wdims_sf;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_integerarray_wdims_sf;
 %apply (char *STRING, int LENGTH) { (char *bo, int bolen) } set_integerarray_wdims_sf;
 
     void set_integerarray_wdims_sf(unsigned int compression, int binary_id,
@@ -975,7 +975,7 @@ cbfhandle_specials = {
        which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_integerarray_wdims_fs;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_integerarray_wdims_fs;
 %apply (char *STRING, int LENGTH) { (char *bo, int bolen) } set_integerarray_wdims_fs;
 
     void set_integerarray_wdims_fs(unsigned int compression, int binary_id,
@@ -1007,7 +1007,7 @@ cbfhandle_specials = {
     /* CBFlib must NOT modify the data string which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_realarray;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_realarray;
 
     void set_realarray(unsigned int compression, int binary_id,
              char *data, int len, int elsize, int elements){
@@ -1034,7 +1034,7 @@ cbfhandle_specials = {
        which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_realarray_wdims;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_realarray_wdims;
 %apply (char *STRING, int LENGTH) { (char *bo, int bolen) } set_realarray_wdims;
 
     void set_realarray_wdims(unsigned int compression, int binary_id,
@@ -1067,7 +1067,7 @@ cbfhandle_specials = {
        which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_realarray_wdims_sf;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_realarray_wdims_sf;
 %apply (char *STRING, int LENGTH) { (char *bo, int bolen) } set_realarray_wdims_sf;
 
     void set_realarray_wdims_sf(unsigned int compression, int binary_id,
@@ -1100,7 +1100,7 @@ cbfhandle_specials = {
        which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_realarray_wdims_fs;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_realarray_wdims_fs;
 %apply (char *STRING, int LENGTH) { (char *bo, int bolen) } set_realarray_wdims_fs;
 
     void set_realarray_wdims_fs(unsigned int compression, int binary_id,
@@ -1132,7 +1132,7 @@ cbfhandle_specials = {
     /* CBFlib must NOT modify the data string which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_image;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_image;
 
     void set_image(unsigned int element_number,
              unsigned int compression,
@@ -1160,7 +1160,7 @@ cbfhandle_specials = {
     /* CBFlib must NOT modify the data string which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_image;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_image;
 
     void set_image_fs(unsigned int element_number,
              unsigned int compression,
@@ -1188,7 +1188,7 @@ cbfhandle_specials = {
     /* CBFlib must NOT modify the data string which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_image_sf;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_image_sf;
 
     void set_image_sf(unsigned int element_number,
              unsigned int compression,
@@ -1216,7 +1216,7 @@ cbfhandle_specials = {
     /* CBFlib must NOT modify the data string which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_real_image;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_real_image;
 
     void set_real_image(unsigned int element_number,
              unsigned int compression,
@@ -1244,7 +1244,7 @@ cbfhandle_specials = {
     /* CBFlib must NOT modify the data string which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_real_image;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_real_image;
 
     void set_real_image_fs(unsigned int element_number,
              unsigned int compression,
@@ -1272,7 +1272,7 @@ cbfhandle_specials = {
     /* CBFlib must NOT modify the data string which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_real_image_sf;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_real_image_sf;
 
     void set_real_image_sf(unsigned int element_number,
              unsigned int compression,
@@ -1300,7 +1300,7 @@ cbfhandle_specials = {
     /* CBFlib must NOT modify the data string which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_3d_image;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_3d_image;
 
     void set_3d_image(unsigned int element_number,
              unsigned int compression,
@@ -1328,7 +1328,7 @@ cbfhandle_specials = {
     /* CBFlib must NOT modify the data string which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_3d_image;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_3d_image;
 
     void set_3d_image_fs(unsigned int element_number,
              unsigned int compression,
@@ -1356,7 +1356,7 @@ cbfhandle_specials = {
     /* CBFlib must NOT modify the data string which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_3d_image;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_3d_image;
 
     void set_3d_image_sf(unsigned int element_number,
              unsigned int compression,
@@ -1384,7 +1384,7 @@ cbfhandle_specials = {
     /* CBFlib must NOT modify the data string which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_real_3d_image_sf;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_real_3d_image_sf;
 
     void set_real_3d_image(unsigned int element_number,
              unsigned int compression,
@@ -1412,7 +1412,7 @@ cbfhandle_specials = {
     /* CBFlib must NOT modify the data string which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_real_3d_image_fs;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_real_3d_image_fs;
 
     void set_real_3d_image_fs(unsigned int element_number,
              unsigned int compression,
@@ -1440,7 +1440,7 @@ cbfhandle_specials = {
     /* CBFlib must NOT modify the data string which belongs to the scripting
        language we will get and check the length via a typemap */
 
-%apply (char *STRING, int LENGTH) { (char *data, int len) } set_real_3d_image_sf;
+%apply (char *DATASTRING, int LENGTH) { (char *data, int len) } set_real_3d_image_sf;
 
     void set_real_3d_image_sf(unsigned int element_number,
              unsigned int compression,
@@ -2465,6 +2465,20 @@ CBF_NODETYPE;
       }
    }
 %enddef
+
+// Typemap to read a python bytes object as array data
+%typemap(in,noblock=1)
+  (char *DATASTRING, size_t LENGTH) (int res, char *buf = 0, Py_ssize_t size = 0),
+  (const char *DATASTRING, size_t LENGTH) (int res, char *buf = 0, Py_ssize_t size = 0)
+{
+   res = PyBytes_AsStringAndSize($input, &buf, &size) == -1 ? SWIG_TypeError : SWIG_OK;
+   if (!SWIG_IsOK(res)) {
+      %argument_fail(res,"$type",$symname, $argnum);
+   }
+   $1 = %reinterpret_cast(buf, $1_ltype);
+   $2 = %numeric_cast(size, $2_ltype);
+}
+%typemap(in) (char *DATASTRING, int LENGTH) = (char *DATASTRING, size_t LENGTH);
 
 // Tell SWIG what the object is, so we can build the class
 
