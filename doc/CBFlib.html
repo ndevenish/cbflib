@@ -130,7 +130,7 @@ Bernstein + Sons<br />
       var name = "yaya@";
       var domain = "bernstein-plus-sons";
       var domext = ".com";
-      document.write ("<a href=\"mailto:" + name + domain + domext + "\">" + name + " <b>at</b> " + domain + " <b>dot</b> "+  domext+"</a>"); 
+      document.write ("<a href=\"mailto:" + name + domain + domext + "\">" + name + " <b>at</b> " + domain + " <b>dot</b> "+  domext+"</a>");
 // -->
 </script>
 <noscript>
@@ -179,31 +179,31 @@ information.
 <tr>
 <td valign="top">&nbsp;&nbsp;0.1<td valign="top">&nbsp;&nbsp;Apr. 1998
 <td valign="top">&nbsp;&nbsp;PJE
-<td>&nbsp;&nbsp;This was the 
+<td>&nbsp;&nbsp;This was the
 first CBFlib release.  It
 supported binary CBF files using binary strings.
 <tr>
 <td valign="top">&nbsp;&nbsp;<a href="ChangeLog.html#0.2">0.2</a>
 <td valign="top">&nbsp;&nbsp;Aug. 1998
-<td valign="top">&nbsp;&nbsp;HJB<td>&nbsp;&nbsp;This release 
-added ascii imgCIF support using MIME-encoded binary sections, added 
-the option of MIME headers for the binary strings was well.  MIME code 
-adapted from mpack 1.5.  Added hooks needed for DDL1-style names without 
+<td valign="top">&nbsp;&nbsp;HJB<td>&nbsp;&nbsp;This release
+added ascii imgCIF support using MIME-encoded binary sections, added
+the option of MIME headers for the binary strings was well.  MIME code
+adapted from mpack 1.5.  Added hooks needed for DDL1-style names without
 categories.
 <tr>
 <td valign="top">&nbsp;&nbsp;<a href="ChangeLog.html#0.3">0.3</a>
 <td valign="top">&nbsp;&nbsp;Sep. 1998
-<td valign="top">&nbsp;&nbsp;PJE<td>&nbsp;&nbsp;This release 
-cleaned up the changes made for version 0.2, allowing multi-threaded use of 
+<td valign="top">&nbsp;&nbsp;PJE<td>&nbsp;&nbsp;This release
+cleaned up the changes made for version 0.2, allowing multi-threaded use of
 the code, and removing dependence on the mpack package.
 <tr>
 <td valign="top">&nbsp;&nbsp;<a href="ChangeLog.html#0.4">0.4</a>
 <td valign="top">&nbsp;&nbsp;Nov. 1998
 <td valign="top">&nbsp;&nbsp;HJB
 <td>&nbsp;&nbsp;This release
-merged much of the message digest code into the general file reading and 
-writing to reduce the number of passes.  More consistency checking between 
-the MIME header and the binary header was introduced.  The size in the 
+merged much of the message digest code into the general file reading and
+writing to reduce the number of passes.  More consistency checking between
+the MIME header and the binary header was introduced.  The size in the
 MIME header was adjusted to agree with the version 0.2 documentation.
 <tr>
 <td valign="top">&nbsp;&nbsp;<a href="ChangeLog.html#0.5">0.5</a>
@@ -256,14 +256,14 @@ corrected an if nesting error in the prior mod to cbf_cimple.c.
 <td valign="top">&nbsp;&nbsp;Oct. 2002
 <td valign="top">&nbsp;&nbsp;PJE
 <td>&nbsp;&nbsp;This release
-modified cbf_simple.c to reorder image data on read so that the 
-indices are always increasing in memory (this behavior was 
+modified cbf_simple.c to reorder image data on read so that the
+indices are always increasing in memory (this behavior was
 undefined previously).
 <tr>
 <td valign="top">&nbsp;&nbsp;<a href="ChangeLog.html#0.7.4">0.7.4</a>
 <td valign="top">&nbsp;&nbsp;Jan 2004
 <td valign="top">&nbsp;&nbsp;HJB
-<td>&nbsp;&nbsp;This release fixes a parse error for 
+<td>&nbsp;&nbsp;This release fixes a parse error for
 quoted strings, adds code to get and set character string types, and removes compiler warnings
 <tr>
 <td valign="top">&nbsp;&nbsp;<a href="ChangeLog.html#0.7.5">0.7.5</a>
@@ -315,7 +315,7 @@ cbf_set_beam_center
 for base 32K support developed by G. Darakev, and changes
 for support of reals, 3d arrays, byte_offset compression and
 J. P. Abrahams packed compression
-made in consultation with (in alphabetic order) E. Eikenberry,  
+made in consultation with (in alphabetic order) E. Eikenberry,
 A. Hammerley, W. Kabsch, M. Kobas, J. Wright and others at PSI
 and ESRF in January 2007, as well accumulated changes fixing
 problems in release 0.7.6.
@@ -325,7 +325,7 @@ problems in release 0.7.6.
 <td valign="top">&nbsp;&nbsp;HJB
 <td>&nbsp;&nbsp;This release is a patch
 to 0.7.7 to change the treatment of the byteorder parameter from
-strcpy semantics to return of a pointer to a string constant. 
+strcpy semantics to return of a pointer to a string constant.
 Our thanks to E. Eikenberry for pointing out the problem.
 <tr>
 <td valign="top">&nbsp;&nbsp;<a href="ChangeLog.html#0.7.7.2">0.7.7.2</a>
@@ -494,12 +494,12 @@ Uncompress and unpack :
 <ul>
 <li>gunzip &lt; CBFlib_0.9.5.tar.gz | tar xvf -
 </ul>
-<P>   
+<P>
 <p>
-To run the test programs, you will also need 
+To run the test programs, you will also need
 Paul Ellis's sample MAR345 image,
 example.mar2300,
-Chris Nielsen's sample ADSC Quantum 315 image, 
+Chris Nielsen's sample ADSC Quantum 315 image,
 mb_LP_1_001.img, and Eric Eikenberry's SLS sample Pilatus 6m image,
 insulin_pilatus6m, as sample data.  In addition there are
 is a PDB mmCIF file, 9ins.cif, and 3 special test files
@@ -560,7 +560,7 @@ Makefile to point to your compilers.
 Set the definition of CFLAGS to an appropriate value
 for your C and C++ compilers,
 the definition of F90C to point to your
-Fortan-90/95 compiler, and the definitions of 
+Fortan-90/95 compiler, and the definitions of
 F90FLAGS and F90LDFLAGS to approriate values
 for your Fortan-90/95 compilers, and then
 <p>
@@ -580,17 +580,17 @@ or in the environment
 
 <p>
 We have included examples of
-CBF/imgCIF files produced by CBFlib in the test data 
+CBF/imgCIF files produced by CBFlib in the test data
 <A HREF="http://downloads.sf.net/cbflib/CBFlib_0.9.5_Data_Files_Output.tar.gz">CBFlib_0.9.5_Data_Files_Output.tar.gz</a>,
 the current best draft of
-the 
+the
 <A HREF="cif_img_1.7.10.html">CBF Extensions Dictionary</A>,
-and of Andy Hammersley's CBF definition, updated to become a 
+and of Andy Hammersley's CBF definition, updated to become a
 <A HREF="cbf_definition_rev.html">
 DRAFT CBF/ImgCIF DEFINITION</A>.
 <p>
 CBFlib 0.9.5 includes a program, tiff2cbf, to convert from tiff files
-to CBF files, that requires an augmented version of tiff-3.9.4 called 
+to CBF files, that requires an augmented version of tiff-3.9.4 called
 tiff-3.9.4-rev-6Feb11, that installs into the CBFlib_0.9.2.11 directory.
 If a system copy is desired, download and install
 <a href="http://downloads.sf.net/cbflib/tiff-3.9.4-rev-6Feb11.tar.gz">
@@ -1116,7 +1116,7 @@ To represent a detector surface mounted on a positioning system, CBFlib
 uses a value of type cbf_detector.
 <p>
 A goniometer object is created and initialized from a CBF object using
-one of the functions <b>cbf_construct_detector</b>, 
+one of the functions <b>cbf_construct_detector</b>,
 <b>cbf_construct_reference_detector</b> or <b>cbf_require_reference_detector</b>.
 <p>
 The function <b>cbf_free_detector</b> destroys a detector handle and frees
@@ -1126,11 +1126,11 @@ all memory associated with the corresponding object.
 
 <h4><a NAME="2.1.4">2.1.4 CBF positioner handles</a></h4>
 <p>
-To represent an arbitrary positioning system designated by the terminal axis, 
+To represent an arbitrary positioning system designated by the terminal axis,
 CBFlib uses a value of type cbf_positioner.
 <p>
 A positioner object is created and initialized from a CBF object using
-one of the functions <b>cbf_construct_positioner</b>, 
+one of the functions <b>cbf_construct_positioner</b>,
 <b>cbf_construct_reference_positioner</b> or <b>cbf_require_reference_positioner</b>.
 <p>
 The function <b>cbf_free_positioner</b> destroys a positioner handle and frees
@@ -1331,7 +1331,7 @@ cbf_read_widefile reads the CBF or CIF file <i>file</i>
 Validation is performed in three ways levels: during the lexical scan, during the
 parse, and, if a dictionary was converted, against the value types, value
 enumerations, categories and parent-child relationships specified
-in the dictionary.  
+in the dictionary.
 <p>
 <i>flags</i> controls the interpretation of binary section headers, the parsing of
 brackets constructs and the parsing of treble-quoted strings.
@@ -1381,7 +1381,7 @@ valid, stripping embedded non-quoted, non-separating whitespace and comments.  T
 this case, whitespace may be used as an alternative to the comma.
 <tr>
 <td valign="top">&nbsp;&nbsp;PARSE_TRIPLE_QUOTES:
-<td valign="top">&nbsp;&nbsp;Accept DDLm triple-quoted <b>&quot;&quot;&quot;item,item,...item&quot;&quot;&quot;</b> or 
+<td valign="top">&nbsp;&nbsp;Accept DDLm triple-quoted <b>&quot;&quot;&quot;item,item,...item&quot;&quot;&quot;</b> or
 <b>'''item,item,...item'''</b> constructs as
 valid, stripping embedded whitespace and comments.  These constructs may span multiple lines.  If this flag
 is set, then ''' will <b>not</b> be interpreted as a quoted apoptrophe and
@@ -1393,7 +1393,7 @@ is set, then ''' will <b>not</b> be interpreted as a quoted apoptrophe and
 valid, stripping non-quoted embedded whitespace and comments.  These constructs may span multiple lines.
 <tr>
 <td valign="top">&nbsp;&nbsp;PARSE_NOTRIPLE_QUOTES:
-<td valign="top">&nbsp;&nbsp;No not accept DDLm triple-quoted <b>&quot;&quot;&quot;item,item,...item&quot;&quot;&quot;</b> or 
+<td valign="top">&nbsp;&nbsp;No not accept DDLm triple-quoted <b>&quot;&quot;&quot;item,item,...item&quot;&quot;&quot;</b> or
 <b>'''item,item,...item'''</b> constructs as
 valid, stripping embedded whitespace and comments.  These constructs may span multiple lines.  If this flag
 is set, then ''' will be interpreted as a quoted apostrophe and
@@ -1420,7 +1420,7 @@ These restrictions may change in a future release.
 <TABLE>
 <TR><td valign="top">&nbsp;&nbsp;<i>handle</i><td valign="top">&nbsp;&nbsp;CBF handle.<br />
 <TR><td valign="top">&nbsp;&nbsp;<i>file</i><td valign="top">&nbsp;&nbsp;Pointer to a file descriptor.<br />
-<TR><td valign="top">&nbsp;&nbsp;<i>headers</i><td valign="top">&nbsp;&nbsp;Controls interprestation of binary section headers.
+<TR><td valign="top">&nbsp;&nbsp;<i>flags</i><td valign="top">&nbsp;&nbsp;Controls interpretation of binary section headers.
 </TABLE>
 <p>
 <b>RETURN VALUE</b>
@@ -1433,7 +1433,7 @@ Returns an error code on failure or 0 for success.
 
 <A HREF="#2.3.4">2.3.4  cbf_write_file</A><br />
 <p><hr /><P>
-<h4><A NAME="2.3.4">2.3.4  cbf_write_file</A> </h4>
+<h4><A NAME="2.3.4">2.3.4  cbf_write_file, cbf_write_widefile</A> </h4>
 <p><b>PROTOTYPE</b>
 <p>
 #include &quot;cbf.h&quot;<p>
@@ -1492,7 +1492,7 @@ digests are generated, and controls the style of output.  The value of <i>flags<
 
 <p>
 Note that on output, the types &quot;prns&, &quot;brcs&quot; and &quot;bkts&quot; will be
-converted to &quot;text&quot; fields if PARSE_NOBRACKETS has been set <i>flags</i>, 
+converted to &quot;text&quot; fields if PARSE_NOBRACKETS has been set <i>flags</i>,
 and that the types &quot;tsqs&quot; and &quot;tdqs&quot; will
 be converted to &quot;text&quot; fields if the flag PARSE_NOTRIPLE_QUOTES has been set in the
 <i>flags</i>.  It is an error to set PARSE_NOBRACKETS and to set either PARSE_BRACKETS or
@@ -1521,7 +1521,7 @@ machines).
 and readable and can be used as a buffer.
 <TR><TD VALIGN=TOP>&nbsp;&nbsp;<i>ciforcbf</i><td valign="top">&nbsp;&nbsp;Selects the format in which the
 binary sections are written (CIF/CBF).
-<TR><TD VALIGN=TOP>&nbsp;&nbsp;<i>headers</i><td valign="top">&nbsp;&nbsp;Selects the type of header in CBF
+<TR><TD VALIGN=TOP>&nbsp;&nbsp;<i>flags</i><td valign="top">&nbsp;&nbsp;Selects the type of header in CBF
 binary sections and message digest generation.
 <TR><TD VALIGN=TOP>&nbsp;&nbsp;<i>encoding</i><td valign="top">&nbsp;&nbsp;Selects the type of encoding used
 for binary sections and the type of line-termination
@@ -1888,7 +1888,7 @@ function returns CBF_IDENTICAL.
 <TABLE>
 <TR><td valign="top">&nbsp;&nbsp;<i>handle</i><td valign="top">&nbsp;&nbsp;CBF handle.<br />
 <TR><td valign="top">&nbsp;&nbsp;<i>datablockname</i><td valign="top">&nbsp;&nbsp;The new data block name.<br />
-<TR><td valign="top">&nbsp;&nbsp;<i>datablockname</i><td valign="top">&nbsp;&nbsp;The new save frame name.<br />
+<TR><td valign="top">&nbsp;&nbsp;<i>saveframename</i><td valign="top">&nbsp;&nbsp;The new save frame name.<br />
 </TABLE>
 <p>
 <b>RETURN VALUE</b>
@@ -1930,7 +1930,7 @@ Returns an error code on failure or 0 for success.
 <A HREF="#2.3.15">2.3.15  cbf_reset_datablock, cbf_reset_saveframe</A><br />
 <A HREF="#2.3.18">2.3.18  cbf_remove_category</A><br />
 <p><hr /><P>
-<h4><A NAME="2.3.15">2.3.15  cbf_reset_datablock, cbf_reset_datablock</A></h4>
+<h4><A NAME="2.3.15">2.3.15  cbf_reset_datablock, cbf_reset_saveframe</A></h4>
 <p><b>PROTOTYPE</b>
 <p>
 #include &quot;cbf.h&quot;<p>
@@ -3129,8 +3129,8 @@ Not all types are valid for all type of CIF
 files.  In partcular the types &quot;prns&quot;, &quot;brcs&quot;, &quot;bkts&quot; were
 introduced with DDLm and are not valid in DDL1 or DDL2 CIFS.  The types &quot;tsqs&quot; and
 &quot;tdqs&quot; are not formally part of the CIF syntax.
- 
- 
+
+
 A field for which no value has been set sets
 *<i>typeofvalue</i> to NULL rather than to the
 string &quot;null&quot;.
@@ -3541,7 +3541,7 @@ This provides all the arguments needed for a subsequent call to
 cbf_set_realarray,
 if a copy of the arry is to be made into another CIF or CBF.
 <P>
-The variants cbf_get_integerarrayparameters_wdims, cbf_get_integerarrayparameters_wdims_fs, cbf_get_integerarrayparameters_wdims_sf, 
+The variants cbf_get_integerarrayparameters_wdims, cbf_get_integerarrayparameters_wdims_fs, cbf_get_integerarrayparameters_wdims_sf,
 cbf_get_realarrayparameters_wdims, cbf_get_realarrayparameters_wdims_fs, cbf_get_realarrayparameters_wdims_sf set **<i>byteorder</i>,
 *<i>dimfast</i>,
 *<i>dimmid</i>,
@@ -3783,14 +3783,14 @@ column and row to an integer <i>array</i>.
  bytes each, starting at <i>array</i>.  <i>binary_id</i>
  is the binary section identifier.
  <P>
- The cbf_set_integerarray_wdims, cbf_set_integerarray_wdims_fs, cbf_set_integerarray_wdims_sf, 
+ The cbf_set_integerarray_wdims, cbf_set_integerarray_wdims_fs, cbf_set_integerarray_wdims_sf,
  cbf_set_realarray_wdims, cbf_set_realarray_wdims_fs and cbf_set_realarray_wdims_sf variants
  allow the data header values of <i>byteorder</i>,
  <i>dimfast</i>, <i>dimmid</i>, <i>dimslow</i> and <i>padding</i>
  to be set to the data byte order, the fastest,
  second fastest and third fastest array dimensions and
  the size in byte of the post data padding to be used.
- 
+
 <p>
 The array will be compressed using the compression scheme specifed
 by <i>compression</i>.  Currently, the available schemes are:
@@ -3824,7 +3824,7 @@ CBF_ARGUMENT.
 <TR><td valign="top">&nbsp;&nbsp;<i>array</i><td valign="top">&nbsp;&nbsp;Pointer to the source array.<br />
 <TR><td valign="top">&nbsp;&nbsp;<i>elsize</i><td valign="top">&nbsp;&nbsp;Size in bytes of each source array element.<br />
 <TR><td valign="top">&nbsp;&nbsp;<i>elsigned</i><td valign="top">&nbsp;&nbsp;Set to non-0 if the source array elements are signed.<br />
-elements: The number of elements in the array.
+<TR><td valign="top">&nbsp;&nbsp;<i>elements</i><td valign="top">&nbsp;&nbsp;The number of elements in the array<br />
 </TABLE>
 <p>
 <b>RETURN VALUE</b>
@@ -3989,7 +3989,7 @@ Returns an error code on failure or 0 for success.
 <A HREF="#2.3.59">2.3.59  cbf_require_datablock</A><br />
 <A HREF="#2.3.61">2.3.61  cbf_require_column</A><br />
 
-							
+
 <p><hr /><P>
 <h4><A NAME="2.3.61">2.3.61   cbf_require_column</A></h4>
 <p><b>PROTOTYPE</b>
@@ -4174,7 +4174,7 @@ Returns an error code on failure or 0 for success.
 
 
 <p><hr /><P>
-<h4><A NAME="2.3.65">2.3.65  cbf_get_local_integer_byte_order,  
+<h4><A NAME="2.3.65">2.3.65  cbf_get_local_integer_byte_order,
 cbf_get_local_real_byte_order, cbf_get_local_real_format </A></h4>
 <p><b>PROTOTYPE</b>
 <p>
@@ -4186,11 +4186,11 @@ int cbf_get_local_real_format (char ** <i>real_format</i> );
 <p>
 <b>DESCRIPTION</b>
 <p>cbf_get_local_integer_byte_order returns the byte order of integers
-on the machine on which the API is being run in the form of a character string 
-returned as the value pointed to by <i>byte_order</i>. cbf_get_local_real_byte_order 
-returns the byte order of reals on the machine on which the API is being run 
-in the form of a character string  returned as the value pointed to by <i>byte_order</i>. 
-cbf_get_local_real_format returns the format of floats on the machine on which 
+on the machine on which the API is being run in the form of a character string
+returned as the value pointed to by <i>byte_order</i>. cbf_get_local_real_byte_order
+returns the byte order of reals on the machine on which the API is being run
+in the form of a character string  returned as the value pointed to by <i>byte_order</i>.
+cbf_get_local_real_format returns the format of floats on the machine on which
 the API is being run in the form of a character string returned as the value pointed to by
 <i>real_format</i>.  The strings returned must not be modified in any way.
 <P>
@@ -4222,12 +4222,12 @@ int cbf_require_dictionary (cbf_handle <i>handle</i>, cbf_handle * <i>dictionary
 <P>
 <b>DESCRIPTION</b>
 <p>
-cbf_get_dictionary sets *<i>dictionary</i> to the handle of a CBF which has been 
+cbf_get_dictionary sets *<i>dictionary</i> to the handle of a CBF which has been
 associated with the CBF <i>handle</i> by cbf_set_dictionary.  cbf_set_dictionary
 associates the CBF handle <i>dictionary_in</i> with <i>handle</i> as its dictionary.
-cbf_require_dictionary sets *<i>dictionary</i> to the handle of a CBF which has been 
+cbf_require_dictionary sets *<i>dictionary</i> to the handle of a CBF which has been
 associated with the CBF <i>handle</i> by cbf_set_dictionary or creates a new
-empty CBF and associates it with <i>handle</i>, returning the new handle in 
+empty CBF and associates it with <i>handle</i>, returning the new handle in
 *<i>dictionary</i>.
 <P>
 <b>ARGUMENTS</b><br />
@@ -4323,10 +4323,10 @@ cbf_find_category_root sets *<i>categoryroot</i> to the root category
 of which <i>categoryname</i> is an alias.   cbf_set_category_root
 sets <i>categoryname_in</i> as an alias of <i>categoryroot</i> in the
 dictionary associated with <i>handle</i>, creating the dictionary
-if necessary.  cbf_require_category_root sets *<i>categoryroot</i> 
+if necessary.  cbf_require_category_root sets *<i>categoryroot</i>
 to the root category of which <i>categoryname</i> is an alias, if
-there is one, or to the value of <i>categoryname</i>, if 
-<i>categoryname</i> is not an alias. 
+there is one, or to the value of <i>categoryname</i>, if
+<i>categoryname</i> is not an alias.
 <P>
 A returned <i>categoryroot</i> string must not be modified in any way.
 <P>
@@ -4363,10 +4363,10 @@ cbf_find_tag_root sets *<i>tagroot</i> to the root tag
 of which <i>tagname</i> is an alias.   cbf_set_tag_root
 sets <i>tagname</i> as an alias of <i>tagroot_in</i> in the
 dictionary associated with <i>handle</i>, creating the dictionary
-if necessary.  cbf_require_tag_root sets *<i>tagroot</i> 
+if necessary.  cbf_require_tag_root sets *<i>tagroot</i>
 to the root tag of which <i>tagname</i> is an alias, if
-there is one, or to the value of <i>tagname</i>, if 
-<i>tagname</i> is not an alias. 
+there is one, or to the value of <i>tagname</i>, if
+<i>tagname</i> is not an alias.
 <P>
 A returned <i>tagroot</i> string must not be modified in any way.
 <P>
@@ -4448,11 +4448,11 @@ int cbf_require_diffrn_id (cbf_handle <i>handle</i>, const char **<i>diffrn_id</
 <p>
 <b>DESCRIPTION</b>
 <p>
-cbf_get_diffrn_id sets *<I>diffrn_id</I> to point to the ASCII value of the 
+cbf_get_diffrn_id sets *<I>diffrn_id</I> to point to the ASCII value of the
 &quot;diffrn.id&quot; entry.
-cbf_require_diffrn_id also sets *<I>diffrn_id</I> to point to the ASCII value of the 
+cbf_require_diffrn_id also sets *<I>diffrn_id</I> to point to the ASCII value of the
 &quot;diffrn.id&quot; entry, but, if the &quot;diffrn.id&quot; entry does not exist,
-it sets the value in the CBF and in*<I>diffrn_id</I> to the character string given by 
+it sets the value in the CBF and in*<I>diffrn_id</I> to the character string given by
 <i>default_id</i>, creating the category and column is necessary.
 <p>
 The <I>diffrn_id</I> will be valid as long as the item exists and has not been set to a new value.
@@ -4651,7 +4651,7 @@ Any of the destination pointers may be NULL.
 
 <p>Returns an error code on failure or 0 for success.
 <p><hr /><P>
-<h4><A NAME="2.4.11">2.4.11 cbf_ set_divergence</A></h4>
+<h4><A NAME="2.4.11">2.4.11 cbf_set_divergence</A></h4>
 <p><b>PROTOTYPE</b>
 <p>#include "cbf_simple.h"
 <p>
@@ -4708,7 +4708,7 @@ int cbf_get_element_id (cbf_handle <i>handle</i>, unsigned int <i>element_number
 <p>
 cbf_get_element_number sets <i>element_number</i> to a number that can be used
     in other cbf_simple calls to identify the detector element <i>element_id</i>
-    and optionally the specific <i>array_id> and <i>array_section_id</i>.  
+    and optionally the specific <i>array_id> and <i>array_section_id</i>.
 cbf_get_element_id sets *<i>element_id</i> to point to the ASCII value of the <i>element_number</i>'th &quot;diffrn_data_frame.detector_element_id&quot; entry, counting from 0.
     The <i>element_number</i> is the ordinal of the detector element in the
     DIFFRN_DETECTOR_ELEMENT category.  If an <i>array_section_id</a> is
@@ -4764,7 +4764,7 @@ Either of the destination pointers may be NULL.
 
 <p>Returns an error code on failure or 0 for success.
 <p><hr /><P>
-<h4><A NAME="2.4.15">2.4.15 cbf_ set_gain</A></h4>
+<h4><A NAME="2.4.15">2.4.15 cbf_set_gain</A></h4>
 <p><b>PROTOTYPE</b>
 <p>#include "cbf_simple.h"
 <p>
@@ -4807,7 +4807,7 @@ cbf_get_overload sets *<i>overload</i> to the overload value for element number 
 
 <p>Returns an error code on failure or 0 for success.
 <p><hr /><P>
-<h4><A NAME="2.4.17">2.4.17 cbf_ set_overload</A></h4>
+<h4><A NAME="2.4.17">2.4.17 cbf_set_overload</A></h4>
 <p><b>PROTOTYPE</b>
 <p>#include "cbf_simple.h"
 <p>
@@ -4864,7 +4864,7 @@ cbf_set_integration_time sets the integration time in seconds to the value speci
 <TABLE>
 <TR><td valign="top">&nbsp;&nbsp;<i>handle</i><td valign="top">&nbsp;&nbsp;CBF handle.
 <TR><td valign="top">&nbsp;&nbsp;<i>reserved</i><td valign="top">&nbsp;&nbsp;Unused.  Any value other than 0 is invalid.
-<TR><td valign="top">&nbsp;&nbsp;<i>time	Integration</i><td valign="top">&nbsp;&nbsp;time in seconds.
+<TR><td valign="top">&nbsp;&nbsp;<i>time</i><td valign="top">&nbsp;&nbsp;Integration time in seconds.
 </TABLE>
 <p>
 <b>RETURN VALUE</b>
@@ -5031,14 +5031,14 @@ size_t *<i>ndimslow</i>, size_t *<i>ndimmid</i>, size_t *<i>ndimfast</i>);
 <p>
 <b>DESCRIPTION</b>
 <p>
-cbf_get_image_size, cbf_get_image_size_fs and cbf_get_image_size_sf set *<i>ndimslow</i> and  *<i>ndimfast</i> to the slow and fast dimensions of the image array 
-for element number <i>element_number</i>.   If the array is 1-dimensional, *<i>ndimslow</i> will be set 
+cbf_get_image_size, cbf_get_image_size_fs and cbf_get_image_size_sf set *<i>ndimslow</i> and  *<i>ndimfast</i> to the slow and fast dimensions of the image array
+for element number <i>element_number</i>.   If the array is 1-dimensional, *<i>ndimslow</i> will be set
 to the array size and *<i>ndimfast</i> will be set to 1.  If the array is 3-dimensional an error code
 will be returned.
-cbf_get_3d_image_size, cbf_get_3d_image_size_fs and cbf_get_3d_image_size_sf set 
+cbf_get_3d_image_size, cbf_get_3d_image_size_fs and cbf_get_3d_image_size_sf set
 *<i>ndimslow</i>, *<i>ndimmid</i> and  *<i>ndimfast</i> to the slowest, next fastest and
 fastest dimensions, respectively, of the 3D image array for element number <i>element_number</i>.  If the
-array is 1-dimensional, *<i>ndimslow</i> will be set to the array size and *<i>ndimmid</i> and *<i>ndimfast</i> 
+array is 1-dimensional, *<i>ndimslow</i> will be set to the array size and *<i>ndimmid</i> and *<i>ndimfast</i>
 will be set to 1.  If the array is 2-dimensional *<i>ndimslow</i> and *<i>ndimmid</i> will be set as for
 a call to cbf_get_image_size and *<i>ndimfast</i> will be set to 1.
 <p>
@@ -5046,7 +5046,7 @@ The _fs calls give the dimensions in a fast-to-slow order.  The calls with no su
 calls _sf calls give the dimensions in slow-to-fast order
 <p>
 Note that the ordering of dimensions is specified by values of the tag _array_structure_list.precedence
-with a precedence of 1 for the fastest dimension, 2 for the next slower, etc., which is opposite to the 
+with a precedence of 1 for the fastest dimension, 2 for the next slower, etc., which is opposite to the
 ordering of the dimension arguments for these functions, except for the ones with the _fs suffix..
 <p>
 Any of the destination pointers may be NULL.
@@ -5075,13 +5075,13 @@ The parameter <i>reserved</i> is presently unused and should be set to 0.
 <p><b>PROTOTYPE</b>
 <p>#include "cbf_simple.h"
 <p>
-int cbf_get_image (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>, 
+int cbf_get_image (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>,
 unsigned int <i>element_number</i>, void *<i>array</i>,
 size_t <i>elsize</i>, int <i>elsign</i>, size_t <i>ndimslow</i>, size_t <i>ndimfast</i>);<br />
-int cbf_get_image_fs (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>, 
+int cbf_get_image_fs (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>,
 unsigned int <i>element_number</i>, void *<i>array</i>,
 size_t <i>elsize</i>, int <i>elsign</i>, size_t <i>ndimfast</i>, size_t <i>ndimslow</i>);<br />
-int cbf_get_image_sf (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>, 
+int cbf_get_image_sf (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>,
 unsigned int <i>element_number</i>, void *<i>array</i>,
 size_t <i>elsize</i>, int <i>elsign</i>, size_t <i>ndimslow</i>, size_t <i>ndimfast</i>);<br />
 &nbsp;<br />
@@ -5095,13 +5095,13 @@ int cbf_get_real_image_sf (cbf_handle <i>handle</i>, unsigned int <i>reserved</i
 unsigned int <i>element_number</i>, void *<i>array</i>,
 size_t <i>elsize</i>, size_t <i>ndimslow</i>, size_t <i>ndimfast</i>);<br />
 &nbsp;<br />
-int cbf_get_3d_image (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>, 
+int cbf_get_3d_image (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>,
 unsigned int <i>element_number</i>, void *<i>array</i>,
 size_t <i>elsize</i>, int <i>elsign</i>, size_t <i>ndimslow</i>, size_t <i>ndimmid</i>, size_t <i>ndimfast</i>);<br />
-int cbf_get_3d_image_fs (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>, 
+int cbf_get_3d_image_fs (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>,
 unsigned int <i>element_number</i>, void *<i>array</i>,
 size_t <i>elsize</i>, int <i>elsign</i>, size_t <i>ndimfast</i>, size_t <i>ndimmid</i>, size_t <i>ndimslow</i>);<br />
-int cbf_get_3d_image_sf (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>, 
+int cbf_get_3d_image_sf (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>,
 unsigned int <i>element_number</i>, void *<i>array</i>,
 size_t <i>elsize</i>, int <i>elsign</i>, size_t <i>ndimslow</i>, size_t <i>ndimmid</i>, size_t <i>ndimfast</i>);<br />
 &nbsp;<br />
@@ -5121,13 +5121,13 @@ cbf_get_image, cbf_get_image_fs and cbf_get_image_sf read the image array for el
 The array consists of <i>ndimslow</i>&#215;<i>ndimfast</i> elements of <i>elsize</i> bytes each, starting at <i>array</i>.
 The elements are signed if <i>elsign</i> is non-0 and unsigned otherwise.  cbf_get_real_image,
 cbf_get_real_image_fs and cbf_get_real_image_sf
-read the image array of IEEE doubles or floats for element number <i>element_number</i> 
+read the image array of IEEE doubles or floats for element number <i>element_number</i>
 into an <i>array</i>.  A real array is always signed.
 cbf_get_3d_image, cbf_get_3d_image_fs and cbf_get_3d_image_sf read the 3D  image array for element number <i>element_number</i> into an <i>array</i>.
-The array consists of <i>ndimslow</i>&#215;<i>ndimmid</i>&#215;<i>ndimfast</i> elements of <i>elsize</i> bytes each, 
+The array consists of <i>ndimslow</i>&#215;<i>ndimmid</i>&#215;<i>ndimfast</i> elements of <i>elsize</i> bytes each,
 starting at <i>array</i>.
 The elements are signed if <i>elsign</i> is non-0 and unsigned otherwise.  cbf_get_real_3d_image, cbf_get_real_3d_image_fs, cbf_get_real_3d_image_sf
-reads the 3D image array of IEEE doubles or floats for element number <i>element_number</i> 
+reads the 3D image array of IEEE doubles or floats for element number <i>element_number</i>
 into an <i>array</i>.  A real array is always signed.
 
 <p>
@@ -5143,16 +5143,16 @@ is used, <i>ndimslow</i> and <i>ndimmid</i> should be the array dimensions and <
 should be set to 1 both in the call and in the imgCIF
 data being processed.
 <p>
-If any element in the binary data canÕt fit into the destination element, the 
+If any element in the binary data canï¿½t fit into the destination element, the
 destination is set the nearest possible value.
 <p>
 If the value is not binary, the function returns CBF_ASCII.
 <p>
-If the requested number of elements canÕt be read, the function will read as many as it 
+If the requested number of elements canï¿½t be read, the function will read as many as it
 can and then return CBF_ENDOFDATA.
 <p>
 Currently, the destination <i>array</i> must consist of chars, shorts or ints (signed or unsigned)
-for cbf_get_image, or IEEE doubles or floats for cbf_get_real_image. 
+for cbf_get_image, or IEEE doubles or floats for cbf_get_real_image.
 If <i>elsize</i> is not equal to sizeof (char), sizeof (short), sizeof (int), sizeof(double)
 or sizeof(float), the function  returns CBF_ARGUMENT.
 <p>
@@ -5177,59 +5177,59 @@ The parameter <i>reserved</i> is presently unused and should be set to 0.
 <p><hr /><P>
 <h4><A NAME="2.4.27">2.4.27 cbf_set_image, cbf_set_image_fs, cbf_set_image_sf,</a><br />
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cbf_set_real_image, cbf_set_real_image_fs, cbf_set_real_image_sf,<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cbf_set_3d_image, cbf_set_3d_image, cbf_set_3d_image,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cbf_set_3d_image, cbf_set_3d_image_fs, cbf_set_3d_image_sf,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cbf_set_real_3d_image, cbf_set_real_3d_image_fs, cbf_set_real_3d_image_sf</h4>
 <p><b>PROTOTYPE</b>
 <p>#include "cbf_simple.h"
 <p>
-int cbf_set_image (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>, 
+int cbf_set_image (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>,
 unsigned int <i>element_number</i>,
-unsigned int compression, void *<i>array</i>, size_t <i>elsize</i>, 
+unsigned int compression, void *<i>array</i>, size_t <i>elsize</i>,
 int <i>elsign</i>, size_t <i>ndimslow</i>, size_t <i>ndimfast</i>);<br />
-int cbf_set_image_fs(cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>, 
+int cbf_set_image_fs(cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>,
 unsigned int <i>element_number</i>,
-unsigned int compression, void *<i>array</i>, size_t <i>elsize</i>, 
+unsigned int compression, void *<i>array</i>, size_t <i>elsize</i>,
 int <i>elsign</i>, size_t <i>ndimfast</i>, size_t <i>ndimslow</i>);<br />
-int cbf_set_image_sf(cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>, 
+int cbf_set_image_sf(cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>,
 unsigned int <i>element_number</i>,
-unsigned int compression, void *<i>array</i>, size_t <i>elsize</i>, 
+unsigned int compression, void *<i>array</i>, size_t <i>elsize</i>,
 int <i>elsign</i>, size_t <i>ndimslow</i>, size_t <i>ndimfast</i>);<br />
 &nbsp;<br />
-int cbf_set_real_image (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>, 
+int cbf_set_real_image (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>,
 unsigned int <i>element_number</i>,
 unsigned int compression, void *<i>array</i>,size_t <i>elsize</i>,
 size_t <i>ndimslow</i>, size_t <i>ndimfast</i>);<br />
-int cbf_set_real_image_fs(cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>, 
+int cbf_set_real_image_fs(cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>,
 unsigned int <i>element_number</i>,
 unsigned int compression, void *<i>array</i>,size_t <i>elsize</i>,
 size_t <i>ndimfast</i>, size_t <i>ndimslow</i>);<br />
-int cbf_set_real_image_sf(cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>, 
+int cbf_set_real_image_sf(cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>,
 unsigned int <i>element_number</i>,
 unsigned int compression, void *<i>array</i>,size_t <i>elsize</i>,
 size_t <i>ndimslow</i>, size_t <i>ndimfast</i>);<br />
 &nbsp;<br />
-int cbf_set_3d_image (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>, 
+int cbf_set_3d_image (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>,
 unsigned int <i>element_number</i>,
-unsigned int compression, void *<i>array</i>, size_t <i>elsize</i>, 
+unsigned int compression, void *<i>array</i>, size_t <i>elsize</i>,
 int <i>elsign</i>, size_t <i>ndimslow</i>, size_t <i>ndimmid</i>, size_t <i>ndimfast</i>);<br />
-int cbf_set_3d_image_fs(cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>, 
+int cbf_set_3d_image_fs(cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>,
 unsigned int <i>element_number</i>,
-unsigned int compression, void *<i>array</i>, size_t <i>elsize</i>, 
+unsigned int compression, void *<i>array</i>, size_t <i>elsize</i>,
 int <i>elsign</i>, size_t <i>ndimfast</i>, size_t <i>ndimmid</i>, size_t <i>ndimslow</i>);<br />
-int cbf_set_3d_image_sf(cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>, 
+int cbf_set_3d_image_sf(cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>,
 unsigned int <i>element_number</i>,
-unsigned int compression, void *<i>array</i>, size_t <i>elsize</i>, 
+unsigned int compression, void *<i>array</i>, size_t <i>elsize</i>,
 int <i>elsign</i>, size_t <i>ndimslow</i>, size_t <i>ndimmid</i>, size_t <i>ndimfast</i>);<br />
 &nbsp;<br />
-int cbf_set_real_3d_image (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>, 
+int cbf_set_real_3d_image (cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>,
 unsigned int <i>element_number</i>,
 unsigned int compression, void *<i>array</i>,size_t <i>elsize</i>,
 size_t <i>ndimslow</i>, size_t <i>ndimmid</i>, size_t <i>ndimfast</i>);<br />
-int cbf_set_real_3d_image_fs(cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>, 
+int cbf_set_real_3d_image_fs(cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>,
 unsigned int <i>element_number</i>,
 unsigned int compression, void *<i>array</i>,size_t <i>elsize</i>,
 size_t <i>ndimfast</i>, size_t <i>ndimmid</i>, size_t <i>ndimslow</i>);<br />
-int cbf_set_real_3d_image_sf(cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>, 
+int cbf_set_real_3d_image_sf(cbf_handle <i>handle</i>, unsigned int  <i>reserved</i>,
 unsigned int <i>element_number</i>,
 unsigned int compression, void *<i>array</i>,size_t <i>elsize</i>,
 size_t <i>ndimslow</i>, size_t <i>ndimmid</i>, size_t <i>ndimfast</i>);<br />
@@ -5237,21 +5237,21 @@ size_t <i>ndimslow</i>, size_t <i>ndimmid</i>, size_t <i>ndimfast</i>);<br />
 <p>
 <b>DESCRIPTION</b>
 <p>
-cbf_set_image, cbf_set_image_fs and cbf_set_image_sf write the image array for element number 
-<i>element_number</i>.  The <i>array</i> 
-consists of <i>ndimfast</i>&#215;<i>ndimslow</i> elements of <i>elsize</i> bytes each, starting 
+cbf_set_image, cbf_set_image_fs and cbf_set_image_sf write the image array for element number
+<i>element_number</i>.  The <i>array</i>
+consists of <i>ndimfast</i>&#215;<i>ndimslow</i> elements of <i>elsize</i> bytes each, starting
 at <i>array</i>.  The elements are signed if <i>elsign</i> is non-zero
-and unsigned otherwise.  cbf_set_real_image, cbf_set_real_image_fs and cbf_set_real_image_sf 
-write the image array for element number <i>element_number</i>.  The <i>array</i> 
-consists of <i>ndimfast</i>&#215;<i>ndimslow</i> IEEE double or float elements of <i>elsize</i> 
-bytes each, starting at <i>array</i>. 
-cbf_set_3d_image, cbf_set_3d_image_fs and cbf_set_3d_image_sf write the 3D image array for 
-element number <i>element_number</i>.  The <i>array</i> 
-consists of <i>ndimfast</i>&#215;<i>ndimmid</i>&#215;<i>ndimslow</i> elements of <i>elsize</i> 
+and unsigned otherwise.  cbf_set_real_image, cbf_set_real_image_fs and cbf_set_real_image_sf
+write the image array for element number <i>element_number</i>.  The <i>array</i>
+consists of <i>ndimfast</i>&#215;<i>ndimslow</i> IEEE double or float elements of <i>elsize</i>
+bytes each, starting at <i>array</i>.
+cbf_set_3d_image, cbf_set_3d_image_fs and cbf_set_3d_image_sf write the 3D image array for
+element number <i>element_number</i>.  The <i>array</i>
+consists of <i>ndimfast</i>&#215;<i>ndimmid</i>&#215;<i>ndimslow</i> elements of <i>elsize</i>
 bytes each, starting at <i>array</i>.  The elements are signed if <i>elsign</i> is non-0
 and unsigned otherwise.  cbf_set_real_3d_image, cbf_set_real_3d_image_fs and cbf_set_real_3d_image_sf
-writes the 3D image array for element number <i>element_number</i>.  The <i>array</i> 
-consists of <i>ndimfast</i>&#215;<i>ndimmid</i>&#215;<i>ndimslow</i> IEEE double or float elements of <i>elsize</i> 
+writes the 3D image array for element number <i>element_number</i>.  The <i>array</i>
+consists of <i>ndimfast</i>&#215;<i>ndimmid</i>&#215;<i>ndimslow</i> IEEE double or float elements of <i>elsize</i>
 bytes each, starting at <i>array</i>.
 <p>
 The _fs calls give the dimensions in a fast-to-slow order.  The calls with no suffix and the
@@ -5262,7 +5262,7 @@ for the 3D calls, <i>ndimmid</i>, should be set to 1.  If the array is 2-dimensi
 the 3D calls are used, <i>ndimslow</i> and <i>ndimmid</i> should be used for the array dimensions
 and <i>ndimfast</i> should be set to 1.
 <p>
-The array will be compressed using the compression scheme specifed by compression.  Currently, 
+The array will be compressed using the compression scheme specifed by compression.  Currently,
 the available schemes are:
 <p>
 <table>
@@ -5274,11 +5274,11 @@ the available schemes are:
 <tr><td valign="top">CBF_NONE<td valign="top">No compression.
 </table>
 <p>
-The values compressed are limited to 64 bits. If any element in the array is larger than 64 bits, the 
+The values compressed are limited to 64 bits. If any element in the array is larger than 64 bits, the
 value compressed is the nearest 64-bit value.
 <p>
-Currently, the source <i>array</i> must consist of chars, shorts or ints (signed or unsigned)for 
-cbf_set_image, or IEEE doubles or floats for cbf_set_real_image. 
+Currently, the source <i>array</i> must consist of chars, shorts or ints (signed or unsigned)for
+cbf_set_image, or IEEE doubles or floats for cbf_set_real_image.
 If <i>elsize</i> is not equal to sizeof (short), sizeof (int), sizeof(double)
 or sizeof(float), the function returns CBF_ARGUMENT.
 <p>
@@ -5573,9 +5573,9 @@ The parameter <i>reserved</i> is presently unused and should be set to 0.
 <TR><td valign="top">&nbsp;&nbsp;<i>initial1</i><td valign="top">&nbsp;&nbsp;x component of the initial vector.
 <TR><td valign="top">&nbsp;&nbsp;<i>initial2</i><td valign="top">&nbsp;&nbsp;y component of the initial vector.
 <TR><td valign="top">&nbsp;&nbsp;<i>initial3</i><td valign="top">&nbsp;&nbsp;z component of the initial vector.
-<TR><td valign="top">&nbsp;&nbsp;<i>vector1</i><td valign="top">&nbsp;&nbsp;Pointer to the destination x component of the final vector.
-<TR><td valign="top">&nbsp;&nbsp;<i>vector2</i><td valign="top">&nbsp;&nbsp;Pointer to the destination y component of the final vector.
-<TR><td valign="top">&nbsp;&nbsp;<i>vector3</i><td valign="top">&nbsp;&nbsp;Pointer to the destination z component of the final vector.
+<TR><td valign="top">&nbsp;&nbsp;<i>final1</i><td valign="top">&nbsp;&nbsp;Pointer to the destination x component of the final vector.
+<TR><td valign="top">&nbsp;&nbsp;<i>final2</i><td valign="top">&nbsp;&nbsp;Pointer to the destination y component of the final vector.
+<TR><td valign="top">&nbsp;&nbsp;<i>final3</i><td valign="top">&nbsp;&nbsp;Pointer to the destination z component of the final vector.
 </TABLE>
 <p>
 <b>RETURN VALUE</b>
@@ -5633,10 +5633,10 @@ int cbf_require_reference_detector (cbf_handle <i>handle</i>, cbf_detector *<i>d
 <p>
 <b>DESCRIPTION</b>
 <p>
-cbf_construct_detector constructs a detector object for detector element number <i>element_number</i> 
+cbf_construct_detector constructs a detector object for detector element number <i>element_number</i>
 using the description in the CBF object handle and initialises the detector handle *<i>detector</i>.
 <p>
-cbf_construct_reference_detector constructs a detector object for detector element number <i>element_number</i> 
+cbf_construct_reference_detector constructs a detector object for detector element number <i>element_number</i>
 using the description in the CBF object handle and initialises the detector handle *<i>detector</i> using the
 reference settings of the axes.  cbf_require_reference_detector is similar, but try to force the
 creations of missing intermediate categories needed to construct a detector object.
@@ -5684,10 +5684,10 @@ int cbf_construct_reference_positioner (cbf_handle <i>handle</i>, cbf_positioner
 <p>
 <b>DESCRIPTION</b>
 <p>
-cbf_construct_positioner constructs a positioner object for the axis given by <i>axis_id</i> 
+cbf_construct_positioner constructs a positioner object for the axis given by <i>axis_id</i>
 using the description in the CBF object handle and initialises the positioner handle *<i>positioner</i>.
 <p>
-cbf_construct_reference positioner constructs a positioner object for the axis given by <i>axis_id</i> 
+cbf_construct_reference positioner constructs a positioner object for the axis given by <i>axis_id</i>
 using the description in the CBF object handle and initialises the detector handle *<i>detector</i> using the
 reference settings of the axes.
 
@@ -5695,7 +5695,7 @@ reference settings of the axes.
 <b>ARGUMENTS</b><br />
 <TABLE>
 <TR><td valign="top">&nbsp;&nbsp;<i>handle</i><td valign="top">&nbsp;&nbsp;CBF handle.<br />
-<TR><td valign="top">&nbsp;&nbsp;<i>detector</i><td valign="top">&nbsp;&nbsp;Pointer to the destination detector handle.<br />
+<TR><td valign="top">&nbsp;&nbsp;<i>positioner</i><td valign="top">&nbsp;&nbsp;Pointer to the destination positioner handle.<br />
 <TR><td valign="top">&nbsp;&nbsp;<i>axis_id</i><td valign="top">&nbsp;&nbsp;The identifier of the axis in the &quot;axis&quot; category.<br />
 </TABLE>
 <p>
@@ -5727,7 +5727,7 @@ Returns an error code on failure or 0 for success.
 
 <h4><A NAME="2.4.40">2.4.40 cbf_get_beam_center, cbf_get_beam_center_fs, cbf_get_beam_center_sf,<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cbf_set_beam_center, cbf_set_beam_center_fs, cbf_set_beam_center_sf,<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set_reference_beam_center, set_reference_beam_center_fs, set_reference_beam_center_fs
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cbf_set_reference_beam_center, cbf_set_reference_beam_center_fs, cbf_set_reference_beam_center_sf
 </A></h4>
 <p><b>PROTOTYPE</b>
 <p>#include "cbf_simple.h"
@@ -5849,7 +5849,7 @@ Any of the destination pointers may be NULL.
 <p>
 Returns an error code on failure or 0 for success.
 <p><hr /><P>
-<h4><A NAME="2.4.43">2.4.43 cbf_get_detector_axis_slow, cbf_get_detector_axis_slow, cbf_get_detector_axes, cbf_get_detector_axes_fs, cbf_get_detector_axes_sf,
+<h4><A NAME="2.4.43">2.4.43 cbf_get_detector_axis_slow, cbf_get_detector_axis_fast, cbf_get_detector_axes, cbf_get_detector_axes_fs, cbf_get_detector_axes_sf,
     cbf_get_detector_surface_axes</A></h4>
 <p><b>PROTOTYPE</b>
 <p>#include "cbf_simple.h"
@@ -5877,7 +5877,7 @@ cbf_get_detector_axis_slow sets *<i>slowaxis1</i>, *<i>slowaxis2</i>, and *<i>sl
 the slow axis of the specified detector at the current settings of all axes.
 cbf_get_detector_axis_slow sets *<i>fastaxis1</i>, *<i>fastaxis2</i>, and *<i>fastaxis3</i> to the 3 components of
 the fast axis of the specified detector at the current settings of all axes.
-cbf_get_detector_axes, cbf_get_detector_axes_fs and int cbf_get_detector_axes_sf set  
+cbf_get_detector_axes, cbf_get_detector_axes_fs and int cbf_get_detector_axes_sf set
 *<i>slowaxis1</i>, *<i>slowaxis2</i>, and *<i>slowaxis3</i> to the 3 components of
 the slow axis and *<i>fastaxis1</i>, *<i>fastaxis2</i>, and *<i>fastaxis3</i> to the 3 components of
 the fast axis of the specified detector at the current settings of all axes.
@@ -5896,8 +5896,8 @@ Any of the destination pointers may be NULL.
 <TR><td valign="top">&nbsp;&nbsp;<i>fastaxis2</i><td valign="top">&nbsp;&nbsp;Pointer to the destination y component of the fast axis vector.</TR>
 <TR><td valign="top">&nbsp;&nbsp;<i>fastaxis3</i><td valign="top">&nbsp;&nbsp;Pointer to the destination z component of the fast axis vector.</TR>
 <TR><td valign="top">&nbsp;&nbsp;<i>axis_id1</i><td valign="top">&nbsp;&nbsp;Pointer to the destination first surface axis name.</TR>
-<TR><td valign="top">&nbsp;&nbsp;<i>axis_id1</i><td valign="top">&nbsp;&nbsp;Pointer to the destination first surface axis name.</TR>
 <TR><td valign="top">&nbsp;&nbsp;<i>axis_id2</i><td valign="top">&nbsp;&nbsp;Pointer to the destination second surface axis name.</TR>
+<TR><td valign="top">&nbsp;&nbsp;<i>axis_id3</i><td valign="top">&nbsp;&nbsp;Pointer to the destination third surface axis name.</TR>
 
 </TABLE>
 <p>
@@ -5919,8 +5919,8 @@ int cbf_get_pixel_coordinates_sf (cbf_detector <I>detector</I>, double <i>indexs
 <p>
 <b>DESCRIPTION</b>
 <p>
-cbf_get_pixel_coordinates, cbf_get_pixel_coordinates_fs and cbf_get_pixel_coordinates_sf ses *<i>coordinate1</i>, *<i>coordinate2</i>, and *<i>coordinate3</i> 
-to the vector position of pixel (<i>indexfast</i>, <i>indexslow</i>) on the detector surface.  If 
+cbf_get_pixel_coordinates, cbf_get_pixel_coordinates_fs and cbf_get_pixel_coordinates_sf ses *<i>coordinate1</i>, *<i>coordinate2</i>, and *<i>coordinate3</i>
+to the vector position of pixel (<i>indexfast</i>, <i>indexslow</i>) on the detector surface.  If
 <i>indexslow</i> and <i>indexfast</i> are integers then the coordinates
 correspond to the center of a pixel.
 <p>
@@ -5954,8 +5954,8 @@ double *<i>normal2</i>, double *<i>normal3</i>);
 <p>
 <b>DESCRIPTION</b>
 <p>
-cbf_get_detector_normal, cbf_get_pixel_normal_fs and cbf_get_pixel_normal_sf set 
-*<i>normal1</i>, *<i>normal2</i>, and *<i>normal3</i> to the 3 components of the of the normal vector 
+cbf_get_detector_normal, cbf_get_pixel_normal_fs and cbf_get_pixel_normal_sf set
+*<i>normal1</i>, *<i>normal2</i>, and *<i>normal3</i> to the 3 components of the of the normal vector
 to the pixel at (<i>indexfast</i>, <i>indexslow</i>).  The vector is normalized.
 <p>
 Any of the destination pointers may be NULL.
@@ -5988,8 +5988,8 @@ double *<i>projected_area</i>);<br />
 <p>
 <b>DESCRIPTION</b>
 <p>
-cbf_get_pixel_area, cbf_get_pixel_area_fs and cbf_get_pixel_area_sf set *<I>area</I> to the area of the pixel at (<i>indexfast</i>, <i>indexslow</i>) 
-on the detector surface and *<i>projected_area</i> to the apparent area of the pixel as viewed 
+cbf_get_pixel_area, cbf_get_pixel_area_fs and cbf_get_pixel_area_sf set *<I>area</I> to the area of the pixel at (<i>indexfast</i>, <i>indexslow</i>)
+on the detector surface and *<i>projected_area</i> to the apparent area of the pixel as viewed
 from the sample position, with <i>indexslow</i> being the slow axis and <i>indexfast</i> being the fast axis.
 
 <p>
@@ -6024,7 +6024,7 @@ int <i>axis_number</i>, double *<i>psize</i>);
 <p>
 cbf_get_pixel_size and cbf_get_pixel_size_sf set *<i>psize</i> to point to the double value in millimeters of the
 axis <i>axis_number</i> of the detector element <i>element_number</i>.  The <i>axis_number</i>
-is numbered from 1, starting with the slowest axis.  cbf_get_pixel_size_fs sets *<i>psize</i> to point to 
+is numbered from 1, starting with the slowest axis.  cbf_get_pixel_size_fs sets *<i>psize</i> to point to
 the double value in millimeters of the axis <i>axis_number</i> of the detector element <i>element_number</i>.
 The <i>axis_number</i>
 is numbered from 1, starting with the fastest axis.
@@ -6113,22 +6113,22 @@ double *<i>psize</i>);
 <p>
 <b>DESCRIPTION</b>
 <p>
-cbf_get_inferred_pixel_size, cbf_get_inferred_pixel_size_sf set *<i>psize</i> to point to 
+cbf_get_inferred_pixel_size, cbf_get_inferred_pixel_size_sf set *<i>psize</i> to point to
 the double value in millimeters of the
 pixel size for the axis <i>axis_number</i> value.  The slow index is treated as axis 1 and the next faster index is treated
-as axis 2.  cbf_get_inferred_pixel_size_fs sets *<i>psize</i> to point to the double value in 
+as axis 2.  cbf_get_inferred_pixel_size_fs sets *<i>psize</i> to point to the double value in
 millimeters of the
 pixel size for the axis <i>axis_number</i> value.  The fast index is treated as axis 1  and the next slower index is treated
 as axis 2.
 <p>If the axis number is negative, the axes are used in the reverse order so that an <i>axis_number</i>
 of -1 indicates the fast axes in a call to cbf_get_inferred_pixel_size or cbf_get_inferred_pixel_size_sf
-and indicates the fast axis in a call to cbf_get_inferred_pixel_size_fs.  
+and indicates the fast axis in a call to cbf_get_inferred_pixel_size_fs.
 <p>
 <b>ARGUMENTS</b><br />
 <TABLE>
 <TR><td valign="top">&nbsp;&nbsp;<i>detector</i><td valign="top">&nbsp;&nbsp;Detector handle.<br />
 <TR><td valign="top">&nbsp;&nbsp;<i>axis_number</i><td valign="top">&nbsp;&nbsp;The number of the axis.
-<TR><td valign="top">&nbsp;&nbsp;<i>area</i><td valign="top">&nbsp;&nbsp;Pointer to the destination pizel size in mm.<br />
+<TR><td valign="top">&nbsp;&nbsp;<i>psize</i><td valign="top">&nbsp;&nbsp;Pointer to the destination pizel size in mm.<br />
 </TABLE>
 <p>
 <b>RETURN VALUE</b>
@@ -6444,7 +6444,7 @@ of columns:<P>
 &quot;UB[1][1]&quot; &quot;UB[1][2]&quot; &quot;UB[1][3]&quot;<br />
 &quot;UB[2][1]&quot; &quot;UB[2][2]&quot; &quot;UB[2][3]&quot;<br />
 &quot;UB[3][1]&quot; &quot;UB[3][2]&quot; &quot;UB[3][3]&quot;
-</center>  
+</center>
 <P>
 cbf_set_orientation_matrix sets the values in the &quot;diffrn&quot; category
 to the values pointed to by <i>ub_matrix</i>.
@@ -6452,7 +6452,7 @@ to the values pointed to by <i>ub_matrix</i>.
 <b>ARGUMENTS</b><br />
 <TABLE>
 <TR><td valign="top">&nbsp;&nbsp;<i>handle</i><td valign="top">&nbsp;&nbsp;CBF handle.
-<TR><td valign="top">&nbsp;&nbsp;<i>ubmatric</i><td valign="top">&nbsp;&nbsp;Source or destination array
+<TR><td valign="top">&nbsp;&nbsp;<i>ub_matrix</i><td valign="top">&nbsp;&nbsp;Source or destination array
 of 9 doubles giving the orientation matrix parameters.
 </TABLE>
 <p>
@@ -6480,8 +6480,8 @@ number of pixels composing one array element in the dimension that changes at
 the second-fastest rate and <i>fastbinsize</i> to point to the value of the
 number of pixels composing one array element in the dimension that changes at
 the fastest rate for the dectector element with the ordinal <i>element_number</i>.
-cbf_set_bin_sizes sets the the pixel bin sizes in the  
-&quot;array_intensities&quot; category to the values of 
+cbf_set_bin_sizes sets the the pixel bin sizes in the
+&quot;array_intensities&quot; category to the values of
 <i>slowbinsize_in</i> for the
 number of pixels composing one array element in the dimension that changes at
 the second-fastest rate and <i>fastbinsize_in</i> for the
@@ -6509,8 +6509,8 @@ the fastest rate.
 <p>
 Returns an error code on failure or 0 for success.
 <p><hr /><P>
-    
-<h4><A NAME="2.4.58">2.4.58 cbf_get_axis_poise, cbf_get_goniometer_poise, cbf_get_reference_poise
+
+<h4><A NAME="2.4.58">2.4.58 cbf_get_axis_poise, cbf_get_goniometer_poise, cbf_get_axis_reference_poise
     </A></h4>
     <p><b>PROTOTYPE</b>
     <p>#include "cbf_simple.h"
@@ -6562,10 +6562,10 @@ Returns an error code on failure or 0 for success.
     <i>offset1</i>, <i>offset2</i>, <i>offset3</i> to point to the
     components of the axis base offset vector for axis <i>axis_id</i>
     unmodified by axis rotations.
-    
-    
+
+
     Any of the pointers may be specified as NULL.
-    
+
     <P>
     <b>ARGUMENTS</b><br />
     <TABLE>
@@ -6620,7 +6620,7 @@ Returns an error code on failure or 0 for success.
     The Airy function used is an 8-digit approximation up to the first minimum,
     after which it is forced to zero, so it cannot be used to simulate diffraction
     rings.
-    
+
     <P>
     <b>ARGUMENTS</b><br />
     <TABLE>
@@ -6665,7 +6665,7 @@ lib/libfcb.
 
 <P>In general, most of the FCBlib functions return 0 for normal completion and a non-zero
 value in case of an error.  In a few cases, such as FCB_ATOL_WCNT and FCB_NBLEN_ARRAY
-in order to conform to the conventions for commonly used C-equivalent functions, 
+in order to conform to the conventions for commonly used C-equivalent functions,
 the function return is the value being computed.
 <p>
 For each function, an interface is given to be included in the declarations of your
@@ -6677,10 +6677,10 @@ names should not be used for user routines.
 <P>
 The functions involving reading of a CBF have been done strictly in Fortran
 without the use of C code.  This has required some compromises and the use
-of direct access I/O.   Rather than 
-putting the buffer and its control variables into COMMON these are passed 
-as local arguments to make the routines inherently 'threadsafe' in a parallel 
-programming environment.  Note also, that a reading error could occur for the 
+of direct access I/O.   Rather than
+putting the buffer and its control variables into COMMON these are passed
+as local arguments to make the routines inherently 'threadsafe' in a parallel
+programming environment.  Note also, that a reading error could occur for the
 last record if it does not fill a full block.  The code is written to
 recover from end-of-record and end-of-file errors, if possible.  On
 many modern system, no special action is required, but
@@ -6700,7 +6700,7 @@ padding can be converted to files with padding by use of the new
       END FUNCTION
       END INTERFACE</pre>
  <P>
-FCB_ATOL_WCNT converts INTEGER(1) bytes in <i>ARRAY</i> of <i>N</i> bytes 
+FCB_ATOL_WCNT converts INTEGER(1) bytes in <i>ARRAY</i> of <i>N</i> bytes
 to an INTEGER(8) value returned as the function value.  The number of
 bytes of <i>ARRAY</i> actually used before encountering a character
 not used to form the number is returned in <i>CNT</i>.
@@ -6729,7 +6729,7 @@ Returns the INTEGER(8) value derived from the characters <i>ARRAY</i>(1:<i>CNT</
       END FUNCTION
       END INTERFACE</pre>
 <P>
-The function FCB_CI_STRNCMPARR compares up to <i>LIMIT</i> characters of 
+The function FCB_CI_STRNCMPARR compares up to <i>LIMIT</i> characters of
 character string <i>STRING</i> and INTEGER(1) byte array <i>ARRAY</i> of
 dimension <i>N</i> in a case-insensitive manner, returning 0 for a match.
 <P>
@@ -6765,19 +6765,19 @@ to <A HREF="#2.5.5">FCB_NEXT_BINARY</a>
 <P>
 <b>ARGUMENTS</b><br />
 <TABLE>
-<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran 
+<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran
 device unit number assigned to image file.
-<TR><td valign="top">&nbsp;&nbsp;<i>LAST_CHAR</i><td valign="top">&nbsp;&nbsp;The last character 
+<TR><td valign="top">&nbsp;&nbsp;<i>LAST_CHAR</i><td valign="top">&nbsp;&nbsp;The last character
 (as an INTEGER(1) byte) read.
 <TR><td valign="top">&nbsp;&nbsp;<i>FCB_BYTES_IN_REC</i><td valign="top">&nbsp;&nbsp;The INTEGER
 number of bytes in a record.
-<TR><td valign="top">&nbsp;&nbsp;<i>BYTE_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER byte 
+<TR><td valign="top">&nbsp;&nbsp;<i>BYTE_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER byte
 (counting from 1) of the byte to read.
-<TR><td valign="top">&nbsp;&nbsp;<i>REC_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER record 
+<TR><td valign="top">&nbsp;&nbsp;<i>REC_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER record
 number (counting from 1) of next record to read.
-<TR><td valign="top">&nbsp;&nbsp;<i>BUFFER</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of 
+<TR><td valign="top">&nbsp;&nbsp;<i>BUFFER</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of
 length <i>FCB_BYTES_IN_REC</i> to hold the appropriate record from <i>TAPIN</i>
-<TR><td valign="top">&nbsp;&nbsp;<i>PADDING</i><td valign="top">&nbsp;&nbsp;The INTEGER(8) number of bytes 
+<TR><td valign="top">&nbsp;&nbsp;<i>PADDING</i><td valign="top">&nbsp;&nbsp;The INTEGER(8) number of bytes
 of padding after the binary data and before the closing MIME boundary.
 </TABLE>
 <p>
@@ -6811,7 +6811,7 @@ The INTEGER trimmed length is returned as the function value.
 <P>
 <b>ARGUMENTS</b><br />
 <TABLE>
-<TR><td valign="top">&nbsp;&nbsp;<i>ARRAY</i><td valign="top">&nbsp;&nbsp;The array of bytes 
+<TR><td valign="top">&nbsp;&nbsp;<i>ARRAY</i><td valign="top">&nbsp;&nbsp;The array of bytes
 for which the trimmed length is required.
 <TR><td valign="top">&nbsp;&nbsp;<i>ARRAYLEN</i><td valign="top">&nbsp;&nbsp;The dimension
 of the array of bytes to be scanned.
@@ -6855,7 +6855,7 @@ the text filed is reached, it will be scanned for a MIME boundary
 marker, and, if it is found the subsequence MIME headers will
 be used to populate the arguments <i>ENCODING</i>, <i>SIZE</i>,
 <i>ID</i>, <i>DIGEST</i>, <i>COMPRESSION</i>, <i>BITS</i>,
-<i>VORZEICHEN</i>,<i>REELL</i>, <i>BYTEORDER</i>, <i>DIMOVER</i>, 
+<i>VORZEICHEN</i>,<i>REELL</i>, <i>BYTEORDER</i>, <i>DIMOVER</i>,
 <i>DIM1</i>, <i>DIM2</i>,<i>DIM3</i>, <i>PADDING</i>.
 
 <P>
@@ -6879,7 +6879,7 @@ as 0 if not specified.
 <P>
 The value returned in <i>ID</i> is taken from the MIME header
 X-Binary-ID as an INTEGER.  It is returned as 0 if not
-specified. 
+specified.
 <P>
 The value returned in <i>DIGEST</i> is taken from the
 MIME header Content-MD5.  It is returned
@@ -6907,7 +6907,7 @@ types, <i>REELL</i> is reported as 0.  If the value is one
 of the real or complex types, <i>REELL</i> is reported as 1.
 <b>In the current release of FCBlib only the integer types for
 <i>BITS</i> equal to 16 or 32 are supported.</b>
-  
+
 <P>
 The value returned in <i>BYTEORDER</i> is the byte order
 of the data in the image file as reported in the MIME header.
@@ -6916,7 +6916,7 @@ or the character string "BIG_ENDIAN".  If no byte order is
 specified, "LITTLE_ENDIAN" is reported.  This value is taken from
 the MIME header X-Binary-Element-Byte-Order.  <b>As of this writing,
 CBFlib will not generate "BIG_ENDIAN" byte-order files.  However,
-both CBFlib and FCBlib read "LITTLE_ENDIAN" byte-order files, even 
+both CBFlib and FCBlib read "LITTLE_ENDIAN" byte-order files, even
 on big-endian machines.</b>
 <P>
 The value returned in <i>DIMOVER</i> is the overall number
@@ -6939,17 +6939,17 @@ This value is taken from the MIME header X-Binary-Size-Padding.
 <P>
 <b>ARGUMENTS</b><br />
 <TABLE>
-<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran 
+<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran
 device unit number assigned to image file.
-<TR><td valign="top">&nbsp;&nbsp;<i>LAST_CHAR</i><td valign="top">&nbsp;&nbsp;The last character 
+<TR><td valign="top">&nbsp;&nbsp;<i>LAST_CHAR</i><td valign="top">&nbsp;&nbsp;The last character
 (as an INTEGER(1) byte) read.
 <TR><td valign="top">&nbsp;&nbsp;<i>FCB_BYTES_IN_REC</i><td valign="top">&nbsp;&nbsp;The INTEGER
 number of bytes in a record.
-<TR><td valign="top">&nbsp;&nbsp;<i>BYTE_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER byte 
+<TR><td valign="top">&nbsp;&nbsp;<i>BYTE_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER byte
 (counting from 1) of the byte to read.
-<TR><td valign="top">&nbsp;&nbsp;<i>REC_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER record 
+<TR><td valign="top">&nbsp;&nbsp;<i>REC_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER record
 number (counting from 1) of next record to read.
-<TR><td valign="top">&nbsp;&nbsp;<i>BUFFER</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of 
+<TR><td valign="top">&nbsp;&nbsp;<i>BUFFER</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of
 length <i>FCB_BYTES_IN_REC</i> to hold the appropriate record from <i>TAPIN</i>
 <TR><TD VALIGN=TOP>&nbsp;&nbsp;<i>ENCODING</i><td valign="top">&nbsp;&nbsp;INTEGER type of encoding for the binary section as reported in the MIME header.<br />
 <TR><TD VALIGN=TOP>&nbsp;&nbsp;<i>ID</i><td valign="top">&nbsp;&nbsp;INTEGER binary identifier as reported in the MIME header.<br />
@@ -6957,7 +6957,7 @@ length <i>FCB_BYTES_IN_REC</i> to hold the appropriate record from <i>TAPIN</i>
 <TR><td valign="top">&nbsp;&nbsp;<i>DIGEST</i><td valign="top">&nbsp;&nbsp;The MD5 message digest as reported in the MIME header.<br />
 <TR><td valign="top">&nbsp;&nbsp;<i>COMPRESSION</i><td valign="top">&nbsp;&nbsp;INTEGER compression method as reported in the MIME header.<br />
 <TR><td valign="top">&nbsp;&nbsp;<i>BITS</i><td valign="top">&nbsp;&nbsp;INTEGER number of bits in each element as reported in the MIME header.<br />
-<TR><TD VALIGN=TOP>&nbsp;&nbsp;<i>VORZEICHEN</i><td valign="top">&nbsp;&nbsp;INTEGER flag for signed or 
+<TR><TD VALIGN=TOP>&nbsp;&nbsp;<i>VORZEICHEN</i><td valign="top">&nbsp;&nbsp;INTEGER flag for signed or
 unsigned elements as reported in the MIME header. Set to 1 if the elements can be read as signed values,
 0 otherwise.<br />
 <TR><td valign="top">&nbsp;&nbsp;<i>REELL</i><td valign="top">&nbsp;&nbsp;INTEGER flag for real elements as reported in the MIME header.  Set to 1 if the elements can be read as REAL<br />
@@ -7005,23 +7005,23 @@ I/O routines.
 
 <P>
 The image file will be checked for the initial characters "###CBF: ".  If
-there is no match the error value CBF_FILEREAD is returned. 
-<P> 
+there is no match the error value CBF_FILEREAD is returned.
+<P>
 <b>ARGUMENTS</b><br />
 <TABLE>
 <TR><td valign="top">&nbsp;&nbsp;<i>FILNAM</i><td valign="top">&nbsp;&nbsp;The
 character string name of the image file to be opened.
-<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran 
+<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran
 device unit number assigned to image file.
-<TR><td valign="top">&nbsp;&nbsp;<i>LAST_CHAR</i><td valign="top">&nbsp;&nbsp;The last character 
+<TR><td valign="top">&nbsp;&nbsp;<i>LAST_CHAR</i><td valign="top">&nbsp;&nbsp;The last character
 (as an INTEGER(1) byte) read.
 <TR><td valign="top">&nbsp;&nbsp;<i>FCB_BYTES_IN_REC</i><td valign="top">&nbsp;&nbsp;The INTEGER
 number of bytes in a record.
-<TR><td valign="top">&nbsp;&nbsp;<i>BYTE_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER byte 
+<TR><td valign="top">&nbsp;&nbsp;<i>BYTE_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER byte
 (counting from 1) of the byte to read.
-<TR><td valign="top">&nbsp;&nbsp;<i>REC_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER record 
+<TR><td valign="top">&nbsp;&nbsp;<i>REC_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER record
 number (counting from 1) of next record to read.
-<TR><td valign="top">&nbsp;&nbsp;<i>BUFFER</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of 
+<TR><td valign="top">&nbsp;&nbsp;<i>BUFFER</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of
 length <i>FCB_BYTES_IN_REC</i> to hold the appropriate record from <i>TAPIN</i>
 </TABLE>
 <p>
@@ -7049,7 +7049,7 @@ Returns 0 if the function is successful.
       INTEGER(8),  INTENT(OUT):: <i>NELEM_READ</i>
       INTEGER(8),   INTENT(IN):: <i>NELEM</i>
       INTEGER,      INTENT(IN):: <i>ELSIGN</i>, <i>COMPRESSION</i>
-      INTEGER(8),   INTENT(IN):: <i>DIM1</i>,<i>DIM2</i> 
+      INTEGER(8),   INTENT(IN):: <i>DIM1</i>,<i>DIM2</i>
       INTEGER,      INTENT(IN):: <i>TAPIN</i>,<i>FCB_BYTES_IN_REC</i>
       INTEGER,   INTENT(INOUT):: <i>REC_IN_FILE</i>,<i>BYTE_IN_FILE</i>
       INTEGER(1),INTENT(INOUT):: <i>BUFFER</i>(<i>FCB_BYTES_IN_REC</i>)
@@ -7061,12 +7061,12 @@ Returns 0 if the function is successful.
         <i>ELSIGN</i>, <i>COMPRESSION</i>, <i>DIM1</i>, <i>DIM2</i>,  &amp;
         <i>TAPIN</i>,<i>FCB_BYTES_IN_REC</i>,<i>BYTE_IN_FILE</i>,                   &amp;
         <i>REC_IN_FILE</i>,<i>BUFFER</i>)
-        
+
       INTEGER(4),  INTENT(OUT):: <i>ARRAY</i>(<i>DIM1</i>,<i>DIM2</i>)
       INTEGER(8),  INTENT(OUT):: <i>NELEM_READ</i>
       INTEGER(8),   INTENT(IN):: <i>NELEM</i>
       INTEGER,      INTENT(IN):: <i>ELSIGN</i>, <i>COMPRESSION</i>
-      INTEGER(8),   INTENT(IN):: <i>DIM1</i>,<i>DIM2</i> 
+      INTEGER(8),   INTENT(IN):: <i>DIM1</i>,<i>DIM2</i>
       INTEGER,      INTENT(IN):: <i>TAPIN</i>,<i>FCB_BYTES_IN_REC</i>
       INTEGER,   INTENT(INOUT):: <i>REC_IN_FILE</i>,<i>BYTE_IN_FILE</i>
       INTEGER(1),INTENT(INOUT):: <i>BUFFER</i>(<i>FCB_BYTES_IN_REC</i>)
@@ -7082,7 +7082,7 @@ Returns 0 if the function is successful.
       INTEGER(8),  INTENT(OUT):: <i>NELEM_READ</i>
       INTEGER(8),   INTENT(IN):: <i>NELEM</i>
       INTEGER,      INTENT(IN):: <i>ELSIGN</i>, <i>COMPRESSION</i>
-      INTEGER(8),   INTENT(IN):: <i>DIM1</i>,<i>DIM2</i>,<i>DIM3</i> 
+      INTEGER(8),   INTENT(IN):: <i>DIM1</i>,<i>DIM2</i>,<i>DIM3</i>
       INTEGER,      INTENT(IN):: <i>TAPIN</i>,<i>FCB_BYTES_IN_REC</i>
       INTEGER,   INTENT(INOUT):: <i>REC_IN_FILE</i>,<i>BYTE_IN_FILE</i>
       INTEGER(1),INTENT(INOUT):: <i>BUFFER</i>(<i>FCB_BYTES_IN_REC</i>)
@@ -7098,16 +7098,16 @@ Returns 0 if the function is successful.
       INTEGER(8),  INTENT(OUT):: <i>NELEM_READ</i>
       INTEGER(8),   INTENT(IN):: <i>NELEM</i>
       INTEGER,      INTENT(IN):: <i>ELSIGN</i>, <i>COMPRESSION</i>
-      INTEGER(8),   INTENT(IN):: <i>DIM1</i>,<i>DIM2</i>,<i>DIM3</i> 
+      INTEGER(8),   INTENT(IN):: <i>DIM1</i>,<i>DIM2</i>,<i>DIM3</i>
       INTEGER,      INTENT(IN):: <i>TAPIN</i>,<i>FCB_BYTES_IN_REC</i>
       INTEGER,   INTENT(INOUT):: <i>REC_IN_FILE</i>,<i>BYTE_IN_FILE</i>
       INTEGER(1),INTENT(INOUT):: <i>BUFFER</i>(<i>FCB_BYTES_IN_REC</i>)
       END FUNCTION
       END INTERFACE</pre>
-<p>The functions FCB_DECOMPRESS_PACKED_I2, FCB_DECOMPRESS_PACKED_I4, 
+<p>The functions FCB_DECOMPRESS_PACKED_I2, FCB_DECOMPRESS_PACKED_I4,
 FCB_DECOMPRESS_PACKED_3D_I2 and FCB_DECOMPRESS_PACKED_3D_I4, decompress
 images compress according the the CBF_PACKED or CBF_PACKED_V2
-compression described in section <A HREF="#3.3.2">3.3.2</a> on 
+compression described in section <A HREF="#3.3.2">3.3.2</a> on
 J. P. Abrahams CCP4 packed compression.
 
 <P>The relevant function should be called immediately after
@@ -7125,15 +7125,15 @@ the appropriate version of the function.
 <TR><td valign="top">&nbsp;&nbsp;<i>DIM1</i><td valign="top">&nbsp;&nbsp;The INTEGER(8) value of the fastest dimension of <i>ARRAY</i>
 <TR><td valign="top">&nbsp;&nbsp;<i>DIM2</i><td valign="top">&nbsp;&nbsp;The INTEGER(8) value of the second fastest dimension
 <TR><td valign="top">&nbsp;&nbsp;<i>DIM3</i><td valign="top">&nbsp;&nbsp;The INTEGER(8) value of the third fastest dimension
-<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran 
+<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran
 device unit number assigned to image file.
 <TR><td valign="top">&nbsp;&nbsp;<i>FCB_BYTES_IN_REC</i><td valign="top">&nbsp;&nbsp;The INTEGER
 number of bytes in a record.
-<TR><td valign="top">&nbsp;&nbsp;<i>BYTE_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER byte 
+<TR><td valign="top">&nbsp;&nbsp;<i>BYTE_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER byte
 (counting from 1) of the byte to read.
-<TR><td valign="top">&nbsp;&nbsp;<i>REC_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER record 
+<TR><td valign="top">&nbsp;&nbsp;<i>REC_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER record
 number (counting from 1) of next record to read.
-<TR><td valign="top">&nbsp;&nbsp;<i>BUFFER</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of 
+<TR><td valign="top">&nbsp;&nbsp;<i>BUFFER</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of
 length <i>FCB_BYTES_IN_REC</i> to hold the appropriate record from <i>TAPIN</i>
 </TABLE>
 <p>
@@ -7178,15 +7178,15 @@ with the least significant portion in <i>IINT</i>(1).
 <p>
 <b>ARGUMENTS</b><br />
 <TABLE>
-<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran 
+<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran
 device unit number assigned to image file.
 <TR><td valign="top">&nbsp;&nbsp;<i>FCB_BYTES_IN_REC</i><td valign="top">&nbsp;&nbsp;The INTEGER
 number of bytes in a record.
-<TR><td valign="top">&nbsp;&nbsp;<i>BUFFER</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of 
+<TR><td valign="top">&nbsp;&nbsp;<i>BUFFER</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of
 length <i>FCB_BYTES_IN_REC</i> to hold the appropriate record from <i>TAPIN</i>
-<TR><td valign="top">&nbsp;&nbsp;<i>REC_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER record 
+<TR><td valign="top">&nbsp;&nbsp;<i>REC_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER record
 number (counting from 1) of next record to read.
-<TR><td valign="top">&nbsp;&nbsp;<i>BYTE_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER byte 
+<TR><td valign="top">&nbsp;&nbsp;<i>BYTE_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER byte
 (counting from 1) of the byte to read.
 <TR><td valign="top">&nbsp;&nbsp;<i>BCOUNT</i><td valign="top">&nbsp;&nbsp;The INTEGER count of
 bits remaining unused from the last call to FCB_READ_BITS.
@@ -7194,7 +7194,7 @@ bits remaining unused from the last call to FCB_READ_BITS.
 containing the unused bits from the last call to FCB_READ_BITS.
 <TR><td valign="top">&nbsp;&nbsp;<i>BITCOUNT</i><td valign="top">&nbsp;&nbsp;The INTEGER count of
 the number of bits to be extracted from the image file.
-<TR><td valign="top">&nbsp;&nbsp;<i>IINT</i><td valign="top">&nbsp;&nbsp;The INTEGER(4) array 
+<TR><td valign="top">&nbsp;&nbsp;<i>IINT</i><td valign="top">&nbsp;&nbsp;The INTEGER(4) array
 into which to store the value extracted from the image file.
 <TR><td valign="top">&nbsp;&nbsp;<i>LINT</i><td valign="top">&nbsp;&nbsp;The INTEGER length
 of the array  <i>IINT</i>.
@@ -7241,15 +7241,15 @@ read.
 <P>
 <b>ARGUMENTS</b><br />
 <TABLE>
-<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran 
+<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran
 device unit number assigned to image file.
 <TR><td valign="top">&nbsp;&nbsp;<i>FCB_BYTES_IN_REC</i><td valign="top">&nbsp;&nbsp;The INTEGER
 number of bytes in a record.
-<TR><td valign="top">&nbsp;&nbsp;<i>BUFFER</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of 
+<TR><td valign="top">&nbsp;&nbsp;<i>BUFFER</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of
 length <i>FCB_BYTES_IN_REC</i> to hold the appropriate record from <i>TAPIN</i>
-<TR><td valign="top">&nbsp;&nbsp;<i>REC_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER record 
+<TR><td valign="top">&nbsp;&nbsp;<i>REC_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER record
 number (counting from 1) of next record to read.
-<TR><td valign="top">&nbsp;&nbsp;<i>BYTE_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER byte 
+<TR><td valign="top">&nbsp;&nbsp;<i>BYTE_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER byte
 (counting from 1) of the byte to read.
 <TR><td valign="top">&nbsp;&nbsp;<i>IBYTE</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) byte
 found in the image file at the byte position <i>BYTE_IN_FILE</i>.
@@ -7277,13 +7277,13 @@ size <i>FCB_BYTES_IN_REC</i> the precise location of the end of file may not be 
         <i>ELSIGN</i>, <i>COMPRESSION</i>, <i>DIM1</i>, <i>DIM2</i>,                         &amp;
         <i>PADDING</i>,<i>TAPIN</i>,<i>FCB_BYTES_IN_REC</i>,<i>BYTE_IN_FILE</i>,             &amp;
         <i>REC_IN_FILE</i>,<i>BUFFER</i>)
-      
+
       INTEGER(2),  INTENT(OUT):: <i>ARRAY</i>(<i>DIM1</i>,<i>DIM2</i>)
       INTEGER(8),  INTENT(OUT):: <i>NELEM_READ</i>
       INTEGER(8),   INTENT(IN):: <i>NELEM</i>
       INTEGER,      INTENT(IN):: <i>ELSIGN</i>
       INTEGER,     INTENT(OUT):: <i>COMPRESSION</i>
-      INTEGER(8),   INTENT(IN):: <i>DIM1</i>,<i>DIM2</i> 
+      INTEGER(8),   INTENT(IN):: <i>DIM1</i>,<i>DIM2</i>
       INTEGER(8),  INTENT(OUT):: <i>PADDING</i>
       INTEGER,      INTENT(IN):: <i>TAPIN</i>,<i>FCB_BYTES_IN_REC</i>
       INTEGER,   INTENT(INOUT):: <i>REC_IN_FILE</i>,<i>BYTE_IN_FILE</i>
@@ -7301,7 +7301,7 @@ size <i>FCB_BYTES_IN_REC</i> the precise location of the end of file may not be 
       INTEGER(8),   INTENT(IN):: <i>NELEM</i>
       INTEGER,      INTENT(IN):: <i>ELSIGN</i>
       INTEGER,     INTENT(OUT):: <i>COMPRESSION</i>
-      INTEGER(8),   INTENT(IN):: <i>DIM1</i>,<i>DIM2</i> 
+      INTEGER(8),   INTENT(IN):: <i>DIM1</i>,<i>DIM2</i>
       INTEGER(8),  INTENT(OUT):: <i>PADDING</i>
       INTEGER,      INTENT(IN):: <i>TAPIN</i>,<i>FCB_BYTES_IN_REC</i>
       INTEGER,   INTENT(INOUT):: <i>REC_IN_FILE</i>,<i>BYTE_IN_FILE</i>
@@ -7319,7 +7319,7 @@ size <i>FCB_BYTES_IN_REC</i> the precise location of the end of file may not be 
       INTEGER(8),   INTENT(IN):: <i>NELEM</i>
       INTEGER,      INTENT(IN):: <i>ELSIGN</i>
       INTEGER,     INTENT(OUT):: <i>COMPRESSION</i>
-      INTEGER(8),   INTENT(IN):: <i>DIM1</i>,<i>DIM2</i>,<i>DIM3</i> 
+      INTEGER(8),   INTENT(IN):: <i>DIM1</i>,<i>DIM2</i>,<i>DIM3</i>
       INTEGER(8),  INTENT(OUT):: <i>PADDING</i>
       INTEGER,      INTENT(IN):: <i>TAPIN</i>,<i>FCB_BYTES_IN_REC</i>
       INTEGER,   INTENT(INOUT):: <i>REC_IN_FILE</i>,<i>BYTE_IN_FILE</i>
@@ -7337,7 +7337,7 @@ size <i>FCB_BYTES_IN_REC</i> the precise location of the end of file may not be 
       INTEGER(8),   INTENT(IN):: <i>NELEM</i>
       INTEGER,      INTENT(IN):: <i>ELSIGN</i>
       INTEGER,     INTENT(OUT):: <i>COMPRESSION</i>
-      INTEGER(8),   INTENT(IN):: <i>DIM1</i>,<i>DIM2</i>,<i>DIM3</i> 
+      INTEGER(8),   INTENT(IN):: <i>DIM1</i>,<i>DIM2</i>,<i>DIM3</i>
       INTEGER(8),  INTENT(OUT):: <i>PADDING</i>
       INTEGER,      INTENT(IN):: <i>TAPIN</i>,<i>FCB_BYTES_IN_REC</i>
       INTEGER,   INTENT(INOUT):: <i>REC_IN_FILE</i>,<i>BYTE_IN_FILE</i>
@@ -7353,7 +7353,7 @@ FCB_READ_IMAGE_3D_I2 reads a 16-bit twos complement
 INTEGER(2) 3D image.  The function
 FCB_READ_IMAGE_3D_I4 reads a 32-bit twos complement
 INTEGER(4) 3D image.  In each case the image is compressed
-either by a BYTE_OFFSET algorithm by W. Kabsch based on a proposal 
+either by a BYTE_OFFSET algorithm by W. Kabsch based on a proposal
 by A. Hammersley or by a PACKED algorithm by J. P. Abrahams as
 used in CCP4, with modifications by P. Ellis and H. J. Bernstein.
 <P>The relevant function automatically first calls
@@ -7373,15 +7373,15 @@ with the values in MIME header.
 <TR><td valign="top">&nbsp;&nbsp;<i>DIM1</i><td valign="top">&nbsp;&nbsp;The INTEGER(8) value of the fastest dimension of <i>ARRAY</i>
 <TR><td valign="top">&nbsp;&nbsp;<i>DIM2</i><td valign="top">&nbsp;&nbsp;The INTEGER(8) value of the second fastest dimension
 <TR><td valign="top">&nbsp;&nbsp;<i>DIM3</i><td valign="top">&nbsp;&nbsp;The INTEGER(8) value of the third fastest dimension
-<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran 
+<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran
 device unit number assigned to image file.
 <TR><td valign="top">&nbsp;&nbsp;<i>FCB_BYTES_IN_REC</i><td valign="top">&nbsp;&nbsp;The INTEGER
 number of bytes in a record.
-<TR><td valign="top">&nbsp;&nbsp;<i>BYTE_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER byte 
+<TR><td valign="top">&nbsp;&nbsp;<i>BYTE_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER byte
 (counting from 1) of the byte to read.
-<TR><td valign="top">&nbsp;&nbsp;<i>REC_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER record 
+<TR><td valign="top">&nbsp;&nbsp;<i>REC_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER record
 number (counting from 1) of next record to read.
-<TR><td valign="top">&nbsp;&nbsp;<i>BUFFER</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of 
+<TR><td valign="top">&nbsp;&nbsp;<i>BUFFER</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of
 length <i>FCB_BYTES_IN_REC</i> to hold the appropriate record from <i>TAPIN</i>
 </TABLE>
 <p>
@@ -7423,19 +7423,19 @@ CR or LF is stored in <i>LINELEN</i>.
 <P>
 <b>ARGUMENTS</b><br />
 <TABLE>
-<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran 
+<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran
 device unit number assigned to image file.
 <TR><td valign="top">&nbsp;&nbsp;<i>LAST_CHAR</i><td valign="top">&nbsp;&nbsp;The INTEGER(1)
 byte holding the ASCII value of the last character read for each line read.
 <TR><td valign="top">&nbsp;&nbsp;<i>FCB_BYTES_IN_REC</i><td valign="top">&nbsp;&nbsp;The INTEGER
 number of bytes in a record.
-<TR><td valign="top">&nbsp;&nbsp;<i>BYTE_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER byte 
+<TR><td valign="top">&nbsp;&nbsp;<i>BYTE_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER byte
 (counting from 1) of the byte to read.
-<TR><td valign="top">&nbsp;&nbsp;<i>REC_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER record 
+<TR><td valign="top">&nbsp;&nbsp;<i>REC_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER record
 number (counting from 1) of next record to read.
-<TR><td valign="top">&nbsp;&nbsp;<i>BUFFER</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of 
+<TR><td valign="top">&nbsp;&nbsp;<i>BUFFER</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of
 length <i>FCB_BYTES_IN_REC</i> to hold the appropriate record from <i>TAPIN</i>.
-<TR><td valign="top">&nbsp;&nbsp;<i>LINE</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of 
+<TR><td valign="top">&nbsp;&nbsp;<i>LINE</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of
 length <i>N</i> to hold the line to be read from <i>TAPIN</i>.
 <TR><td valign="top">&nbsp;&nbsp;<i>N</i><td valign="top">&nbsp;&nbsp;The INTEGER dimension of
 <i>LINE</i>.
@@ -7470,7 +7470,7 @@ Returns 0 if the function is successful.
 The function FCB_READ_XDS_I2 read a 32-bit integer twos complement
 image into a 16-bit INTEGER(2) XDS image using the CBF_BYTE_OFFSET,
 CBF_PACKED or CBF_PACKED_V2 compressions for the 32-bit data.  The
-BYTE_OFFSET algorithm is a variant of the September 2006 version by 
+BYTE_OFFSET algorithm is a variant of the September 2006 version by
 W. Kabsch which was based on a suggestion by A. Hammersley and which
 was further modified by H. Bernstein.
 
@@ -7481,7 +7481,7 @@ XDS 16-bit integer image array <i>IFRAME</i> which is <i>NX</i> by <i>NY</i>.
 The dimensions must agree with the dimensions specified in MIME header.
 
 <P>
-The conversion from a 32-bit integer I32 to 16-bit XDS pixel I16 is 
+The conversion from a 32-bit integer I32 to 16-bit XDS pixel I16 is
 done as per W. Kabsch as follows:  The value I32 is limited to the range
 -1023 &le; I32 &le;  1048576.  If I32 is outside that range it is truncated
 to the closer boundary.  The generate I16, the 16-bit result, if I32 &gt;
@@ -7500,23 +7500,23 @@ The image file is closed after reading one image.
 <TABLE>
 <TR><td valign="top">&nbsp;&nbsp;<i>FILNAM</i><td valign="top">&nbsp;&nbsp;The
 character string name of the image file to be opened.
-<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran 
+<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran
 device unit number assigned to image file.
 <TR><td valign="top">&nbsp;&nbsp;<i>NX</i><td valign="top">&nbsp;&nbsp;The INTEGER fast
-dimension of the image array. 
+dimension of the image array.
 <TR><td valign="top">&nbsp;&nbsp;<i>NY</i><td valign="top">&nbsp;&nbsp;The INTEGER slow
-dimension of the image array. 
+dimension of the image array.
 <TR><td valign="top">&nbsp;&nbsp;<i>IFRAME</i><td valign="top">&nbsp;&nbsp;The INTEGER(2)
-XDS image array. 
+XDS image array.
 <TR><td valign="top">&nbsp;&nbsp;<i>JFRAME</i><td valign="top">&nbsp;&nbsp;The INTEGER(4)
-32-bit image scratch array needed for CBF_PACKED or CBF_PACKED_V2 images. 
+32-bit image scratch array needed for CBF_PACKED or CBF_PACKED_V2 images.
 </TABLE>
 <p>
 <b>RETURN VALUE</b>
 <p>
-Returns 0 if the function is successful, CBF_FORMAT (=1) if it cannot handle 
-this CBF format (not implemented), -1 if it cannot determine endian architecture 
-of this machine, -2: if it cannot open the image file, -3: if it finds the wrong image 
+Returns 0 if the function is successful, CBF_FORMAT (=1) if it cannot handle
+this CBF format (not implemented), -1 if it cannot determine endian architecture
+of this machine, -2: if it cannot open the image file, -3: if it finds the wrong image
 format and -4 if it cannot read the image.
 <P>
 <p><hr /><P>
@@ -7533,27 +7533,27 @@ format and -4 if it cannot read the image.
 				 LAST_CHAR
       END INTERFACE</pre>
 <P>
-The function FCB_SKIP_WHITESPACE skips forward on the current INTEGER(1) byte array 
-<i>LINE</i> of size <i>N</i> with valid data in <i>LINE</i>(1:<i>LINELEN</i>) from 
-the current position <i>ICUR</i> moving over MIME header whitespace and comments, 
+The function FCB_SKIP_WHITESPACE skips forward on the current INTEGER(1) byte array
+<i>LINE</i> of size <i>N</i> with valid data in <i>LINE</i>(1:<i>LINELEN</i>) from
+the current position <i>ICUR</i> moving over MIME header whitespace and comments,
 reading new lines into <i>LINE</i> if needed. The flag <i>FRESH_LINE</i> indicates that a fresh line
 should be read on entry.
 <p>
 <b>ARGUMENTS</b><br />
 <TABLE>
-<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran 
+<TR><td valign="top">&nbsp;&nbsp;<i>TAPIN</i><td valign="top">&nbsp;&nbsp;The INTEGER Fortran
 device unit number assigned to image file.
 <TR><td valign="top">&nbsp;&nbsp;<i>LAST_CHAR</i><td valign="top">&nbsp;&nbsp;The INTEGER(1)
 byte holding the ASCII value of the last character read for each line read.
 <TR><td valign="top">&nbsp;&nbsp;<i>FCB_BYTES_IN_REC</i><td valign="top">&nbsp;&nbsp;The INTEGER
 number of bytes in a record.
-<TR><td valign="top">&nbsp;&nbsp;<i>BYTE_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER byte 
+<TR><td valign="top">&nbsp;&nbsp;<i>BYTE_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER byte
 (counting from 1) of the byte to read.
-<TR><td valign="top">&nbsp;&nbsp;<i>REC_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER record 
+<TR><td valign="top">&nbsp;&nbsp;<i>REC_IN_FILE</i><td valign="top">&nbsp;&nbsp;The INTEGER record
 number (counting from 1) of next record to read.
-<TR><td valign="top">&nbsp;&nbsp;<i>BUFFER</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of 
+<TR><td valign="top">&nbsp;&nbsp;<i>BUFFER</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of
 length <i>FCB_BYTES_IN_REC</i> to hold the appropriate record from <i>TAPIN</i>.
-<TR><td valign="top">&nbsp;&nbsp;<i>LINE</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of 
+<TR><td valign="top">&nbsp;&nbsp;<i>LINE</i><td valign="top">&nbsp;&nbsp;The INTEGER(1) array of
 length <i>N</i> to hold the line to be read from <i>TAPIN</i>.
 <TR><td valign="top">&nbsp;&nbsp;<i>N</i><td valign="top">&nbsp;&nbsp;The INTEGER dimension of
 <i>LINE</i>.
@@ -7883,7 +7883,7 @@ Returns 0 if the function is successful.
 	this is the same as <code>C</code>'s <code>strcmp()</code>. The signature of the comparison functions used here
 	is:</p>
         <p>
-          <code>int compare 
+          <code>int compare
 	(const void * expected,
 	 const void * existing,
 	 size_t length,
@@ -12728,30 +12728,30 @@ the &quot;CBF-PACKED&quot; algorithm.
               The Content-Type may be any of the discrete types permitted
               in RFC 2045; 'application/octet-stream' is recommended.
               If an octet stream was compressed, the compression should
-              be specified by the parameter 
+              be specified by the parameter
                 'conversions=&quot;<b>X</b>-CBF_PACKED&quot;'
               or the parameter
                 'conversions=&quot;<b>X</b>-CBF_PACKED_V2&quot;'
-              or the parameter 
+              or the parameter
                 'conversions=&quot;<b>X</b>-CBF_CANONICAL&quot;'
-              or the parameter 
+              or the parameter
                 'conversions=&quot;<b>X</b>-CBF_BYTE_OFFSET&quot;'
               or the parameter
                 'conversions=&quot;<b>X</b>-CBF_NIBBLE_OFFSET&quot;'
 <P>
               If the parameter
                 'conversions=&quot;<b>X</b>-CBF_PACKED&quot;'
-              or 
+              or
                 'conversions=&quot;<b>X</b>-CBF_PACKED_V2&quot;'
               is given it may be further modified with the parameters
                 '&quot;uncorrelated_sections&quot;'
               or
                 '&quot;flat&quot;'
-<P>              
+<P>
               If the '&quot;uncorrelated_sections&quot;' parameter is
               given, each section will be compressed without using
               the prior section for averaging.
-              
+
               If the '&quot;flat&quot;' parameter is given, each the
               image will be treated as one long row.
 <P>
@@ -12815,7 +12815,7 @@ of the binary data than size checks alone can provide.
 <li>X-Binary-Size:
 <P>
               The &quot;X-Binary-Size&quot; header specifies the size of the
-              equivalent binary data in octets.  
+              equivalent binary data in octets.
               This is the size <b>after</b> any
 compressions, but before any ascii encodings.
 This is useful in making a simple check for a
@@ -12841,11 +12841,11 @@ same value as was given for &quot;_array_data.binary_id&quot;.
 <P>
 <li>X-Binary-Element-Byte-Order:
 <P>
-The &quot;X-Binary-Element-Byte-Order&quot; can specify either 
+The &quot;X-Binary-Element-Byte-Order&quot; can specify either
 '&quot;BIG_ENDIAN&quot;' or '&quot;LITTLE_ENDIAN&quot;' byte order
 of the image data.  CBFlib only writes '&quot;LITTLE_ENDIAN&quot;',
 and in general can only process LITTLE_ENDIAN
-even on machines that are BIG_ENDIAN. 
+even on machines that are BIG_ENDIAN.
 <P>
 
 <li>X-Binary-Number-of-Elements:
@@ -13032,7 +13032,7 @@ The binary characters serve specific purposes:
      and entropy-coding scheme based on the canonical-code algorithm
      described by Moffat, <i>et al</i>. (<i>International
      Journal of High Speed Electronics and Systems</i>, Vol 8, No 1 (1997)
-     179-231)), CBF_PACKED or CBF_PACKED_V2 for J. P. Abrahams CCP4-style 
+     179-231)), CBF_PACKED or CBF_PACKED_V2 for J. P. Abrahams CCP4-style
      packing schemes and CBF_BYTE_OFFSET
      for a simple byte_offset compression scheme..  Other
      compression schemes will be added to
@@ -13195,14 +13195,14 @@ The structure of the compressed data is:
 Starting with CBFlib 0.7.7, CBFlib supports three variations on CCP4-style
 compression:  the &quot;flat&quot; version supported in versions of
 CBFlib prior to release 0.7.7, as well as both version 1 and version 2
-of J. P. Abrahams &quot;pack_c&quot; compression.  
+of J. P. Abrahams &quot;pack_c&quot; compression.
 <P>
 The CBF_PACKED and CBF_PACKED_V2 compression and decompression code
 incorporated in CBFlib is derived in large part from the J. P. Abrahams
 pack_c.c compression code in CCP4.  This code is incorporated in
 CBFlib under the GPL and the LGPL with both the permission
-Jan Pieter Abrahams, the original author of pack_c.c (email from Jan Pieter 
-Abrahams of 15 January 2007) and of the CCP4 project (email from Martyn 
+Jan Pieter Abrahams, the original author of pack_c.c (email from Jan Pieter
+Abrahams of 15 January 2007) and of the CCP4 project (email from Martyn
 Winn on 12 January 2007).  The cooperation of J. P. Abrahams and
 of the CCP4 project is gratefully acknowledged.
 <P>
@@ -13283,36 +13283,36 @@ the image from the pool.  The details follow.
 After dealing with the special case of the first pixel,
 The algorithm uses an array of pointers, trail_char_data.
 The assignment of pixels to the pool to be averaged begins
-with trail_char_data[0] points to the pixel immediately prior 
-to the next pixel to be processed, either in the same row 
-(fastest index) or, at the end of the prior row if the next 
+with trail_char_data[0] points to the pixel immediately prior
+to the next pixel to be processed, either in the same row
+(fastest index) or, at the end of the prior row if the next
 data element to be processed is at the end of a row.  The
 location of the pixel pointed to by trail_char_data[0]
 is used to compute the locations of the other pixels
 in the pool.  It will be dropped from the pool before
-averaging if it is on the opposite side of the image. 
+averaging if it is on the opposite side of the image.
 The pool will consist of 1, 2, 4 or 8 pixels.
-<P>  
+<P>
 Assume ndim1, ndim2, ndim3 are the indices of the same
 pixel as trail_char_data[0] points to.  These indices
 are incremented to be the indices of the next pixel
 to be processed before populating trail_char_data.
-<P>   
+<P>
 On exit, trail_char_data[0 .. 7] will have been populated with
 pointers to the pixels to be used in forming the average.
 Pixels that will not be used will be set to NULL.   Note
-that trail_char_data[0] may be set to NULL.             
-<P>   
-If we mark the next element to be processed with a &quot;*&quot; 
-and the entries in trail_char_data with their array indices 
+that trail_char_data[0] may be set to NULL.
+<P>
+If we mark the next element to be processed with a &quot;*&quot;
+and the entries in trail_char_data with their array indices
 0 .. 7, the  possible patterns of settings in the general case are:
 <P>
     current section:
 <P>
 <PRE><TT>
-    
+
          - - - - 0 * - - - -
-         - - - - 3 2 1 - - - 
+         - - - - 3 2 1 - - -
          - - - - - - - - - -
 </TT>
 </PRE>
@@ -13320,14 +13320,14 @@ and the entries in trail_char_data with their array indices
     prior section:
 <P>
 <PRE><TT>
-    
+
          - - - - - 4 - - - -
-         - - - - 7 6 5 - - - 
+         - - - - 7 6 5 - - -
          - - - - - - - - - -
 </TT>
 </PRE>
-<P>             
-    If there is no prior section (i.e. ndim3 is 0, or 
+<P>
+    If there is no prior section (i.e. ndim3 is 0, or
     the CBF_UNCORRELATED_SECTIONS flag is set
     to indicate discontinuous sections), the values
     for trail_char_data[4 .. 7] will all be NULL.  When
@@ -13338,32 +13338,32 @@ and the entries in trail_char_data with their array indices
     its row to be directly below the next element to
     be processed.
 <P>
-    
+
     The first element of the first row of the first section
-    is a special case, with no averaging. 
+    is a special case, with no averaging.
 <P>
 
     In the first row of the first section (ndim2 == 0,
-    and ndim3 == 0), after the first element (ndim1 > 0), 
+    and ndim3 == 0), after the first element (ndim1 > 0),
     only trail_char_data[0] is used
 <P>
     current section:
 <P>
 <PRE><TT>
-        
+
          - - - - 0 * - - - -
 </TT>
 </PRE>
 <P>
 
     For subsequent rows of the first section (ndim2 > 0,
-    and ndim3 == 0), for the first element (ndim1 == 0), 
+    and ndim3 == 0), for the first element (ndim1 == 0),
     two elements from the prior row are used:
-<P>    
+<P>
     current section:
 <P>
 <PRE><TT>
-    
+
          * - - - - - - - - -
          2 1 - - - - - - - -
          - - - - - - - - - -
@@ -13371,37 +13371,37 @@ and the entries in trail_char_data with their array indices
 </PRE>
 <P>
     while for element after the first element, but before
-    the last element of the row, a full set of 4 elements 
+    the last element of the row, a full set of 4 elements
     is used:
- <P>  
+ <P>
     current section:
 <P>
 <PRE><TT>
-    
+
          - - - - 0 * - - - -
-         - - - - 3 2 1 - - - 
+         - - - - 3 2 1 - - -
          - - - - - - - - - -
 </TT>
 </PRE>
 <P>
-         
+
     For the last element of a row (ndim1 == dim1-1), two
     elements are used
 <P>
     current section:
 <P>
 <PRE><TT>
-   
+
          - - - - - - - - 0 *
-         - - - - - - - - - 2 
+         - - - - - - - - - 2
          - - - - - - - - - -
 </TT>
 </PRE>
 <P>
-         
+
     For sections after the first section, provided the
     CBF_UNCORRELATED_SECTIONS flag is not set in the compression,
-    for each non-NULL entry in trail_char_data [0..3] an entry 
+    for each non-NULL entry in trail_char_data [0..3] an entry
     is made in trail_char_data [4..7], except for the
     first element of the first row of a section.  In that
     case an entry is made in trail_char_data[4].
@@ -13442,25 +13442,25 @@ the first element of the next row.
 <p>
 The algorithm is simple and easily implemented.
 This algorithm can never achieve better than a factor of two compression
-relative to 16-bit raw data or 4 relative to 32-bit raw data, but for 
+relative to 16-bit raw data or 4 relative to 32-bit raw data, but for
 most diffraction data the compression will indeed be very close to
-these ideal values.  It also has the advantage that 
-integer values up to 32 bits (or 31 bits and sign) may be stored efficiently 
-without the need for special over-load tables. It is a fixed algorithm 
+these ideal values.  It also has the advantage that
+integer values up to 32 bits (or 31 bits and sign) may be stored efficiently
+without the need for special over-load tables. It is a fixed algorithm
 which does not need to calculate any image statistics, so is fast.
 <p>
 The algorithm works because of the following property of almost all
 diffraction data and much other image data: The value of one element
 tends to be close to the value of the adjacent elements, and the vast
 majority of the differences use little of the full dynamic range.
-However, noise in experimental data means that run-length encoding is 
+However, noise in experimental data means that run-length encoding is
 not useful (unless the image is separated into different bit-planes). If
 a variable length code is used to store the differences, with the number
 of bits used being inversely proportional to the probability of
-occurrence, then compression ratios of 2.5 to 3.0 may be achieved. 
-However, the optimum encoding becomes dependent of the exact properties 
-of the image, and in particular on the noise. Here a lower compression 
-ratio is achieved, but the resulting algorithm is much simpler and more 
+occurrence, then compression ratios of 2.5 to 3.0 may be achieved.
+However, the optimum encoding becomes dependent of the exact properties
+of the image, and in particular on the noise. Here a lower compression
+ratio is achieved, but the resulting algorithm is much simpler and more
 robust.
 <p>
 The &quot;byte_offset&quot; compression algorithm is the following:
@@ -13653,11 +13653,11 @@ The only difference is that we have declared this
 array to be 16-bit and have chosen a different
 binary id (2 instead of 1).  Even the checksum is the same.
 
-    
+
 <P>
 <H4><A NAME="3.3.4">3.3.4   Nibble_offset compression</A></H4>
 <p>
-    
+
 The nibble offset algorithm is a variant on
 A. P. Hammersley's byte offset algorithm.  The
 major differences are that the compression modes
@@ -13739,7 +13739,7 @@ two dibits and a nibble a0, a1, b:
 
 
 <h4><A NAME="3.4">3.4  Access to CBFlib compressions from HDF5</A></h4>
-    
+
 Starting with CBFlib release 0.9.2.11, a plugin module in provided
 to allow access to CBFlib compressions from HDF5 1.8.11 and later.
 For general documentation on HDF5 dynamically loaded filters,
@@ -13755,7 +13755,7 @@ The source and header of the CBFlib filter plugin are cbf_hdf5_filter.c
 and cbf_hdf5_filter.h.  To use the filter in C applications, you
 will need to include cbf_hdf5_filter.h in the application and have the cbflib.so
 library in the search path used by HDF5 1.8.11.  The HDF group says
-    
+
 <p>
 <blockquote>
 The default directory for an HDF5 filter plugin library is defined on
@@ -13779,7 +13779,7 @@ In order to write files that use this filter, several relevant values must
 first be stored into an unsigned int array, cd_values.  The header,
 cbf_hdf5_filter.h, defines the follwing symbolic values for the indices
 of this array:
-    
+
     <p>
     <center>
     <table border=2>
@@ -13839,7 +13839,7 @@ dimensions and create the properties to be used in creating a dataset, as in
 CBFlib should be built on a disk with at least 400 megabytes of free space.
 <A HREF="../CBFlib-0.9.2.11.tar.gz">CBFlib-0.9.2.11.tar.gz</A> is a "gzipped" tar of
 the code as it now stands.  Place the gzipped tar in the directory
-that is intended to contain a new directory, named 
+that is intended to contain a new directory, named
 CBFlib_0.9.2.11 (the &quot;top-level&quot; directory)
 and  uncompress it with gunzip and unpack it with tar:
 <p>
@@ -13848,10 +13848,10 @@ and  uncompress it with gunzip and unpack it with tar:
      tar xvf CBFLIB.tar
 </PRE>
 <p>
-As with prior releases, to run the test programs, you will also need 
+As with prior releases, to run the test programs, you will also need
 Paul Ellis's sample MAR345 image,
 example.mar2300, and
-Chris Nielsen's sample ADSC Quantum 315 image, 
+Chris Nielsen's sample ADSC Quantum 315 image,
 mb_LP_1_001.img as sample data.  Both these files will be
 extracted by the Makefile from CBFlib_0.7.7_Data_Files.  Do
 not download copies into the top level directory.
@@ -13967,7 +13967,7 @@ The FCBLIB source and m4 files are in the "src" and "m4" subdirectories.
 <TR><td valign="top">&nbsp;&nbsp;<td valign="top">&nbsp;&nbsp;<td valign="top">&nbsp;&nbsp;fcb_read_xds_i2.m4
                       <td valign="top">&nbsp;&nbsp;Function to read a single xds image.
 <TR><td valign="top">&nbsp;&nbsp;<td valign="top">&nbsp;&nbsp;<td valign="top">&nbsp;&nbsp;fcblib_defines.m4
-                      <td valign="top">&nbsp;&nbsp;General m4 macro file for FCBLIB routines. 
+                      <td valign="top">&nbsp;&nbsp;General m4 macro file for FCBLIB routines.
 </TABLE>
 <p>
 In the "examples" subdirectory, there are 2 additional files
@@ -14026,7 +14026,7 @@ as the image file and produces a complete CBF.  The program
 convert_minicbf reads a minimal CBF file with just and image
 and some lines of text specifying the parameters of the
 data collection as done at SLS and combines the result with
-a template to produce a full CBF.  The program cif2cbf can 
+a template to produce a full CBF.  The program cif2cbf can
 be used to convert among carious compression and encoding
 schemes.  The program sauter_test.C is a C++ test program
 contributed by Nick Sauter to help in resolving a memory
@@ -14136,109 +14136,109 @@ accepts either a CIF or a CBF as input instead of an image file:
 
   the options are:
 
-       the options are:                                                  
-                                                                         
-       -i input_cif (default: stdin)                                     
-         the input  file in CIF or CBF  format.  If input_cif is not     
-         specified or is given as "-", it is copied from stdin to a      
-         temporary file.                                                 
-                                                                         
-       -o output_cbf (default: stdout)                                   
-         the output cif (if base64 or quoted-printable encoding is used) 
-         or cbf (if no encoding is used).  if no output_cif is specified 
-         or is given as "-", the output is written to stdout             
-         if the output_cbf is /dev/null, no output is written.           
-                                                                         
-       -u update_cif (no default)                                        
-         and optional second input file in CIF or CBF format containing  
-         data blocks to be merged with data blocks from the primary      
-         input CIF or CBF                                                
-                                                                         
-       The remaining options specify the characteristics of the          
-       output cbf.  Most of the characteristics of the input cif are     
-       derived from context, except when modified by the -B, -S, -T, -v  
-       and -w flags.                                                     
-                                                                         
-       -b byte_order (forward or backwards, default forward (1234) on    
-         little-endian machines, backwards (4321) on big-endian machines 
-                                                                         
-       -B [no]read or liberal (default noread)                           
-         read to enable reading of DDLm style brackets                   
-         liberal to accept whitespace for commas                         
-                                                                         
-       -B [no]write (default write)                                      
-         write to enable writing of DDLm style brackets                  
-                                                                         
-       -c compression_scheme (Packed, Canonical, Byte_offset,            
-         V2packed, Flatpacked, nIbble or None,                           
-         default packed)                                                 
-                                                                         
-       -C highclipvalue                                                  
-         specifies a double precision value to which to clip the data    
-                                                                         
-       -d [no]digest or warndigest  (default md5 digest [R. Rivest,      
-         RFC 1321, April 1992 using"RSA Data Security, Inc. MD5          
-         Message-Digest Algorithm"] when MIME headers are selected)      
-                                                                         
-       -D test cbf_construct_detector                                    
-                                                                         
-       -e encoding (base64, k, quoted-printable or none, default base64) 
-         specifies one of the standard MIME encodings for an ascii cif   
-         or "none" for a binary cbf                                      
-                                                                         
-       -I 0 or integer element size                                      
-         specifies integer conversion of the data, 0 to use the input    
-         number of bytes, 2, 4 or 8 for short, long or long long         
-         output integers                                                 
-                                                                         
-       -L lowclipvalue                                                   
-         specifies a double precision value to cut off the data from     
-         below                                                           
-                                                                         
-       -m [no]headers (default headers)                                  
-         selects MIME (N. Freed, N. Borenstein, RFC 2045, November 1996) 
-         headers within binary data value text fields.                   
-                                                                         
-       -m [nod]imensions (default dimensions)                            
-         selects detailed recovery of dimensions from the input CIF      
-         for use in the MIME header of the output CIF                    
-                                                                         
-       -p K_of_padding (0, 1, 2, 4) for no padding after binary data     
-         1023, 2047 or 4095 bytes of padding after binary data           
-                                                                         
-       -R 0 or integer element size                                      
-         specifies real conversion of the data, 0 to use the input       
-         number of bytes,  4 or 8 for float or double output reals       
-                                                                         
-       -S [no]read or (default noread)                                   
-         read to enable reading of whitespace and comments               
-                                                                         
-       -S [no]write (default write)                                      
-         write to enable writing of whitespace and comments              
-                                                                         
-       -T [no]read or (default noread)                                   
-         read to enable reading of DDLm style triple quotes              
-                                                                         
-       -T [no]write (default write)                                      
-         write to enable writing of DDLm style triple quotes             
-                                                                         
-       -v dictionary specifies a dictionary to be used to validate       
-         the input cif and to apply aliases to the output cif.           
-         This option may be specified multiple times, with dictionaries  
-         layered in the order given.                                     
-                                                                         
-       -w process wide (2048 character) lines                            
-                                                                         
-       -W write wide (2048 character) lines                              
-                                                                         
-       -5 hdf5mode specifies whether to read and/or write in hdf5 mode   
-          the n parameter will cause the CIF H5 datablock to be deleted  
-          on both read and write, for both CIF, CBF and HDF5 files       
-                                                                         
-       -O when in -5 w (hdf5 write) mode, -O forces the use of opaque    
-          objects for CBF binaries                                       
-                                                                         
-                                                                         
+       the options are:
+
+       -i input_cif (default: stdin)
+         the input  file in CIF or CBF  format.  If input_cif is not
+         specified or is given as "-", it is copied from stdin to a
+         temporary file.
+
+       -o output_cbf (default: stdout)
+         the output cif (if base64 or quoted-printable encoding is used)
+         or cbf (if no encoding is used).  if no output_cif is specified
+         or is given as "-", the output is written to stdout
+         if the output_cbf is /dev/null, no output is written.
+
+       -u update_cif (no default)
+         and optional second input file in CIF or CBF format containing
+         data blocks to be merged with data blocks from the primary
+         input CIF or CBF
+
+       The remaining options specify the characteristics of the
+       output cbf.  Most of the characteristics of the input cif are
+       derived from context, except when modified by the -B, -S, -T, -v
+       and -w flags.
+
+       -b byte_order (forward or backwards, default forward (1234) on
+         little-endian machines, backwards (4321) on big-endian machines
+
+       -B [no]read or liberal (default noread)
+         read to enable reading of DDLm style brackets
+         liberal to accept whitespace for commas
+
+       -B [no]write (default write)
+         write to enable writing of DDLm style brackets
+
+       -c compression_scheme (Packed, Canonical, Byte_offset,
+         V2packed, Flatpacked, nIbble or None,
+         default packed)
+
+       -C highclipvalue
+         specifies a double precision value to which to clip the data
+
+       -d [no]digest or warndigest  (default md5 digest [R. Rivest,
+         RFC 1321, April 1992 using"RSA Data Security, Inc. MD5
+         Message-Digest Algorithm"] when MIME headers are selected)
+
+       -D test cbf_construct_detector
+
+       -e encoding (base64, k, quoted-printable or none, default base64)
+         specifies one of the standard MIME encodings for an ascii cif
+         or "none" for a binary cbf
+
+       -I 0 or integer element size
+         specifies integer conversion of the data, 0 to use the input
+         number of bytes, 2, 4 or 8 for short, long or long long
+         output integers
+
+       -L lowclipvalue
+         specifies a double precision value to cut off the data from
+         below
+
+       -m [no]headers (default headers)
+         selects MIME (N. Freed, N. Borenstein, RFC 2045, November 1996)
+         headers within binary data value text fields.
+
+       -m [nod]imensions (default dimensions)
+         selects detailed recovery of dimensions from the input CIF
+         for use in the MIME header of the output CIF
+
+       -p K_of_padding (0, 1, 2, 4) for no padding after binary data
+         1023, 2047 or 4095 bytes of padding after binary data
+
+       -R 0 or integer element size
+         specifies real conversion of the data, 0 to use the input
+         number of bytes,  4 or 8 for float or double output reals
+
+       -S [no]read or (default noread)
+         read to enable reading of whitespace and comments
+
+       -S [no]write (default write)
+         write to enable writing of whitespace and comments
+
+       -T [no]read or (default noread)
+         read to enable reading of DDLm style triple quotes
+
+       -T [no]write (default write)
+         write to enable writing of DDLm style triple quotes
+
+       -v dictionary specifies a dictionary to be used to validate
+         the input cif and to apply aliases to the output cif.
+         This option may be specified multiple times, with dictionaries
+         layered in the order given.
+
+       -w process wide (2048 character) lines
+
+       -W write wide (2048 character) lines
+
+       -5 hdf5mode specifies whether to read and/or write in hdf5 mode
+          the n parameter will cause the CIF H5 datablock to be deleted
+          on both read and write, for both CIF, CBF and HDF5 files
+
+       -O when in -5 w (hdf5 write) mode, -O forces the use of opaque
+          objects for CBF binaries
+
+
 
 </pre>
 <p>
@@ -14434,7 +14434,7 @@ as in:
 <P>
 In order to compile these programs correctly for the G95 compiler
 it is important to set the record size for reading to be no larger
-than the padding after binary images.  This in controlled in 
+than the padding after binary images.  This in controlled in
 Makefile by the line
 
 M4FLAGS = -Dfcb_bytes_in_rec=131072
@@ -14514,14 +14514,14 @@ and an xxx_xds.cbf with unclipped values for processing:
   tiff2cbf xxx.tif xxx.cbf
   cif2cbf -I 4 -C 100. -L 0. -e n -c b -i xxx.cbf -o xxx_view.cbf
   cif2cbf -I 4 -e n -c b -i xxx.cbf -o xxx_xds.cbf
-  
+
 </pre>
 <p>
-  
+
   <h4>minicbf2nexus</h4>
   <p>This program takes some minicbf files describing a single scan and
-      axis configuration settings for them and creates a nexus file containing 
-      the same data. As this is an early version of the program it lacks a lot 
+      axis configuration settings for them and creates a nexus file containing
+      the same data. As this is an early version of the program it lacks a lot
 of useful functionality and should not be assumed to be stable.</p>
   <p>It currently takes several command line arguments:</p>
   <ul>
@@ -14580,7 +14580,7 @@ of useful functionality and should not be assumed to be stable.</p>
   -o minicbf.h5</code>
   <p>Where test files 1, 4 &amp; 5 are each single-image miniCBF files and test file 2 &amp; 3 is created by 'cat'ing together
   two single-image miniCBF files</p>
-  
+
   <p>The config file used for this example is:</p>
   <pre><code><span class="comment"># some sample config settings for a miniCBF file</span>
 
@@ -14599,7 +14599,7 @@ CBF_axis_omega vector [0 0 0]
 	<p>The <code>Sample</code> keyword is used to define a dependency for the sample being scanned and should be followed by a <code>depends-on</code> declaration which defines the name of the nexus axis that the sample depends on.</p>
 	<p>The final line of the config file should be blank to allow for some simple integrity tests.</p>
 	<p>A continuous chain of dependencies should be formed from the sample to the nexus coordinate system, otherwise there is insufficient information available to properly describe the orientation of the sample. This will be enforced in later versions, with a fatal error if insufficient information is provided.</p>
-	
+
 	<h4>cbf2nexus</h4>
 	<p>This program takes some CBF files describing a single scan and converts them to a single NeXus file containing
 	the same data.  It can also be used to merge a CBF file into an existing NeXus file.</p>
@@ -14636,7 +14636,7 @@ CBF_axis_omega vector [0 0 0]
 	<li>
 		<p><code>-u</code><br/>
 		<code>--update</code><br/>
-		This take a single argument which is used as the filename for an existing nexus file, to which the nexus 
+		This take a single argument which is used as the filename for an existing nexus file, to which the nexus
 		translation of the input file will be added.  This is a direct change in the specified file.  It is not
 		making a copy first.
 	<li>
@@ -14671,11 +14671,11 @@ CBF_axis_omega vector [0 0 0]
 			<p>Other arguments are interpreted as file names identifying the CBF files to be packed into the new NeXus file.</p>
 		</li>
   </ul>
-	
+
   <p>An example, from the test scripts, is:</p>
   <code>cbf2nexus -c zlib adscconverted.cbf adscconverted.cbf -o cbf.zlib.h5</code>
   <p>This creates a single NeXus file containing two copies of the 'adscconverted' CBF file.</p>
-  
+
 	<h4>nexus2cbf</h4>
 	<p>This program converts a single frame of data from a nexus file to a cbf file with a given name. The primary purpose of this program
 	is to help verify that data can be recovered after being converted to NeXus format, to check that it hasn't been lost or mangled.</p>
@@ -14712,15 +14712,15 @@ CBF_axis_omega vector [0 0 0]
 			<p>The remaining argument(s) should be the file name of the NeXus file that is to be converted.</p>
 		</li>
 	</ul>
-  
+
   <h4>testhdf5</h4>
   <p>This program runs a set of unit tests on the <a href="#2.6">HDF5 abstraction layer</a>. These are designed to ensure everything is working correctly, to help locate bugs and prevent regressions. A short summary will be printed detailing the number of tests passed, the number of tests failed and the number of components skipped. If any tests fail or are skipped then some additional output should be produced to help identify the cause of the error so that it is easier to fix.</p>
   <p>The program does not take any command-line arguments, and creates a file called <code>testfile.h5</code> in its working directory for use in the tests.</p>
-  
+
   <h4>testulp</h4>
   <p>This program runs a set of unit tests on the ULP comparison functions. These are designed to ensure everything is working correctly, to help locate bugs and prevent regressions. A short summary will be printed detailing the number of tests passed, the number of tests failed and the number of components skipped. If any tests fail or are skipped then some additional output should be produced to help identify the cause of the error so that it is easier to fix.</p>
   <p>The program does not take any command-line arguments.</p>
-  
+
 
   <hr />
 
@@ -14733,7 +14733,7 @@ Contact:
       var name = "yaya@";
       var domain = "bernstein-plus-sons";
       var domext = ".com";
-      document.write ("<a href=\"mailto:" + name + domain + domext + "\">" + name + " <b>at</b> " + domain + " <b>dot</b> "+  domext+"</a>"); 
+      document.write ("<a href=\"mailto:" + name + domain + domext + "\">" + name + " <b>at</b> " + domain + " <b>dot</b> "+  domext+"</a>");
 // -->
 </script>
 <noscript>
